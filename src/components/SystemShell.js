@@ -7,6 +7,7 @@ import sofieCore from "../core/SofieCore";
 import navigationConfig from "../config/navigation";
 import { SofieContext } from "../context/SofieContext";
 import GlobalSearch from "./GlobalSearch";
+import RegionSelector from "./RegionSelector";
 
 const SystemShell = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -107,6 +108,11 @@ const SystemShell = ({ children }) => {
               <span className="hidden md:inline">Search</span>
               <span className="hidden lg:inline text-xs text-gray-500">Ctrl+K</span>
             </button>
+
+            {/* Region Selector */}
+            <div className="hidden lg:flex">
+              <RegionSelector />
+            </div>
             
             <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-600">
               <button
