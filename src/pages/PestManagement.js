@@ -1,7 +1,8 @@
-// src/pages/PestManagement.js
+// src/pages/PestManagement.js - Glassmorphic Food Domain (Green/Lime)
 
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
+import { GlassCard, GlassButton, GlassSection, GlassContainer, GlassGrid } from "../theme/GlassmorphismTheme";
 
 const PestManagement = () => {
   const [pestService, setPestService] = useState(null);
@@ -28,19 +29,19 @@ const PestManagement = () => {
 
   const getZoneColor = (zone) => {
     const colors = {
-      tropical: "text-red-600",
-      subtropical: "text-orange-600",
-      temperate: "text-green-600",
-      boreal: "text-blue-600",
-      arid: "text-yellow-600",
+      tropical: "text-red-600 dark:text-red-400",
+      subtropical: "text-orange-600 dark:text-orange-400",
+      temperate: "text-green-600 dark:text-green-400",
+      boreal: "text-blue-600 dark:text-blue-400",
+      arid: "text-yellow-600 dark:text-yellow-400",
     };
-    return colors[zone] || "text-gray-600";
+    return colors[zone] || "text-gray-600 dark:text-gray-400";
   };
 
   const getRiskColor = (score) => {
-    if (score >= 75) return "bg-red-100 text-red-800 border-red-300";
-    if (score >= 50) return "bg-yellow-100 text-yellow-800 border-yellow-300";
-    return "bg-green-100 text-green-800 border-green-300";
+    if (score >= 75) return "bg-red-500/30 dark:bg-red-700/40 border-red-500/50 dark:border-red-600/50 text-red-800 dark:text-red-300";
+    if (score >= 50) return "bg-yellow-500/30 dark:bg-yellow-700/40 border-yellow-500/50 dark:border-yellow-600/50 text-yellow-800 dark:text-yellow-300";
+    return "bg-green-500/30 dark:bg-green-700/40 border-green-500/50 dark:border-green-600/50 text-green-800 dark:text-green-300";
   };
 
   const getRiskLabel = (score) => {
@@ -49,374 +50,226 @@ const PestManagement = () => {
     return "✓ LOW RISK";
   };
 
-  const currentRiskAssessment = pestService?.getRiskAssessment(selectedZone, selectedMonth);
-
   if (!pestService) {
-    return <div className="text-center py-12"><p className="text-gray-500">Loading pest management...</p></div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-lime-50 dark:from-gray-950 dark:via-gray-900 dark:to-green-950">
+        <p className="text-gray-600 dark:text-gray-400 text-lg">Loading pest management system...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold mb-2">🛡️ Integrated Pest Management</h1>
-        <p className="text-green-100">
-          Regional pest profiles, prevention strategies, and treatment tracking for sustainable production
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-lime-50 dark:from-gray-950 dark:via-gray-900 dark:to-green-950 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <GlassSection colors={{ primary: "green", secondary: "lime" }} elevation="high">
+          <div className="py-12 px-8">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-green-600 to-lime-600 bg-clip-text text-transparent">
+              🦗 Pest Management & Prevention
+            </h1>
+            <p className="text-lg text-green-700 dark:text-green-200 max-w-2xl">
+              Monitor pest alerts and risks across climate zones with integrated pest control strategies
+            </p>
+          </div>
+        </GlassSection>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-red-600">
-          <div className="text-sm text-gray-600">Active Alerts</div>
-          <div className="text-2xl font-bold text-red-700">{activeAlerts.length}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-yellow-600">
-          <div className="text-sm text-gray-600">Zones Monitored</div>
-          <div className="text-2xl font-bold text-yellow-700">{zones.length}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-600">
-          <div className="text-sm text-gray-600">Treatments Logged</div>
-          <div className="text-2xl font-bold text-green-700">{treatments.length}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-600">
-          <div className="text-sm text-gray-600">Prevention Strategies</div>
-          <div className="text-2xl font-bold text-blue-700">6+</div>
-        </div>
-      </div>
-
-      {/* Alert Banner */}
-      {activeAlerts.length > 0 && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
-          <h3 className="font-bold text-red-800 mb-2">🔔 Active Pest Alerts</h3>
-          <p className="text-red-700 text-sm">{activeAlerts.length} pest alert(s) require attention. Review each zone's risk assessment below.</p>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="flex flex-wrap border-b">
-          {["alerts", "risk-assessment", "prevention", "treatments"].map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 font-medium capitalize ${
-                activeTab === tab
-                  ? "bg-green-600 text-white border-b-2 border-green-600"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {tab === "risk-assessment" ? "Risk Assessment" : tab === "prevention" ? "Prevention" : tab}
-            </button>
-          ))}
-        </div>
-
-        <div className="p-6">
-          {/* Active Alerts Tab */}
-          {activeTab === "alerts" && (
-            <div>
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Active Pest Alerts</h3>
-              
-              {activeAlerts.length === 0 ? (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-                  <p className="text-green-700 text-lg">✓ No active pest alerts</p>
-                  <p className="text-sm text-green-600 mt-2">Your systems are operating optimally</p>
-                </div>
-              ) : (
-                <div className="grid gap-4">
-                  {activeAlerts.map(alert => (
-                    <div 
-                      key={alert.id}
-                      className={`border-l-4 rounded-lg p-4 ${
-                        alert.severity === 'high' ? 'bg-red-50 border-red-500' :
-                        alert.severity === 'medium' ? 'bg-yellow-50 border-yellow-500' :
-                        'bg-blue-50 border-blue-500'
+        {/* Zone and Month Selection */}
+        <GlassCard colors={{ primary: "green", secondary: "lime" }}>
+          <div className="p-8">
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Filter by Zone & Month</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">Select Zone:</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {zones.map(zone => (
+                    <button
+                      key={zone}
+                      onClick={() => setSelectedZone(zone)}
+                      className={`py-3 px-4 rounded-lg font-medium capitalize transition-all duration-200 ${
+                        selectedZone === zone
+                          ? "bg-gradient-to-b from-green-400/40 to-green-300/20 dark:from-green-600/50 dark:to-green-700/30 text-green-700 dark:text-green-300 border-2 border-green-500 dark:border-green-400"
+                          : "bg-white/20 dark:bg-gray-700/30 text-gray-700 dark:text-gray-300 hover:bg-green-200/10 dark:hover:bg-green-700/10 border-2 border-transparent"
                       }`}
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-bold text-lg">{alert.pestName}</h4>
-                          <p className="text-sm text-gray-600">Zone: <span className="font-semibold capitalize">{alert.zone}</span> | Crop: {alert.cropId}</p>
-                        </div>
-                        <span className={`text-xs font-bold px-3 py-1 rounded capitalize ${
-                          alert.severity === 'high' ? 'bg-red-200 text-red-800' :
-                          alert.severity === 'medium' ? 'bg-yellow-200 text-yellow-800' :
-                          'bg-blue-200 text-blue-800'
-                        }`}>
-                          {alert.severity}
-                        </span>
-                      </div>
-
-                      {alert.recommendations && alert.recommendations.length > 0 && (
-                        <div className="bg-white bg-opacity-60 rounded p-3 mb-3">
-                          <p className="text-sm font-semibold text-gray-700 mb-2">Recommended Actions:</p>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            {alert.recommendations.map((rec, idx) => (
-                              <li key={idx} className="flex items-start">
-                                <span className="mr-2">→</span>
-                                <span>{rec}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {alert.prevention && (
-                        <div className="bg-white bg-opacity-60 rounded p-3 mt-3 text-xs">
-                          <p className="font-semibold text-gray-700 mb-2">Prevention Strategies:</p>
-                          <div className="grid md:grid-cols-3 gap-3">
-                            {alert.prevention.preventative && (
-                              <div>
-                                <p className="font-semibold text-gray-600 mb-1">Preventative</p>
-                                <ul className="space-y-1 text-gray-600">
-                                  {alert.prevention.preventative.slice(0, 2).map((p, idx) => (
-                                    <li key={idx} className="text-xs">• {p}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                            {alert.prevention.organic && (
-                              <div>
-                                <p className="font-semibold text-gray-600 mb-1">Organic</p>
-                                <ul className="space-y-1 text-gray-600">
-                                  {alert.prevention.organic.slice(0, 2).map((o, idx) => (
-                                    <li key={idx} className="text-xs">• {o}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                            {alert.prevention.ipm && (
-                              <div>
-                                <p className="font-semibold text-gray-600 mb-1">IPM Tactics</p>
-                                <ul className="space-y-1 text-gray-600">
-                                  {alert.prevention.ipm.slice(0, 2).map((i, idx) => (
-                                    <li key={idx} className="text-xs">• {i}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                      {zone}
+                    </button>
                   ))}
                 </div>
-              )}
-            </div>
-          )}
-
-          {/* Risk Assessment Tab */}
-          {activeTab === "risk-assessment" && (
-            <div>
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Regional Risk Assessment</h3>
-
-              <div className="grid md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Climate Zone:</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {zones.map(zone => (
-                      <button
-                        key={zone}
-                        onClick={() => setSelectedZone(zone)}
-                        className={`py-2 px-3 rounded text-sm font-medium capitalize transition ${
-                          selectedZone === zone
-                            ? "bg-green-600 text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        {zone}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Month:</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {months.map((month, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setSelectedMonth(idx + 1)}
-                        className={`py-2 px-2 rounded text-xs font-medium transition ${
-                          selectedMonth === idx + 1
-                            ? "bg-green-600 text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        {month}
-                      </button>
-                    ))}
-                  </div>
+              </div>
+              <div>
+                <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">Select Month:</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {months.map((month, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedMonth(idx + 1)}
+                      className={`py-3 px-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                        selectedMonth === idx + 1
+                          ? "bg-gradient-to-b from-green-400/40 to-green-300/20 dark:from-green-600/50 dark:to-green-700/30 text-green-700 dark:text-green-300 border-2 border-green-500 dark:border-green-400"
+                          : "bg-white/20 dark:bg-gray-700/30 text-gray-700 dark:text-gray-300 hover:bg-green-200/10 dark:hover:bg-green-700/10 border-2 border-transparent"
+                      }`}
+                    >
+                      {month}
+                    </button>
+                  ))}
                 </div>
               </div>
+            </div>
+          </div>
+        </GlassCard>
 
-              {currentRiskAssessment && (
-                <div className={`${getRiskColor(currentRiskAssessment.overallRisk)} border rounded-lg p-6 mb-4`}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-2xl font-bold">{getRiskLabel(currentRiskAssessment.overallRisk)}</h4>
-                      <p className="text-sm mt-1 capitalize">{currentRiskAssessment.zone} - {months[currentRiskAssessment.month - 1]}</p>
-                    </div>
-                    <div className="text-4xl font-bold opacity-50">{currentRiskAssessment.overallRisk}/100</div>
-                  </div>
+        {/* Tabs */}
+        <GlassSection colors={{ primary: "green", secondary: "lime" }}>
+          <div>
+            <div className="flex flex-wrap border-b border-green-300/30 dark:border-green-700/30 backdrop-blur-sm overflow-x-auto">
+              {["alerts", "risks", "treatments"].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-8 py-4 font-medium capitalize text-lg transition-all duration-200 whitespace-nowrap ${
+                    activeTab === tab
+                      ? "bg-gradient-to-b from-green-400/40 to-green-300/20 dark:from-green-600/50 dark:to-green-700/30 text-green-700 dark:text-green-300 border-b-2 border-green-600 dark:border-green-400"
+                      : "text-gray-700 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-300 hover:bg-green-200/10 dark:hover:bg-green-700/10"
+                  }`}
+                >
+                  {tab === "alerts" && "🚨"}
+                  {tab === "risks" && "📊"}
+                  {tab === "treatments" && "💊"}
+                  {" " + tab}
+                </button>
+              ))}
+            </div>
 
-                  <div className="mt-4">
-                    <div className="w-full bg-gray-400 rounded-full h-3 overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-300 ${
-                          currentRiskAssessment.overallRisk >= 75 ? 'bg-red-500' :
-                          currentRiskAssessment.overallRisk >= 50 ? 'bg-yellow-500' :
-                          'bg-green-500'
-                        }`}
-                        style={{ width: `${currentRiskAssessment.overallRisk}%` }}
-                      ></div>
+            <div className="p-8">
+              {/* Alerts Tab */}
+              {activeTab === "alerts" && (
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Active Pest Alerts</h3>
+                  {activeAlerts.length > 0 ? (
+                    <div className="grid gap-5">
+                      {activeAlerts.map((alert, idx) => (
+                        <GlassCard key={idx} colors={{ primary: "red", secondary: "pink" }}>
+                          <div className="p-8 border-l-4 border-red-500 dark:border-red-400">
+                            <div className="flex justify-between items-start mb-4">
+                              <h4 className="text-2xl font-bold text-gray-800 dark:text-white">{alert.pest}</h4>
+                              <span className="text-3xl">{alert.emoji || "🐛"}</span>
+                            </div>
+                            <p className="text-base text-gray-700 dark:text-gray-300 mb-4">{alert.description}</p>
+                            <div className="grid md:grid-cols-3 gap-4">
+                              <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Severity</p>
+                                <p className="text-2xl font-bold text-red-700 dark:text-red-400">{alert.severity}/10</p>
+                              </div>
+                              <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Affected Crops</p>
+                                <p className="text-lg font-bold text-gray-800 dark:text-white">{alert.affectedCrops?.length || 0} crops</p>
+                              </div>
+                              <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Days Since Detected</p>
+                                <p className="text-2xl font-bold text-gray-800 dark:text-white">{alert.daysSinceDetected || 0}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </GlassCard>
+                      ))}
                     </div>
-                  </div>
+                  ) : (
+                    <GlassCard colors={{ primary: "green", secondary: "lime" }}>
+                      <div className="p-8 text-center">
+                        <p className="text-lg text-green-700 dark:text-green-300">✓ No active pest alerts. Conditions are optimal!</p>
+                      </div>
+                    </GlassCard>
+                  )}
                 </div>
               )}
 
-              {currentRiskAssessment?.activeThreats && currentRiskAssessment.activeThreats.length > 0 && (
-                <div>
-                  <h4 className="font-bold text-gray-800 mb-3">🚨 Active Threats</h4>
-                  <div className="grid gap-2">
-                    {currentRiskAssessment.activeThreats.map((pest, idx) => (
-                      <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-3">
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-gray-800">{pest.name}</span>
-                          <div className="flex items-center gap-2">
-                            <div className="text-xs font-bold px-2 py-1 rounded bg-gray-200">
-                              Severity: {pest.severity}/10
+              {/* Risk Assessment Tab */}
+              {activeTab === "risks" && (
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Pest Risk Assessment</h3>
+                  <GlassGrid cols={1} colsMd={2} gap={5}>
+                    {riskAssessments.length > 0 && riskAssessments.map((risk, idx) => (
+                      <GlassCard key={idx} colors={{ primary: "green", secondary: "lime" }}>
+                        <div className="p-8">
+                          <div className="flex justify-between items-start mb-4">
+                            <h4 className="text-xl font-bold text-gray-800 dark:text-white">{risk.pest || "Unknown Pest"}</h4>
+                            <span className={`px-4 py-2 rounded-lg font-bold text-sm border backdrop-blur-sm ${getRiskColor(risk.riskScore || 0)}`}>
+                              {getRiskLabel(risk.riskScore || 0)}
+                            </span>
+                          </div>
+                          <div className="mb-6">
+                            <div className="flex justify-between mb-2">
+                              <p className="font-semibold text-gray-700 dark:text-gray-300">Risk Score</p>
+                              <p className="text-xl font-bold text-gray-800 dark:text-white">{risk.riskScore || 0}/100</p>
                             </div>
-                            <div className="w-20 bg-gray-300 rounded-full h-2">
-                              <div 
-                                className={`h-full rounded-full ${
-                                  pest.severity >= 8 ? 'bg-red-500' :
-                                  pest.severity >= 6 ? 'bg-yellow-500' :
-                                  'bg-orange-500'
+                            <div className="bg-gray-300 dark:bg-gray-600 rounded-full h-4 overflow-hidden">
+                              <div
+                                className={`h-4 rounded-full transition-all duration-300 ${
+                                  (risk.riskScore || 0) >= 75
+                                    ? "bg-gradient-to-r from-red-400 to-red-500 dark:from-red-500 dark:to-red-600"
+                                    : (risk.riskScore || 0) >= 50
+                                    ? "bg-gradient-to-r from-yellow-400 to-amber-500 dark:from-yellow-500 dark:to-amber-600"
+                                    : "bg-gradient-to-r from-green-400 to-emerald-500 dark:from-green-500 dark:to-emerald-600"
                                 }`}
-                                style={{ width: `${pest.severity * 10}%` }}
+                                style={{ width: `${risk.riskScore || 0}%` }}
                               ></div>
                             </div>
                           </div>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{risk.description || "Risk assessment data pending"}</p>
                         </div>
-                        <p className="text-xs text-gray-600 mt-2">
-                          Affects: {pest.affectedCrops?.join(", ") || "multiple crops"}
-                        </p>
-                      </div>
+                      </GlassCard>
                     ))}
-                  </div>
+                  </GlassGrid>
                 </div>
               )}
 
-              {currentRiskAssessment?.recommendations && currentRiskAssessment.recommendations.length > 0 && (
-                <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-bold text-blue-800 mb-3">💡 Recommendations</h4>
-                  <ul className="space-y-2">
-                    {currentRiskAssessment.recommendations.map((rec, idx) => (
-                      <li key={idx} className="flex items-start text-sm text-blue-700">
-                        <span className="mr-3 font-bold">→</span>
-                        <div>
-                          <p className="font-semibold">{rec.message}</p>
-                          <p className="text-xs text-blue-600 mt-1">{rec.action}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Prevention Tab */}
-          {activeTab === "prevention" && (
-            <div>
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Prevention Strategies by Pest</h3>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                {Object.entries(pestService.getPreventionStrategies() || {}).map(([pestName, strategies]) => (
-                  <div key={pestName} className="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-gray-50 to-white">
-                    <h4 className="font-bold text-gray-800 mb-3">{pestName}</h4>
-                    
-                    {strategies.preventative && (
-                      <div className="mb-3">
-                        <p className="text-xs font-semibold text-gray-600 mb-2">🛡️ PREVENTATIVE</p>
-                        <ul className="text-xs text-gray-700 space-y-1">
-                          {strategies.preventative.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <span className="mr-2">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {strategies.organic && (
-                      <div className="mb-3">
-                        <p className="text-xs font-semibold text-gray-600 mb-2">🌿 ORGANIC TREATMENTS</p>
-                        <ul className="text-xs text-gray-700 space-y-1">
-                          {strategies.organic.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <span className="mr-2">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {strategies.ipm && (
-                      <div>
-                        <p className="text-xs font-semibold text-gray-600 mb-2">🔄 IPM TACTICS</p>
-                        <ul className="text-xs text-gray-700 space-y-1">
-                          {strategies.ipm.map((item, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <span className="mr-2">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Treatments Tab */}
-          {activeTab === "treatments" && (
-            <div>
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Treatment History</h3>
-
-              {treatments.length === 0 ? (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                  <p className="text-gray-600">No treatments logged yet</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {treatments.map(treatment => (
-                    <div key={treatment.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-bold text-gray-800">{treatment.pestName}</h4>
-                          <p className="text-xs text-gray-600">Crop: {treatment.cropId} | Treatment: {treatment.treatment}</p>
-                        </div>
-                        <span className="text-xs text-gray-500">{new Date(treatment.date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="bg-white rounded p-2 text-sm">
-                        <p className="text-gray-700">
-                          <strong>Effectiveness:</strong> {treatment.effectiveness}% 
-                          {treatment.notes && <span> - {treatment.notes}</span>}
-                        </p>
-                      </div>
+              {/* Treatments Tab */}
+              {activeTab === "treatments" && (
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Integrated Pest Management (IPM)</h3>
+                  {treatments.length > 0 ? (
+                    <div className="grid gap-5">
+                      {treatments.map((treatment, idx) => (
+                        <GlassCard key={idx} colors={{ primary: "green", secondary: "emerald" }}>
+                          <div className="p-8">
+                            <div className="flex justify-between items-start mb-4">
+                              <div>
+                                <h4 className="text-2xl font-bold text-gray-800 dark:text-white">{treatment.name || "Treatment Method"}</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Type: {treatment.type || "N/A"}</p>
+                              </div>
+                              <span className="text-3xl">{treatment.emoji || "🌿"}</span>
+                            </div>
+                            <p className="text-base text-gray-700 dark:text-gray-300 mb-6">{treatment.description || ""}</p>
+                            <div className="grid md:grid-cols-3 gap-4">
+                              <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Effectiveness</p>
+                                <p className="text-2xl font-bold text-green-700 dark:text-green-400">{treatment.effectiveness || 0}%</p>
+                              </div>
+                              <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Cost</p>
+                                <p className="text-lg font-bold text-gray-800 dark:text-white">{treatment.costLevel || "Medium"}</p>
+                              </div>
+                              <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">Application Freq</p>
+                                <p className="text-lg font-bold text-gray-800 dark:text-white">{treatment.frequency || "As needed"}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </GlassCard>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <GlassCard colors={{ primary: "green", secondary: "lime" }}>
+                      <div className="p-8 text-center">
+                        <p className="text-lg text-green-700 dark:text-green-300">📚 Treatment methods and recommendations will appear here</p>
+                      </div>
+                    </GlassCard>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        </GlassSection>
       </div>
     </div>
   );

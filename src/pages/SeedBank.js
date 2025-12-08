@@ -1,316 +1,213 @@
-// src/pages/SeedBank.js
+// src/pages/SeedBank.js - Glassmorphic Food Domain (Green/Olive)
 
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
+import { GlassCard, GlassButton, GlassSection, GlassContainer, GlassGrid } from "../theme/GlassmorphismTheme";
 
 const SeedBank = () => {
   const [seedService, setSeedService] = useState(null);
-  const [inventory, setInventory] = useState([]);
-  const [checkouts, setCheckouts] = useState([]);
-  const [network, setNetwork] = useState([]);
-  const [metrics, setMetrics] = useState(null);
-  const [selectedTab, setSelectedTab] = useState("inventory");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [inventory, setInventory] = useState({});
+  const [selectedCategory, setSelectedCategory] = useState("vegetables");
+  const [activeTab, setActiveTab] = useState("inventory");
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const service = sofieCore.getService("seedBank");
     setSeedService(service);
     
     if (service) {
-      setInventory(service.getSeedInventory());
-      setCheckouts(service.getCheckouts());
-      setNetwork(service.getSeedExchangeNetwork());
-      setMetrics(service.getMetrics());
+      if (service.getInventory) {
+        setInventory(service.getInventory());
+      }
+      if (service.getCategories) {
+        const cats = service.getCategories();
+        setCategories(Array.isArray(cats) ? cats : Object.keys(cats || {}));
+      } else {
+        setCategories(["vegetables", "herbs", "microgreens", "fruits", "legumes"]);
+      }
     }
   }, []);
 
-  const categories = seedService?.getCategories() || [];
-  const lowStock = seedService?.getLowStockSeeds() || [];
-  const expiringSoon = seedService?.getExpiringSeeds(18) || [];
+  const currentInventory = inventory[selectedCategory] || [];
+  const totalSeeds = Object.values(inventory).reduce((sum, cat) => sum + (Array.isArray(cat) ? cat.length : 0), 0);
+  const availableSeeds = currentInventory.filter((seed) => seed.available !== false).length;
 
-  const filteredInventory = selectedCategory === "all" 
-    ? inventory 
-    : inventory.filter(s => s.category === selectedCategory);
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "available": return "bg-green-100 text-green-800";
-      case "low-stock": return "bg-yellow-100 text-yellow-800";
-      case "out-of-stock": return "bg-red-100 text-red-800";
-      case "active": return "bg-blue-100 text-blue-800";
-      case "returned": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
+  const getHealthColor = (viability) => {
+    if (viability >= 90) return "bg-green-500/30 dark:bg-green-700/40 border-green-500/50 dark:border-green-600/50 text-green-800 dark:text-green-300";
+    if (viability >= 70) return "bg-yellow-500/30 dark:bg-yellow-700/40 border-yellow-500/50 dark:border-yellow-600/50 text-yellow-800 dark:text-yellow-300";
+    return "bg-red-500/30 dark:bg-red-700/40 border-red-500/50 dark:border-red-600/50 text-red-800 dark:text-red-300";
   };
 
-  if (!seedService || !metrics) {
-    return <div className="text-center py-12"><p className="text-gray-500">Loading seed bank...</p></div>;
+  if (!seedService) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-yellow-50 dark:from-gray-950 dark:via-gray-900 dark:to-green-950">
+        <p className="text-gray-600 dark:text-gray-400 text-lg">Loading seed bank...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold mb-2">🌱 Community Seed Bank</h1>
-        <p className="text-green-100">
-          Preserving biodiversity and food sovereignty through community seed sharing
-        </p>
-      </div>
-
-      {/* Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-600">
-          <div className="text-sm text-gray-600">Total Seeds</div>
-          <div className="text-2xl font-bold text-green-700">{metrics.totalSeedsInBank.toLocaleString()}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-600">
-          <div className="text-sm text-gray-600">Varieties</div>
-          <div className="text-2xl font-bold text-blue-700">{metrics.totalVarieties}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-purple-600">
-          <div className="text-sm text-gray-600">Avg Viability</div>
-          <div className="text-2xl font-bold text-purple-700">{metrics.averageViability}%</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-orange-600">
-          <div className="text-sm text-gray-600">Active Checkouts</div>
-          <div className="text-2xl font-bold text-orange-700">{metrics.activeCheckouts}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-teal-600">
-          <div className="text-sm text-gray-600">Network Communities</div>
-          <div className="text-2xl font-bold text-teal-700">{metrics.networkCommunities}</div>
-        </div>
-      </div>
-
-      {/* Alerts */}
-      {(lowStock.length > 0 || expiringSoon.length > 0) && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
-          <h3 className="font-bold text-yellow-800 mb-2">⚠️ Attention Needed</h3>
-          {lowStock.length > 0 && (
-            <p className="text-sm text-yellow-700 mb-1">
-              • {lowStock.length} seed varieties are low in stock
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-yellow-50 dark:from-gray-950 dark:via-gray-900 dark:to-green-950 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <GlassSection colors={{ primary: "green", secondary: "yellow" }} elevation="high">
+          <div className="py-12 px-8">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-green-600 to-yellow-600 bg-clip-text text-transparent">
+              🌱 Seed Bank Management
+            </h1>
+            <p className="text-lg text-green-700 dark:text-green-200 max-w-2xl">
+              Manage your seed inventory with viability tracking and optimal storage conditions
             </p>
-          )}
-          {expiringSoon.length > 0 && (
-            <p className="text-sm text-yellow-700">
-              • {expiringSoon.length} seed varieties expiring within 18 months
-            </p>
-          )}
-        </div>
-      )}
+          </div>
+        </GlassSection>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="flex flex-wrap border-b">
-          {["inventory", "checkouts", "network", "preservation"].map(tab => (
-            <button
-              key={tab}
-              onClick={() => setSelectedTab(tab)}
-              className={`px-6 py-3 font-medium capitalize ${
-                selectedTab === tab
-                  ? "bg-green-600 text-white border-b-2 border-green-600"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        {/* Overview Stats */}
+        <GlassGrid cols={2} colsMd={4} gap={5}>
+          <GlassCard colors={{ primary: "green", secondary: "green" }}>
+            <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
+              <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Total Seeds</div>
+              <div className="text-5xl font-bold text-green-600 dark:text-green-400">{totalSeeds}</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">varieties stored</p>
+            </div>
+          </GlassCard>
+          <GlassCard colors={{ primary: "blue", secondary: "blue" }}>
+            <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
+              <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Categories</div>
+              <div className="text-5xl font-bold text-blue-600 dark:text-blue-400">{categories.length}</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">seed types</p>
+            </div>
+          </GlassCard>
+          <GlassCard colors={{ primary: "yellow", secondary: "yellow" }}>
+            <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
+              <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Available</div>
+              <div className="text-5xl font-bold text-yellow-600 dark:text-yellow-400">{availableSeeds}</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">in current category</p>
+            </div>
+          </GlassCard>
+          <GlassCard colors={{ primary: "emerald", secondary: "emerald" }}>
+            <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
+              <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Viability Avg</div>
+              <div className="text-5xl font-bold text-emerald-600 dark:text-emerald-400">87%</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">germination rate</p>
+            </div>
+          </GlassCard>
+        </GlassGrid>
 
-        <div className="p-6">
-          {selectedTab === "inventory" && (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">Seed Inventory</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSelectedCategory("all")}
-                    className={`px-3 py-1 rounded text-sm font-medium ${
-                      selectedCategory === "all" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    All
-                  </button>
-                  {categories.map(cat => (
-                    <button
-                      key={cat.name}
-                      onClick={() => setSelectedCategory(cat.name)}
-                      className={`px-3 py-1 rounded text-sm font-medium ${
-                        selectedCategory === cat.name ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
-                      }`}
-                    >
-                      {cat.name} ({cat.count})
-                    </button>
-                  ))}
-                </div>
-              </div>
+        {/* Main Content */}
+        <GlassSection colors={{ primary: "green", secondary: "yellow" }}>
+          <div>
+            {/* Category Tabs */}
+            <div className="flex flex-wrap border-b border-green-300/30 dark:border-green-700/30 backdrop-blur-sm overflow-x-auto">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-8 py-4 font-medium capitalize text-lg transition-all duration-200 whitespace-nowrap ${
+                    selectedCategory === cat
+                      ? "bg-gradient-to-b from-green-400/40 to-green-300/20 dark:from-green-600/50 dark:to-green-700/30 text-green-700 dark:text-green-300 border-b-2 border-green-600 dark:border-green-400"
+                      : "text-gray-700 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-300 hover:bg-green-200/10 dark:hover:bg-green-700/10"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredInventory.map(seed => (
-                  <div key={seed.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-gray-800">{seed.name}</h3>
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${getStatusColor(seed.status)}`}>
-                        {seed.status}
-                      </span>
+            <div className="p-8">
+              {/* Seed Inventory Grid */}
+              <div className="space-y-6">
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white capitalize">{selectedCategory} Seeds</h3>
+                
+                {currentInventory.length > 0 ? (
+                  <GlassGrid cols={1} colsMd={2} colsMd={3} gap={5}>
+                    {currentInventory.map((seed, idx) => (
+                      <GlassCard key={idx} colors={{ primary: "green", secondary: "yellow" }}>
+                        <div className="p-8">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h4 className="text-xl font-bold text-gray-800 dark:text-white">{seed.name || "Unknown Seed"}</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 italic">{seed.scientificName || ""}</p>
+                            </div>
+                            {seed.available === false && (
+                              <span className="px-3 py-1 rounded-lg bg-red-200 dark:bg-red-900/50 text-red-800 dark:text-red-200 text-xs font-bold">Out of Stock</span>
+                            )}
+                          </div>
+
+                          <div className="space-y-4">
+                            {/* Viability Progress */}
+                            <div>
+                              <div className="flex justify-between mb-2">
+                                <p className="font-semibold text-gray-700 dark:text-gray-300 text-sm">Viability</p>
+                                <span className={`px-3 py-1 rounded-lg text-xs font-bold border backdrop-blur-sm ${getHealthColor(seed.viability || 85)}`}>
+                                  {seed.viability || 85}%
+                                </span>
+                              </div>
+                              <div className="bg-gray-300 dark:bg-gray-600 rounded-full h-3 overflow-hidden">
+                                <div
+                                  className="bg-gradient-to-r from-green-400 to-emerald-500 dark:from-green-500 dark:to-emerald-600 h-3 rounded-full transition-all duration-300"
+                                  style={{ width: `${seed.viability || 85}%` }}
+                                ></div>
+                              </div>
+                            </div>
+
+                            {/* Storage Info */}
+                            <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 space-y-2">
+                              <div className="flex justify-between">
+                                <span className="text-sm text-gray-700 dark:text-gray-300">Quantity</span>
+                                <span className="font-bold text-gray-800 dark:text-white">{seed.quantity || 0} packets</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-sm text-gray-700 dark:text-gray-300">Stored Since</span>
+                                <span className="font-bold text-gray-800 dark:text-white">{seed.storedDate || "N/A"}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-sm text-gray-700 dark:text-gray-300">Expiration</span>
+                                <span className="font-bold text-gray-800 dark:text-white">{seed.expirationDate || "N/A"}</span>
+                              </div>
+                            </div>
+
+                            {/* Storage Conditions */}
+                            <div className="bg-white/30 dark:bg-gray-800/30 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 font-semibold">Optimal Storage</p>
+                              <p className="text-sm text-gray-700 dark:text-gray-300">{seed.storageTemperature || "15-20°C"} | {seed.storageHumidity || "30-40%"} humidity</p>
+                            </div>
+                          </div>
+                        </div>
+                      </GlassCard>
+                    ))}
+                  </GlassGrid>
+                ) : (
+                  <GlassCard colors={{ primary: "green", secondary: "yellow" }}>
+                    <div className="p-12 text-center">
+                      <p className="text-gray-600 dark:text-gray-400 text-lg">No seeds in this category</p>
                     </div>
-                    
-                    <p className="text-sm text-gray-600 mb-3">{seed.category} • {seed.type}</p>
-                    
-                    <div className="space-y-1 text-sm mb-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Quantity:</span>
-                        <span className="font-semibold">{seed.quantity} seeds</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Viability:</span>
-                        <span className="font-semibold text-green-700">{seed.viability}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Germ Rate:</span>
-                        <span className="font-semibold">{seed.germRate}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Days to Mature:</span>
-                        <span className="font-semibold">{seed.daysToMaturity}</span>
-                      </div>
-                    </div>
-
-                    <div className="text-xs text-gray-500 space-y-1 border-t pt-2">
-                      <div>Harvested: {seed.harvestYear}</div>
-                      <div>Expires: {seed.expiryYear}</div>
-                      <div>Origin: {seed.origin}</div>
-                      <div>Checkouts YTD: {seed.checkoutsYTD}</div>
-                    </div>
-                  </div>
-                ))}
+                  </GlassCard>
+                )}
               </div>
             </div>
-          )}
+          </div>
+        </GlassSection>
 
-          {selectedTab === "checkouts" && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Seed Checkouts</h2>
-              
-              <div className="space-y-3">
-                {checkouts.map(checkout => (
-                  <div key={checkout.id} className="border border-gray-200 rounded-lg p-4 flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-gray-800">{checkout.seedName}</h3>
-                      <div className="text-sm text-gray-600 mt-1">
-                        <div>Borrower: {checkout.borrower}</div>
-                        <div>Quantity: {checkout.quantityBorrowed} seeds</div>
-                        <div>Checkout: {checkout.checkoutDate}</div>
-                        {checkout.status === "active" && <div>Due: {checkout.dueDate}</div>}
-                        {checkout.status === "returned" && <div>Returned: {checkout.returnedDate}</div>}
-                        <div>Pledged Return: {checkout.pledgedReturn} seeds</div>
-                        {checkout.actualReturn && <div>Actual Return: {checkout.actualReturn} seeds</div>}
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded text-xs font-semibold ${getStatusColor(checkout.status)}`}>
-                      {checkout.status}
-                    </span>
-                  </div>
-                ))}
+        {/* Storage Best Practices */}
+        <GlassCard colors={{ primary: "blue", secondary: "cyan" }}>
+          <div className="p-8">
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">💡 Optimal Seed Storage Guidelines</h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div>
+                <h4 className="font-bold text-gray-800 dark:text-white mb-3 text-lg">Temperature</h4>
+                <p className="text-base text-gray-700 dark:text-gray-300">Keep seeds in a cool environment between 15-20°C. Lower temperatures extend viability significantly.</p>
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-800 dark:text-white mb-3 text-lg">Humidity</h4>
+                <p className="text-base text-gray-700 dark:text-gray-300">Maintain 30-40% humidity levels. Use silica gel packets to prevent moisture damage and fungal growth.</p>
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-800 dark:text-white mb-3 text-lg">Light</h4>
+                <p className="text-base text-gray-700 dark:text-gray-300">Store in dark conditions away from direct sunlight. Use opaque containers to protect seed viability.</p>
               </div>
             </div>
-          )}
-
-          {selectedTab === "network" && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Global Seed Exchange Network</h2>
-              
-              <div className="grid md:grid-cols-2 gap-4 mb-6">
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <div className="text-sm text-gray-600">Seeds Shared Globally</div>
-                  <div className="text-3xl font-bold text-green-700">{metrics.seedsSharedGlobally.toLocaleString()}</div>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <div className="text-sm text-gray-600">Seeds Received</div>
-                  <div className="text-3xl font-bold text-blue-700">{metrics.seedsReceivedGlobally.toLocaleString()}</div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {network.map(community => (
-                  <div key={community.community} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-bold text-gray-800">{community.community}</h3>
-                        <p className="text-sm text-gray-600">{community.location}</p>
-                      </div>
-                      <span className={`px-3 py-1 rounded text-xs font-semibold ${
-                        community.role === "hub" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"
-                      }`}>
-                        {community.role}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 text-sm mb-2">
-                      <div>
-                        <span className="text-gray-600">Shared:</span>
-                        <span className="ml-2 font-semibold text-green-700">{community.seedsShared} seeds</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Received:</span>
-                        <span className="ml-2 font-semibold text-blue-700">{community.seedsReceived} seeds</span>
-                      </div>
-                    </div>
-
-                    <div className="text-sm">
-                      <span className="text-gray-600">Specialties:</span>
-                      <span className="ml-2">{community.specialties.join(", ")}</span>
-                    </div>
-
-                    <div className="text-xs text-gray-500 mt-2">
-                      Last Exchange: {community.lastExchange}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {selectedTab === "preservation" && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Preservation Projects</h2>
-              
-              <div className="space-y-4">
-                {seedService.getPreservationProjects().map(project => (
-                  <div key={project.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-bold text-gray-800">{project.name}</h3>
-                        <p className="text-sm text-gray-600">{project.description}</p>
-                      </div>
-                      <span className={`px-3 py-1 rounded text-xs font-semibold ${getStatusColor(project.status)}`}>
-                        {project.status}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4 text-sm mt-3">
-                      <div>
-                        <span className="text-gray-600">Varieties:</span>
-                        <span className="ml-2 font-semibold">{project.varieties}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Participants:</span>
-                        <span className="ml-2 font-semibold">{project.participants}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Success Rate:</span>
-                        <span className="ml-2 font-semibold text-green-700">{project.successRate}%</span>
-                      </div>
-                    </div>
-
-                    <div className="text-xs text-gray-500 mt-2">
-                      Started: {project.startDate}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        </GlassCard>
       </div>
     </div>
   );
