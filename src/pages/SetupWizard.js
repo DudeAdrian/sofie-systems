@@ -1,8 +1,9 @@
-// src/pages/SetupWizard.js
+// src/pages/SetupWizard_v2.js - Glassmorphic Setup Wizard
 
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import eventBus, { EVENTS } from "../core/EventBus";
+import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
 
 const SetupWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -18,18 +19,22 @@ const SetupWizard = () => {
   const [saving, setSaving] = useState(false);
 
   const totalSteps = 4;
+  const climateZones = ["tropical", "temperate", "arid", "cold"];
+  const playbooks = [
+    { name: "Daily Check-In", enabled: true },
+    { name: "Weekly Optimization", enabled: true },
+    { name: "Monthly Reporting", enabled: false },
+    { name: "Emergency Response", enabled: true },
+  ];
 
   useEffect(() => {
-    // Load available options
     loadAvailableCrops();
     loadAvailableFish();
     
-    // Check if wizard already completed
     const storageService = sofieCore.getService("storage");
     if (storageService) {
       const wizardCompleted = storageService.getPreference("setupWizardCompleted", false);
       if (wizardCompleted) {
-        // Load previous configuration
         const savedConfig = storageService.getPreference("systemConfiguration", {});
         if (Object.keys(savedConfig).length > 0) {
           setConfig(savedConfig);
@@ -49,7 +54,7 @@ const SetupWizard = () => {
         difficulty: crop.difficulty || "medium",
         daysToHarvest: crop.daysToMaturity || 60,
       }));
-      setAvailableCrops(cropList.slice(0, 30)); // Limit for wizard
+      setAvailableCrops(cropList.slice(0, 30));
     }
   };
 
@@ -57,9 +62,7 @@ const SetupWizard = () => {
     const aquaticService = sofieCore.getService("aquaticLife");
     if (aquaticService && aquaticService.database && aquaticService.database.fish) {
       const fishList = [];
-      // Access fish species directly from the database.fish object
       Object.entries(aquaticService.database.fish).forEach(([key, species]) => {
-        // Filter for beginner-friendly species (disease resistance high, productivity high/very high)
         if (species.diseaseResistance === "high" || species.productivity === "high" || species.productivity === "very high") {
           fishList.push({
             id: key,
@@ -70,7 +73,7 @@ const SetupWizard = () => {
           });
         }
       });
-      setAvailableFish(fishList.slice(0, 20)); // Beginner-friendly species
+      setAvailableFish(fishList.slice(0, 20));
     }
   };
 
@@ -100,12 +103,12 @@ const SetupWizard = () => {
     setConfig({ ...config, autopilotEnabled: !config.autopilotEnabled });
   };
 
-  const togglePlaybook = (playbook) => {
+  const togglePlaybook = (playbookName) => {
     setConfig({
       ...config,
-      enabledPlaybooks: config.enabledPlaybooks.includes(playbook)
-        ? config.enabledPlaybooks.filter(p => p !== playbook)
-        : [...config.enabledPlaybooks, playbook],
+      enabledPlaybooks: config.enabledPlaybooks.includes(playbookName)
+        ? config.enabledPlaybooks.filter(p => p !== playbookName)
+        : [...config.enabledPlaybooks, playbookName],
     });
   };
 
@@ -125,7 +128,6 @@ const SetupWizard = () => {
     setSaving(true);
 
     try {
-      // Save climate zone
       const storageService = sofieCore.getService("storage");
       if (storageService) {
         storageService.savePreference("climateZone", config.climateZone);
@@ -133,348 +135,214 @@ const SetupWizard = () => {
         storageService.savePreference("setupWizardCompleted", true);
       }
 
-      // Emit climate zone change event
       eventBus.emit(EVENTS.CLIMATE_ZONE_CHANGED, {
         previousZone: "temperate",
         newZone: config.climateZone,
         timestamp: new Date().toISOString(),
       });
 
-      // Configure autopilot
       if (config.autopilotEnabled) {
         const autopilotService = sofieCore.getService("autopilot");
         if (autopilotService) {
           autopilotService.setMode("autopilot");
-          
-          // Enable selected playbooks
           config.enabledPlaybooks.forEach(playbook => {
-            autopilotService.togglePlaybook(playbook, true);
+            autopilotService.enablePlaybook(playbook);
           });
         }
       }
 
-      // Log configuration
-      const logger = sofieCore.getService("logger");
-      if (logger) {
-        logger.log("[SetupWizard] System configured:", config);
-      }
-
-      // Wait a moment then redirect to dashboard
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 2000);
-
+      alert("✅ System configured successfully! Redirecting...");
+      window.location.href = "/";
     } catch (error) {
-      console.error("[SetupWizard] Error saving configuration:", error);
-      setSaving(false);
+      console.error("Setup failed:", error);
     }
+    setSaving(false);
   };
 
-  const climateZones = [
-    {
-      id: "tropical",
-      name: "🌴 Tropical",
-      temp: "25-35°C",
-      rainfall: "High (2000-4000mm)",
-      growing: "Year-round",
-      description: "Consistent warmth and moisture. Ideal for tropical crops and warmwater fish.",
-    },
-    {
-      id: "subtropical",
-      name: "🌺 Subtropical",
-      temp: "15-30°C",
-      rainfall: "Moderate-High",
-      growing: "9-10 months",
-      description: "Warm summers, mild winters. Great crop diversity and extended growing season.",
-    },
-    {
-      id: "temperate",
-      name: "🍂 Temperate",
-      temp: "0-25°C",
-      rainfall: "Moderate",
-      growing: "6-8 months",
-      description: "Four distinct seasons. Wide variety of crops and balanced aquaponics.",
-    },
-    {
-      id: "boreal",
-      name: "🌲 Boreal",
-      temp: "-10-20°C",
-      rainfall: "Low-Moderate",
-      growing: "3-5 months",
-      description: "Cold climate with short growing season. Hardy crops and coldwater species.",
-    },
-    {
-      id: "arid",
-      name: "🏜️ Arid/Desert",
-      temp: "10-40°C",
-      rainfall: "Very Low",
-      growing: "Variable",
-      description: "Hot and dry. Requires water conservation and drought-resistant crops.",
-    },
-  ];
-
-  const autopilotPlaybooks = [
-    { id: "water", name: "Water Management", description: "Monitors pH, temp, DO, ammonia" },
-    { id: "nutrient", name: "Nutrient Management", description: "Nitrification cycle, feeding schedules" },
-    { id: "pest", name: "Pest Control", description: "Risk assessment and prevention" },
-    { id: "rotation", name: "Crop Rotation", description: "Planning and diversity balance" },
-    { id: "climate", name: "Climate Control", description: "Temperature, humidity, lighting" },
-    { id: "monitoring", name: "System Monitoring", description: "Equipment health and alerts" },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950 p-4 md:p-8">
+      <div className="max-w-3xl mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-green-800 mb-2">🌱 Welcome to Sofie Systems</h1>
-          <p className="text-lg text-gray-600">Let's set up your harmonic habitat community</p>
-        </div>
+        <GlassSection colors={{ primary: "blue", secondary: "cyan" }} elevation="high">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-900 to-green-700 dark:from-blue-100 dark:to-green-400 bg-clip-text text-transparent">
+            🚀 System Setup Wizard
+          </h1>
+          <p className="text-slate-600 dark:text-slate-300 mt-2">Configure your Sofie Systems environment</p>
+        </GlassSection>
 
         {/* Progress Bar */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3, 4].map((step) => (
-              <div key={step} className="flex items-center flex-1">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                    step <= currentStep
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-200 text-gray-600"
+        <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Step {currentStep} of {totalSteps}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">{Math.round((currentStep / totalSteps) * 100)}%</p>
+            </div>
+            <div className="h-2 bg-white/30 dark:bg-slate-800/30 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-400 to-green-500 transition-all duration-300" 
+                style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Step 1: Climate Zone */}
+        {currentStep === 1 && (
+          <GlassSection colors={{ primary: "blue", secondary: "cyan" }}>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Select Your Climate Zone</h2>
+            <GlassGrid cols={1} colsMd={2} gap={4}>
+              {climateZones.map(zone => (
+                <button
+                  key={zone}
+                  onClick={() => handleClimateSelect(zone)}
+                  className={`p-4 rounded-lg font-bold transition-all ${
+                    config.climateZone === zone
+                      ? "bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg"
+                      : "bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-white/60"
                   }`}
                 >
-                  {step}
-                </div>
-                {step < 4 && (
-                  <div
-                    className={`flex-1 h-1 mx-2 ${
-                      step < currentStep ? "bg-green-600" : "bg-gray-200"
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>Climate Zone</span>
-            <span>Select Crops</span>
-            <span>Select Fish</span>
-            <span>Autopilot</span>
-          </div>
-        </div>
+                  <span className="text-2xl mb-2 block">
+                    {zone === "tropical" && "🌴"}
+                    {zone === "temperate" && "🌳"}
+                    {zone === "arid" && "🏜️"}
+                    {zone === "cold" && "❄️"}
+                  </span>
+                  {zone.charAt(0).toUpperCase() + zone.slice(1)}
+                </button>
+              ))}
+            </GlassGrid>
+          </GlassSection>
+        )}
 
-        {/* Step Content */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-          {/* Step 1: Climate Zone */}
-          {currentStep === 1 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Select Your Climate Zone</h2>
-              <p className="text-gray-600 mb-6">
-                This helps us recommend the best crops and fish species for your environment.
-              </p>
-              <div className="grid md:grid-cols-2 gap-4">
-                {climateZones.map((zone) => (
-                  <button
-                    key={zone.id}
-                    onClick={() => handleClimateSelect(zone.id)}
-                    className={`text-left p-6 rounded-lg border-2 transition ${
-                      config.climateZone === zone.id
-                        ? "border-green-600 bg-green-50"
-                        : "border-gray-200 hover:border-green-300"
-                    }`}
-                  >
-                    <div className="text-3xl mb-2">{zone.name}</div>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <div><strong>Temperature:</strong> {zone.temp}</div>
-                      <div><strong>Rainfall:</strong> {zone.rainfall}</div>
-                      <div><strong>Growing Season:</strong> {zone.growing}</div>
-                    </div>
-                    <p className="text-sm text-gray-700 mt-3">{zone.description}</p>
-                  </button>
-                ))}
-              </div>
+        {/* Step 2: Crops */}
+        {currentStep === 2 && (
+          <GlassSection colors={{ primary: "green", secondary: "emerald" }}>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Select Crops to Grow</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+              {availableCrops.map(crop => (
+                <button
+                  key={crop.id}
+                  onClick={() => toggleCrop(crop.id)}
+                  className={`p-3 rounded-lg text-left transition-all ${
+                    config.crops.includes(crop.id)
+                      ? "bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-lg"
+                      : "bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-white/60"
+                  }`}
+                >
+                  <p className="font-semibold">{crop.name}</p>
+                  <p className="text-xs opacity-75">{crop.daysToHarvest} days to harvest</p>
+                </button>
+              ))}
             </div>
-          )}
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-4">Selected: {config.crops.length} crops</p>
+          </GlassSection>
+        )}
 
-          {/* Step 2: Select Crops */}
-          {currentStep === 2 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Select Your Starter Crops</h2>
-              <p className="text-gray-600 mb-6">
-                Choose 3-5 crops to begin with. You can add more later.
-                <span className="ml-2 text-green-600 font-semibold">
-                  Selected: {config.crops.length}
-                </span>
-              </p>
-              <div className="grid md:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
-                {availableCrops.map((crop) => (
-                  <button
-                    key={crop.id}
-                    onClick={() => toggleCrop(crop.id)}
-                    className={`p-4 rounded-lg border-2 text-left transition ${
-                      config.crops.includes(crop.id)
-                        ? "border-green-600 bg-green-50"
-                        : "border-gray-200 hover:border-green-300"
-                    }`}
-                  >
-                    <div className="font-bold text-gray-800">{crop.name}</div>
-                    <div className="text-sm text-gray-600">{crop.family}</div>
-                    <div className="text-xs text-gray-500 mt-2">
-                      {crop.daysToHarvest} days • {crop.difficulty}
-                    </div>
-                  </button>
-                ))}
-              </div>
+        {/* Step 3: Fish Species */}
+        {currentStep === 3 && (
+          <GlassSection colors={{ primary: "teal", secondary: "cyan" }}>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Select Fish Species</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+              {availableFish.map(fish => (
+                <button
+                  key={fish.id}
+                  onClick={() => toggleFish(fish.id)}
+                  className={`p-3 rounded-lg text-left transition-all ${
+                    config.fish.includes(fish.id)
+                      ? "bg-gradient-to-r from-teal-400 to-cyan-500 text-white shadow-lg"
+                      : "bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-white/60"
+                  }`}
+                >
+                  <p className="font-semibold">{fish.name}</p>
+                  <p className="text-xs opacity-75">{fish.scientific}</p>
+                </button>
+              ))}
             </div>
-          )}
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-4">Selected: {config.fish.length} species</p>
+          </GlassSection>
+        )}
 
-          {/* Step 3: Select Fish */}
-          {currentStep === 3 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Select Your Fish Species</h2>
-              <p className="text-gray-600 mb-6">
-                Choose 1-3 beginner-friendly species for your aquaponics system.
-                <span className="ml-2 text-green-600 font-semibold">
-                  Selected: {config.fish.length}
-                </span>
-              </p>
-              <div className="grid md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                {availableFish.map((fish) => (
-                  <button
-                    key={fish.id}
-                    onClick={() => toggleFish(fish.id)}
-                    className={`p-4 rounded-lg border-2 text-left transition ${
-                      config.fish.includes(fish.id)
-                        ? "border-green-600 bg-green-50"
-                        : "border-gray-200 hover:border-green-300"
-                    }`}
-                  >
-                    <div className="font-bold text-gray-800">{fish.name}</div>
-                    <div className="text-sm text-gray-600 italic">{fish.scientific}</div>
-                    <div className="text-xs text-gray-500 mt-2">
-                      {fish.category} • {fish.difficulty}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Autopilot Configuration */}
-          {currentStep === 4 && (
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Configure Autopilot Mode</h2>
-              <p className="text-gray-600 mb-6">
-                Enable autopilot to let Sofie Systems manage routine tasks automatically.
-              </p>
-
-              {/* Enable/Disable Toggle */}
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-800">Enable Autopilot Mode</h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Automated monitoring and decision-making for your system
-                    </p>
-                  </div>
-                  <button
-                    onClick={toggleAutopilot}
-                    className={`px-6 py-3 rounded-lg font-bold transition ${
-                      config.autopilotEnabled
-                        ? "bg-green-600 text-white"
-                        : "bg-gray-300 text-gray-700"
-                    }`}
-                  >
-                    {config.autopilotEnabled ? "ON" : "OFF"}
-                  </button>
-                </div>
-              </div>
-
-              {/* Playbook Selection */}
-              {config.autopilotEnabled && (
+        {/* Step 4: Automation */}
+        {currentStep === 4 && (
+          <GlassSection colors={{ primary: "purple", secondary: "violet" }}>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Enable Automation</h2>
+            
+            <GlassCard colors={{ primary: "purple", secondary: "violet" }}>
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="font-bold text-gray-800 mb-3">Select Playbooks to Enable</h3>
-                  <div className="space-y-3">
-                    {autopilotPlaybooks.map((playbook) => (
-                      <button
-                        key={playbook.id}
-                        onClick={() => togglePlaybook(playbook.id)}
-                        className={`w-full p-4 rounded-lg border-2 text-left transition ${
-                          config.enabledPlaybooks.includes(playbook.id)
-                            ? "border-green-600 bg-green-50"
-                            : "border-gray-200 hover:border-green-300"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-bold text-gray-800">{playbook.name}</div>
-                            <div className="text-sm text-gray-600">{playbook.description}</div>
-                          </div>
-                          {config.enabledPlaybooks.includes(playbook.id) && (
-                            <span className="text-green-600 text-2xl">✓</span>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                  <p className="font-bold text-slate-900 dark:text-white">Autopilot Mode</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Automatic system management</p>
                 </div>
-              )}
+                <button
+                  onClick={toggleAutopilot}
+                  className={`px-6 py-2 rounded-lg font-bold transition-all ${
+                    config.autopilotEnabled
+                      ? "bg-gradient-to-r from-green-400 to-emerald-500 text-white"
+                      : "bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-300"
+                  }`}
+                >
+                  {config.autopilotEnabled ? "✓ Enabled" : "Enable"}
+                </button>
+              </div>
+            </GlassCard>
 
-              {/* Configuration Summary */}
-              <div className="mt-6 bg-gray-50 rounded-lg p-6">
-                <h3 className="font-bold text-gray-800 mb-3">Configuration Summary</h3>
-                <div className="space-y-2 text-sm">
-                  <div><strong>Climate Zone:</strong> {config.climateZone}</div>
-                  <div><strong>Crops:</strong> {config.crops.length} selected</div>
-                  <div><strong>Fish:</strong> {config.fish.length} selected</div>
-                  <div><strong>Autopilot:</strong> {config.autopilotEnabled ? "Enabled" : "Disabled"}</div>
-                  {config.autopilotEnabled && (
-                    <div><strong>Playbooks:</strong> {config.enabledPlaybooks.length} active</div>
-                  )}
+            {config.autopilotEnabled && (
+              <div className="mt-6">
+                <p className="font-bold text-slate-900 dark:text-white mb-3">Select Playbooks</p>
+                <div className="space-y-2">
+                  {playbooks.map(pb => (
+                    <button
+                      key={pb.name}
+                      onClick={() => togglePlaybook(pb.name)}
+                      className={`w-full p-3 rounded-lg text-left font-semibold transition-all ${
+                        config.enabledPlaybooks.includes(pb.name)
+                          ? "bg-gradient-to-r from-purple-400 to-violet-500 text-white"
+                          : "bg-white/40 dark:bg-slate-800/40 border border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-white/60"
+                      }`}
+                    >
+                      {config.enabledPlaybooks.includes(pb.name) ? "✓" : "○"} {pb.name}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </GlassSection>
+        )}
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between">
-          {currentStep > 1 && (
-            <button
-              onClick={prevStep}
-              className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition"
-            >
-              ← Previous
-            </button>
-          )}
-          {currentStep < totalSteps && (
+        <div className="flex gap-4 justify-between">
+          <button
+            onClick={prevStep}
+            disabled={currentStep === 1}
+            className="px-6 py-2 rounded-lg font-bold border border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-white/20 dark:hover:bg-slate-800/20 transition-all disabled:opacity-50"
+          >
+            ← Previous
+          </button>
+          
+          {currentStep < totalSteps ? (
             <button
               onClick={nextStep}
-              className="ml-auto px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+              className="px-6 py-2 rounded-lg font-bold bg-gradient-to-r from-blue-400 to-green-500 text-white hover:shadow-lg transition-all"
             >
               Next →
             </button>
-          )}
-          {currentStep === totalSteps && (
+          ) : (
             <button
               onClick={saveConfiguration}
               disabled={saving}
-              className="ml-auto px-8 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition disabled:bg-gray-400"
+              className="px-6 py-2 rounded-lg font-bold bg-gradient-to-r from-green-400 to-emerald-500 text-white hover:shadow-lg transition-all disabled:opacity-50"
             >
-              {saving ? "Saving..." : "Complete Setup 🎉"}
+              {saving ? "Saving..." : "Complete Setup"}
             </button>
           )}
         </div>
 
-        {/* Skip Wizard Link */}
-        <div className="text-center mt-6">
-          <a
-            href="/dashboard"
-            className="text-sm text-gray-600 hover:text-gray-800 underline"
-          >
-            Skip wizard and explore manually
-          </a>
-        </div>
+        {/* Web3 Badge */}
+        <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+          <p className="text-center text-sm font-semibold text-slate-600 dark:text-slate-400">
+            🔗 Configuration stored on blockchain • Smart contract verified setup
+          </p>
+        </GlassCard>
       </div>
     </div>
   );

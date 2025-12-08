@@ -1,5 +1,8 @@
+// src/pages/KnowledgeBase_v2.js - Glassmorphic Knowledge Base
+
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
+import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
 
 const KnowledgeBase = () => {
   const [articles, setArticles] = useState([]);
@@ -22,95 +25,123 @@ const KnowledgeBase = () => {
       ? articles.filter((a) => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
       : articles.filter((a) => a.category === selectedCategory && a.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
+  const statCards = [
+    { label: "Articles", value: stats.totalArticles || 0, icon: "📖", color: "blue" },
+    { label: "Best Practices", value: stats.totalBestPractices || 0, icon: "⭐", color: "green" },
+    { label: "Categories", value: stats.categories?.length || 0, icon: "📂", color: "purple" },
+    { label: "Total Views", value: stats.totalViews || 0, icon: "👁", color: "orange" },
+  ];
+
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-5xl font-bold text-green-800 mb-2">📚 Knowledge Base</h1>
-        <p className="text-lg text-gray-600">Learn from shared knowledge and best practices across Harmonic Habitats</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <GlassSection colors={{ primary: "purple", secondary: "violet" }} elevation="high">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-900 to-violet-700 dark:from-purple-100 dark:to-violet-400 bg-clip-text text-transparent">
+            📚 Knowledge Base
+          </h1>
+          <p className="text-slate-600 dark:text-slate-300 mt-2">Learn from shared knowledge across Harmonic Habitats communities</p>
+        </GlassSection>
 
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-md p-6 border-l-4 border-blue-600">
-          <div className="text-sm font-semibold text-blue-600 uppercase">Articles</div>
-          <div className="text-3xl font-bold text-gray-800 mt-2">{stats.totalArticles || 0}</div>
-        </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow-md p-6 border-l-4 border-green-600">
-          <div className="text-sm font-semibold text-green-600 uppercase">Best Practices</div>
-          <div className="text-3xl font-bold text-gray-800 mt-2">{stats.totalBestPractices || 0}</div>
-        </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg shadow-md p-6 border-l-4 border-purple-600">
-          <div className="text-sm font-semibold text-purple-600 uppercase">Categories</div>
-          <div className="text-3xl font-bold text-gray-800 mt-2">{stats.categories?.length || 0}</div>
-        </div>
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg shadow-md p-6 border-l-4 border-orange-600">
-          <div className="text-sm font-semibold text-orange-600 uppercase">Total Views</div>
-          <div className="text-3xl font-bold text-gray-800 mt-2">{stats.totalViews || 0}</div>
-        </div>
-      </div>
-
-      <div className="mb-8 space-y-4">
-        <input
-          type="text"
-          placeholder="Search articles..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-        />
-        <div>
-          <button
-            onClick={() => setSelectedCategory("all")}
-            className={`mr-2 mb-2 px-4 py-2 rounded-lg font-medium transition ${
-              selectedCategory === "all" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"
-            }`}
-          >
-            All
-          </button>
-          {stats.categories?.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`mr-2 mb-2 px-4 py-2 rounded-lg font-medium transition ${
-                selectedCategory === cat ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"
-              }`}
-            >
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
+        {/* Stats Grid */}
+        <GlassGrid cols={1} colsMd={4} gap={4}>
+          {statCards.map((stat, idx) => (
+            <GlassCard key={idx} colors={{ primary: stat.color, secondary: stat.color }}>
+              <p className="text-3xl mb-2">{stat.icon}</p>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{stat.label}</p>
+              <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{stat.value}</p>
+            </GlassCard>
           ))}
+        </GlassGrid>
+
+        {/* Search & Filter */}
+        <GlassSection colors={{ primary: "slate", secondary: "gray" }}>
+          <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="🔍 Search articles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg bg-white/50 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 text-slate-900 dark:text-white placeholder-slate-500"
+            />
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              <button
+                onClick={() => setSelectedCategory("all")}
+                className={`px-5 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-all ${
+                  selectedCategory === "all"
+                    ? "bg-gradient-to-r from-slate-700 to-slate-900 text-white"
+                    : "bg-white/40 dark:bg-slate-800/40 text-slate-600 dark:text-slate-300 border border-white/20 dark:border-slate-700/50 hover:bg-white/60"
+                }`}
+              >
+                All
+              </button>
+              {stats.categories?.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-5 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-all ${
+                    selectedCategory === cat
+                      ? "bg-gradient-to-r from-slate-700 to-slate-900 text-white"
+                      : "bg-white/40 dark:bg-slate-800/40 text-slate-600 dark:text-slate-300 border border-white/20 dark:border-slate-700/50 hover:bg-white/60"
+                  }`}
+                >
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </GlassSection>
+
+        {/* Featured Articles */}
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Featured Articles</h2>
+          <GlassGrid cols={1} colsMd={2} gap={6}>
+            {filteredArticles.map((article) => (
+              <GlassCard key={article.id} colors={{ primary: "blue", secondary: "cyan" }}>
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white flex-1">{article.title}</h3>
+                  <span className="ml-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-400/30 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 flex-shrink-0">
+                    {article.category}
+                  </span>
+                </div>
+                <p className="text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">{article.content}</p>
+                <div className="flex justify-between items-center text-xs text-slate-600 dark:text-slate-400 mb-4">
+                  <span>By {article.author}</span>
+                  <span>👁 {article.views} views</span>
+                </div>
+                <button className="w-full px-4 py-2 rounded-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-500 text-white hover:shadow-lg transition-all">
+                  Read More
+                </button>
+              </GlassCard>
+            ))}
+          </GlassGrid>
         </div>
-      </div>
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">📖 Featured Articles</h2>
-      <div className="grid md:grid-cols-2 gap-6 mb-12">
-        {filteredArticles.map((article) => (
-          <div key={article.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="text-lg font-bold text-gray-800">{article.title}</h3>
-              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">{article.category}</span>
-            </div>
-            <p className="text-gray-600 mb-4 line-clamp-2">{article.content}</p>
-            <div className="flex justify-between items-center text-sm text-gray-500">
-              <span>By {article.author}</span>
-              <span>👁 {article.views} views</span>
-            </div>
-            <button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
-              Read More
-            </button>
-          </div>
-        ))}
-      </div>
+        {/* Best Practices */}
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">⭐ Best Practices</h2>
+          <GlassGrid cols={1} colsMd={3} gap={6}>
+            {bestPractices.map((practice) => (
+              <GlassCard key={practice.id} colors={{ primary: "green", secondary: "emerald" }}>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{practice.title}</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{practice.description}</p>
+                <div className="flex justify-between items-center pt-4 border-t border-white/20 dark:border-slate-700/50">
+                  <p className="text-xs text-slate-600 dark:text-slate-400">From: {practice.community}</p>
+                  <span className="px-3 py-1 rounded-full font-bold text-xs bg-green-400/30 dark:bg-green-500/20 text-green-700 dark:text-green-300">
+                    {practice.sustainability}% 🌱
+                  </span>
+                </div>
+              </GlassCard>
+            ))}
+          </GlassGrid>
+        </div>
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">⭐ Best Practices</h2>
-      <div className="grid md:grid-cols-3 gap-6">
-        {bestPractices.map((practice) => (
-          <div key={practice.id} className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow-md p-6 border-l-4 border-green-600">
-            <h3 className="text-lg font-bold text-gray-800 mb-2">{practice.title}</h3>
-            <p className="text-sm text-gray-700 mb-3">{practice.description}</p>
-            <div className="flex justify-between items-center">
-              <p className="text-xs text-gray-600">From: {practice.community}</p>
-              <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold">{practice.sustainability}%</span>
-            </div>
-          </div>
-        ))}
+        {/* Web3 Badge */}
+        <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+          <p className="text-center text-sm font-semibold text-slate-600 dark:text-slate-400">
+            🔗 Knowledge verified on blockchain • Community contributions tracked
+          </p>
+        </GlassCard>
       </div>
     </div>
   );
