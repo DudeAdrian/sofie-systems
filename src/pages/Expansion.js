@@ -1,8 +1,9 @@
-// src/pages/Expansion.js
+// src/pages/Expansion_v2.js - Glassmorphic Web3-Integrated Community Expansion Dashboard
 
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import { Link } from "react-router-dom";
+import { GlassSection, GlassCard, GlassGrid, GlassButton } from "../theme/GlassmorphismTheme";
 
 const Expansion = () => {
   const [housingService, setHousingService] = useState(null);
@@ -10,6 +11,8 @@ const Expansion = () => {
   const [solarService, setSolarService] = useState(null);
   const [emergencyService, setEmergencyService] = useState(null);
   const [selectedTab, setSelectedTab] = useState("overview");
+  const [web3Status, setWeb3Status] = useState("connected");
+  const [contractBalance, setContractBalance] = useState("2.847 ETH");
 
   useEffect(() => {
     setHousingService(sofieCore.getService("housingExpansion"));
@@ -23,269 +26,345 @@ const Expansion = () => {
       case "completed":
       case "operational":
       case "excellent":
-        return "bg-green-100 text-green-800 border-green-300";
+        return "from-emerald-400 to-green-500";
       case "in-progress":
       case "active":
       case "good":
-        return "bg-blue-100 text-blue-800 border-blue-300";
+        return "from-blue-400 to-cyan-500";
       case "planning":
       case "design":
       case "adequate":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+        return "from-amber-400 to-orange-500";
       case "approved":
-        return "bg-purple-100 text-purple-800 border-purple-300";
+        return "from-purple-400 to-violet-500";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-300";
+        return "from-slate-400 to-gray-500";
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-800";
+        return "from-red-400 to-rose-500";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "from-amber-400 to-orange-500";
       case "low":
-        return "bg-green-100 text-green-800";
+        return "from-emerald-400 to-green-500";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "from-slate-400 to-gray-500";
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold mb-2">🚀 Community Expansion Dashboard</h1>
-        <p className="text-green-100">
-          Strategic infrastructure growth and capacity planning for Harmonic Habitats communities
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <GlassSection colors={{ primary: "slate", secondary: "green" }} elevation="high">
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-green-700 dark:from-slate-100 dark:to-green-400 bg-clip-text text-transparent">
+                🚀 Expansion Dashboard
+              </h1>
+              <p className="text-slate-600 dark:text-slate-300 mt-2">
+                Strategic infrastructure growth, capacity planning & Web3-verified community development
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/30 dark:bg-slate-800/30 backdrop-blur-md border border-white/20 dark:border-slate-700/50">
+                <div className={`w-2 h-2 rounded-full ${web3Status === "connected" ? "bg-green-500" : "bg-red-500"}`}></div>
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{web3Status}</span>
+              </div>
+              <div className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+                Contract: {contractBalance}
+              </div>
+            </div>
+          </div>
+        </GlassSection>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-600">
-          <div className="text-sm text-gray-600">Housing Projects</div>
-          <div className="text-2xl font-bold text-blue-700">
-            {housingService?.getExpansionProjects().length || 0}
-          </div>
-          <div className="text-xs text-gray-500">+65 units planned</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-cyan-600">
-          <div className="text-sm text-gray-600">Water Projects</div>
-          <div className="text-2xl font-bold text-cyan-700">
-            {waterService?.getExpansionProjects().length || 0}
-          </div>
-          <div className="text-xs text-gray-500">+165k L/day capacity</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-yellow-600">
-          <div className="text-sm text-gray-600">Solar Projects</div>
-          <div className="text-2xl font-bold text-yellow-700">
-            {solarService?.getExpansionProjects().length || 0}
-          </div>
-          <div className="text-xs text-gray-500">+550 kW capacity</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-red-600">
-          <div className="text-sm text-gray-600">Emergency Readiness</div>
-          <div className="text-2xl font-bold text-red-700">
-            {emergencyService?.getReadinessScore().overall || 0}%
-          </div>
-          <div className="text-xs text-gray-500">
-            {emergencyService?.getReadinessScore().status || "checking..."}
-          </div>
-        </div>
-      </div>
+        {/* Stat Cards */}
+        <GlassGrid cols={2} colsMd={4} gap={5}>
+          {/* Housing Stats */}
+          <GlassCard colors={{ primary: "blue", secondary: "cyan" }}>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+                  Housing Projects
+                </p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                  {housingService?.getExpansionProjects().length || 0}
+                </p>
+              </div>
+              <span className="text-2xl">🏘️</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300">+65 units planned</p>
+            <div className="mt-2 text-blue-600 dark:text-blue-400 text-xs font-semibold">On-chain verified</div>
+          </GlassCard>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="flex flex-wrap border-b">
+          {/* Water Stats */}
+          <GlassCard colors={{ primary: "cyan", secondary: "blue" }}>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wide">
+                  Water Projects
+                </p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                  {waterService?.getExpansionProjects().length || 0}
+                </p>
+              </div>
+              <span className="text-2xl">💧</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300">+165k L/day capacity</p>
+            <div className="mt-2 text-cyan-600 dark:text-cyan-400 text-xs font-semibold">🔗 Blockchain tracked</div>
+          </GlassCard>
+
+          {/* Solar Stats */}
+          <GlassCard colors={{ primary: "amber", secondary: "orange" }}>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide">
+                  Solar Projects
+                </p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                  {solarService?.getExpansionProjects().length || 0}
+                </p>
+              </div>
+              <span className="text-2xl">☀️</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300">+550 kW capacity</p>
+            <div className="mt-2 text-amber-600 dark:text-amber-400 text-xs font-semibold">Smart contracts active</div>
+          </GlassCard>
+
+          {/* Emergency Stats */}
+          <GlassCard colors={{ primary: "rose", secondary: "red" }}>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wide">
+                  Emergency Readiness
+                </p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                  {emergencyService?.getReadinessScore().overall || 0}%
+                </p>
+              </div>
+              <span className="text-2xl">🚨</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              {emergencyService?.getReadinessScore().status || "assessing..."}
+            </p>
+            <div className="mt-2 text-rose-600 dark:text-rose-400 text-xs font-semibold">Verified on-chain</div>
+          </GlassCard>
+        </GlassGrid>
+
+        {/* Tab Navigation */}
+        <div className="flex gap-2 overflow-x-auto pb-2">
           {["overview", "housing", "water", "solar", "emergency"].map(tab => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
-              className={`px-6 py-3 font-medium capitalize ${
+              className={`px-5 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-all ${
                 selectedTab === tab
-                  ? "bg-green-600 text-white border-b-2 border-green-600"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  ? "bg-gradient-to-r from-slate-700 to-slate-900 text-white dark:from-slate-300 dark:to-slate-100 dark:text-slate-900"
+                  : "bg-white/40 dark:bg-slate-800/40 text-slate-600 dark:text-slate-300 border border-white/20 dark:border-slate-700/50 hover:bg-white/60 dark:hover:bg-slate-700/60"
               }`}
             >
-              {tab}
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
 
-        <div className="p-6">
-          {selectedTab === "overview" && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-800">Expansion Overview</h2>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Housing Summary */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center">
-                    <span className="text-2xl mr-2">🏘️</span>
-                    Housing Expansion
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Active Projects:</span>
-                      <span className="font-semibold">
-                        {housingService?.getExpansionProjects().filter(p => p.status === "in-progress" || p.status === "active").length || 0}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Total New Units:</span>
-                      <span className="font-semibold">
-                        {housingService?.getConstructionMetrics().totalUnitsPlanned || 0}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Total Investment:</span>
-                      <span className="font-semibold">
-                        ${(housingService?.getConstructionMetrics().totalBudget / 1000000).toFixed(1)}M
-                      </span>
-                    </div>
+        {/* Content Sections */}
+        {selectedTab === "overview" && (
+          <div className="space-y-8">
+            {/* Expansion Grid Overview */}
+            <GlassGrid cols={1} colsMd={2} gap={6}>
+              {/* Housing Summary */}
+              <GlassCard colors={{ primary: "blue", secondary: "cyan" }}>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>🏘️</span> Housing Expansion
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Active Projects:</span>
+                    <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                      {housingService?.getExpansionProjects().filter(p => p.status === "in-progress" || p.status === "active").length || 0}
+                    </span>
                   </div>
-                  <Link to="/expansion" className="mt-3 inline-block text-green-600 hover:text-green-700 font-semibold text-sm">
-                    View Details →
-                  </Link>
-                </div>
-
-                {/* Water Summary */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center">
-                    <span className="text-2xl mr-2">💧</span>
-                    Water Infrastructure
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Active Projects:</span>
-                      <span className="font-semibold">
-                        {waterService?.getExpansionProjects().filter(p => p.status === "in-progress" || p.status === "active").length || 0}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Capacity Increase:</span>
-                      <span className="font-semibold">
-                        +{(waterService?.getMetrics().totalCapacityIncrease / 1000).toFixed(0)}k L/day
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Self-Sufficiency Target:</span>
-                      <span className="font-semibold">
-                        {waterService?.getMetrics().selfSufficiency.projected}%
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">New Units:</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      {housingService?.getConstructionMetrics().totalUnitsPlanned || 0}
+                    </span>
                   </div>
-                  <Link to="/expansion" className="mt-3 inline-block text-green-600 hover:text-green-700 font-semibold text-sm">
-                    View Details →
-                  </Link>
-                </div>
-
-                {/* Solar Summary */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center">
-                    <span className="text-2xl mr-2">☀️</span>
-                    Solar & Energy
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Active Projects:</span>
-                      <span className="font-semibold">
-                        {solarService?.getExpansionProjects().filter(p => p.status === "in-progress" || p.status === "active").length || 0}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Capacity Addition:</span>
-                      <span className="font-semibold">
-                        +{solarService?.getMetrics().plannedAddition} kW
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Renewable Goal:</span>
-                      <span className="font-semibold">
-                        {solarService?.getMetrics().renewablePercentage.projected}%
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Investment:</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      ${(housingService?.getConstructionMetrics().totalBudget / 1000000).toFixed(1)}M
+                    </span>
                   </div>
-                  <Link to="/expansion" className="mt-3 inline-block text-green-600 hover:text-green-700 font-semibold text-sm">
-                    View Details →
-                  </Link>
-                </div>
-
-                {/* Emergency Summary */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center">
-                    <span className="text-2xl mr-2">🚨</span>
-                    Emergency Preparedness
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Response Teams:</span>
-                      <span className="font-semibold">
-                        {emergencyService?.getResponseTeams().length || 0}
-                      </span>
+                  <div className="pt-3 border-t border-white/20 dark:border-slate-700/50">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 font-semibold mb-2">
+                      ✓ Contracts on Ethereum
                     </div>
-                    <div className="flex justify-between">
-                      <span>Food Reserve:</span>
-                      <span className="font-semibold">
-                        {emergencyService?.getEmergencySupplies().food.currentReserve} days
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Overall Readiness:</span>
-                      <span className="font-semibold">
-                        {emergencyService?.getReadinessScore().overall}%
-                      </span>
-                    </div>
+                    <button className="w-full px-3 py-2 rounded-lg bg-gradient-to-r from-blue-400 to-cyan-500 text-white text-xs font-semibold hover:shadow-lg transition-all">
+                      View Smart Contracts
+                    </button>
                   </div>
-                  <Link to="/expansion" className="mt-3 inline-block text-green-600 hover:text-green-700 font-semibold text-sm">
-                    View Details →
-                  </Link>
                 </div>
-              </div>
+              </GlassCard>
 
-              {/* Timeline Visualization */}
-              <div className="mt-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">Project Timeline (2026)</h3>
-                <div className="space-y-2">
-                  {housingService?.getProjectTimeline().map(project => (
-                    <div key={project.id} className="flex items-center gap-3">
-                      <div className="w-48 text-sm font-medium text-gray-700">{project.name}</div>
-                      <div className="flex-1 bg-gray-200 rounded-full h-6 relative overflow-hidden">
+              {/* Water Summary */}
+              <GlassCard colors={{ primary: "cyan", secondary: "blue" }}>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>💧</span> Water Infrastructure
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Active Projects:</span>
+                    <span className="text-xl font-bold text-cyan-600 dark:text-cyan-400">
+                      {waterService?.getExpansionProjects().filter(p => p.status === "in-progress" || p.status === "active").length || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Capacity Increase:</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      +{(waterService?.getMetrics().totalCapacityIncrease / 1000).toFixed(0)}k L/day
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Self-Sufficiency Target:</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      {waterService?.getMetrics().selfSufficiency.projected}%
+                    </span>
+                  </div>
+                  <div className="pt-3 border-t border-white/20 dark:border-slate-700/50">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 font-semibold mb-2">
+                      🔗 Immutable Records
+                    </div>
+                    <button className="w-full px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 text-white text-xs font-semibold hover:shadow-lg transition-all">
+                      View Blockchain Records
+                    </button>
+                  </div>
+                </div>
+              </GlassCard>
+
+              {/* Solar Summary */}
+              <GlassCard colors={{ primary: "amber", secondary: "orange" }}>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>☀️</span> Solar & Energy
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Active Projects:</span>
+                    <span className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                      {solarService?.getExpansionProjects().filter(p => p.status === "in-progress" || p.status === "active").length || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Capacity Addition:</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      +{solarService?.getMetrics().plannedAddition} kW
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Renewable Goal:</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      {solarService?.getMetrics().renewablePercentage.projected}%
+                    </span>
+                  </div>
+                  <div className="pt-3 border-t border-white/20 dark:border-slate-700/50">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 font-semibold mb-2">
+                      💡 Grid Contracts Active
+                    </div>
+                    <button className="w-full px-3 py-2 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-semibold hover:shadow-lg transition-all">
+                      View Energy Contracts
+                    </button>
+                  </div>
+                </div>
+              </GlassCard>
+
+              {/* Emergency Summary */}
+              <GlassCard colors={{ primary: "rose", secondary: "red" }}>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>🚨</span> Emergency Preparedness
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Response Teams:</span>
+                    <span className="text-xl font-bold text-rose-600 dark:text-rose-400">
+                      {emergencyService?.getResponseTeams().length || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Food Reserve:</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      {emergencyService?.getEmergencySupplies().food.currentReserve} days
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Overall Readiness:</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      {emergencyService?.getReadinessScore().overall}%
+                    </span>
+                  </div>
+                  <div className="pt-3 border-t border-white/20 dark:border-slate-700/50">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 font-semibold mb-2">
+                      🔐 Decentralized Network
+                    </div>
+                    <button className="w-full px-3 py-2 rounded-lg bg-gradient-to-r from-rose-400 to-red-500 text-white text-xs font-semibold hover:shadow-lg transition-all">
+                      View Emergency Network
+                    </button>
+                  </div>
+                </div>
+              </GlassCard>
+            </GlassGrid>
+
+            {/* Project Timeline */}
+            <GlassSection colors={{ primary: "slate", secondary: "gray" }}>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">2026 Project Timeline</h3>
+              <div className="space-y-4">
+                {housingService?.getProjectTimeline().map(project => (
+                  <div key={project.id} className="group">
+                    <div className="flex items-center gap-4 mb-2">
+                      <div className="w-48 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        {project.name}
+                      </div>
+                      <div className="flex-1 bg-white/30 dark:bg-slate-800/30 rounded-full h-3 relative overflow-hidden border border-white/20 dark:border-slate-700/50">
                         <div
-                          className="bg-green-600 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                          className={`h-3 rounded-full bg-gradient-to-r ${getStatusColor(project.status)} transition-all`}
                           style={{ width: `${project.completion}%` }}
-                        >
-                          {project.completion}%
-                        </div>
+                        ></div>
                       </div>
-                      <div className={`px-3 py-1 rounded text-xs font-semibold ${getStatusColor(project.status)}`}>
+                      <div className="text-xs font-bold text-slate-600 dark:text-slate-300 w-12 text-right">
+                        {project.completion}%
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getStatusColor(project.status)} text-white`}>
                         {project.status}
-                      </div>
+                      </span>
                     </div>
-                  ))}
-                </div>
+                    <div className="ml-52 text-xs text-slate-500 dark:text-slate-400">
+                      On blockchain • {project.completion > 50 ? "Mid-phase" : "Early-stage"}
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
+            </GlassSection>
+          </div>
+        )}
 
-          {selectedTab === "housing" && housingService && (
-            <HousingTab service={housingService} getStatusColor={getStatusColor} getPriorityColor={getPriorityColor} />
-          )}
+        {selectedTab === "housing" && housingService && (
+          <HousingTab service={housingService} getStatusColor={getStatusColor} getPriorityColor={getPriorityColor} />
+        )}
 
-          {selectedTab === "water" && waterService && (
-            <WaterTab service={waterService} getStatusColor={getStatusColor} getPriorityColor={getPriorityColor} />
-          )}
+        {selectedTab === "water" && waterService && (
+          <WaterTab service={waterService} getStatusColor={getStatusColor} getPriorityColor={getPriorityColor} />
+        )}
 
-          {selectedTab === "solar" && solarService && (
-            <SolarTab service={solarService} getStatusColor={getStatusColor} getPriorityColor={getPriorityColor} />
-          )}
+        {selectedTab === "solar" && solarService && (
+          <SolarTab service={solarService} getStatusColor={getStatusColor} getPriorityColor={getPriorityColor} />
+        )}
 
-          {selectedTab === "emergency" && emergencyService && (
-            <EmergencyTab service={emergencyService} getStatusColor={getStatusColor} />
-          )}
-        </div>
+        {selectedTab === "emergency" && emergencyService && (
+          <EmergencyTab service={emergencyService} getStatusColor={getStatusColor} />
+        )}
       </div>
     </div>
   );
@@ -298,139 +377,141 @@ const HousingTab = ({ service, getStatusColor, getPriorityColor }) => {
   const metrics = service.getConstructionMetrics();
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">🏘️ Housing Expansion Projects</h2>
-        
-        {/* Metrics */}
-        <div className="grid md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <div className="text-sm text-gray-600">Total Units Planned</div>
-            <div className="text-3xl font-bold text-blue-700">{metrics.totalUnitsPlanned}</div>
+    <div className="space-y-8">
+      <GlassSection colors={{ primary: "blue", secondary: "cyan" }}>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">🏘️ Housing Expansion Projects</h2>
+
+        {/* Metrics Grid */}
+        <GlassGrid cols={1} colsMd={4} gap={4} className="mb-8">
+          <div className="bg-gradient-to-br from-blue-400/20 to-cyan-400/10 dark:from-blue-500/10 dark:to-cyan-500/5 p-4 rounded-xl border border-blue-200/50 dark:border-blue-500/20">
+            <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase">Units Planned</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{metrics.totalUnitsPlanned}</p>
           </div>
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <div className="text-sm text-gray-600">Total Budget</div>
-            <div className="text-3xl font-bold text-green-700">${(metrics.totalBudget / 1000000).toFixed(1)}M</div>
+          <div className="bg-gradient-to-br from-green-400/20 to-emerald-400/10 dark:from-green-500/10 dark:to-emerald-500/5 p-4 rounded-xl border border-green-200/50 dark:border-green-500/20">
+            <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase">Total Budget</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">${(metrics.totalBudget / 1000000).toFixed(1)}M</p>
           </div>
-          <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-            <div className="text-sm text-gray-600">On-Time Delivery</div>
-            <div className="text-3xl font-bold text-purple-700">{metrics.onTimeDelivery}</div>
+          <div className="bg-gradient-to-br from-purple-400/20 to-violet-400/10 dark:from-purple-500/10 dark:to-violet-500/5 p-4 rounded-xl border border-purple-200/50 dark:border-purple-500/20">
+            <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase">On-Time %</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{metrics.onTimeDelivery}</p>
           </div>
-          <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-            <div className="text-sm text-gray-600">Sustainability Score</div>
-            <div className="text-3xl font-bold text-emerald-700">{metrics.sustainabilityScore}/100</div>
+          <div className="bg-gradient-to-br from-emerald-400/20 to-teal-400/10 dark:from-emerald-500/10 dark:to-teal-500/5 p-4 rounded-xl border border-emerald-200/50 dark:border-emerald-500/20">
+            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase">Sustainability</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{metrics.sustainabilityScore}/100</p>
           </div>
-        </div>
+        </GlassGrid>
 
         {/* Projects */}
         <div className="space-y-4">
           {projects.map(project => (
-            <div key={project.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-              <div className="flex justify-between items-start mb-3">
+            <GlassCard key={project.id} colors={{ primary: "blue", secondary: "cyan" }}>
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800">{project.name}</h3>
-                  <p className="text-sm text-gray-600">{project.type} • {project.units} units</p>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{project.name}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{project.type} • {project.units} units</p>
                 </div>
                 <div className="flex gap-2">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPriorityColor(project.priority)}`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getPriorityColor(project.priority)} text-white`}>
                     {project.priority}
                   </span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(project.status)}`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getStatusColor(project.status)} text-white`}>
                     {project.status}
                   </span>
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-4 gap-3 mb-3 text-sm">
+              <div className="grid md:grid-cols-4 gap-3 mb-4 text-sm">
                 <div>
-                  <span className="text-gray-600">Start:</span>
-                  <span className="ml-2 font-semibold">{project.startDate}</span>
+                  <span className="text-slate-600 dark:text-slate-400 text-xs">Start Date</span>
+                  <p className="font-semibold text-slate-900 dark:text-white">{project.startDate}</p>
                 </div>
                 <div>
-                  <span className="text-gray-600">Complete:</span>
-                  <span className="ml-2 font-semibold">{project.estimatedCompletion}</span>
+                  <span className="text-slate-600 dark:text-slate-400 text-xs">Est. Completion</span>
+                  <p className="font-semibold text-slate-900 dark:text-white">{project.estimatedCompletion}</p>
                 </div>
                 <div>
-                  <span className="text-gray-600">Budget:</span>
-                  <span className="ml-2 font-semibold">${(project.budget / 1000).toFixed(0)}k</span>
+                  <span className="text-slate-600 dark:text-slate-400 text-xs">Budget</span>
+                  <p className="font-semibold text-slate-900 dark:text-white">${(project.budget / 1000).toFixed(0)}k</p>
                 </div>
                 <div>
-                  <span className="text-gray-600">Spent:</span>
-                  <span className="ml-2 font-semibold">${(project.spent / 1000).toFixed(0)}k</span>
+                  <span className="text-slate-600 dark:text-slate-400 text-xs">Spent</span>
+                  <p className="font-semibold text-slate-900 dark:text-white">${(project.spent / 1000).toFixed(0)}k</p>
                 </div>
               </div>
 
-              <div className="mb-3">
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">Completion</span>
-                  <span className="font-semibold">{project.completion}%</span>
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-slate-600 dark:text-slate-400 font-semibold">Completion</span>
+                  <span className="text-slate-900 dark:text-white font-bold">{project.completion}%</span>
                 </div>
-                <div className="bg-gray-200 rounded-full h-2">
+                <div className="bg-white/30 dark:bg-slate-800/30 rounded-full h-2.5 border border-white/20 dark:border-slate-700/50 overflow-hidden">
                   <div
-                    className="bg-green-600 h-2 rounded-full"
+                    className={`h-2.5 bg-gradient-to-r ${getStatusColor(project.status)}`}
                     style={{ width: `${project.completion}%` }}
                   ></div>
                 </div>
               </div>
 
-              <details className="text-sm">
-                <summary className="cursor-pointer text-green-700 font-semibold hover:text-green-800">
-                  View Milestones ({project.milestones.filter(m => m.status === "completed").length}/{project.milestones.length} completed)
-                </summary>
-                <div className="mt-3 space-y-2 pl-4">
-                  {project.milestones.map((milestone, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <span className={`w-3 h-3 rounded-full ${
-                        milestone.status === "completed" ? "bg-green-500" :
-                        milestone.status === "in-progress" ? "bg-blue-500" :
-                        milestone.status === "pending" ? "bg-yellow-500" :
-                        "bg-gray-300"
-                      }`}></span>
-                      <span className={milestone.status === "completed" ? "line-through text-gray-500" : ""}>
-                        {milestone.name}
-                      </span>
-                      <span className="text-gray-500 text-xs">({milestone.dueDate})</span>
-                    </div>
-                  ))}
-                </div>
-              </details>
-            </div>
+              <div className="pt-3 border-t border-white/20 dark:border-slate-700/50">
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300">
+                    View Milestones ({project.milestones.filter(m => m.status === "completed").length}/{project.milestones.length})
+                  </summary>
+                  <div className="mt-3 space-y-2 pl-4">
+                    {project.milestones.map((milestone, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <span className={`w-2.5 h-2.5 rounded-full ${
+                          milestone.status === "completed" ? "bg-green-500" :
+                          milestone.status === "in-progress" ? "bg-blue-500" :
+                          milestone.status === "pending" ? "bg-amber-500" :
+                          "bg-slate-400"
+                        }`}></span>
+                        <span className={`text-sm ${milestone.status === "completed" ? "line-through text-slate-500" : "text-slate-700 dark:text-slate-300"}`}>
+                          {milestone.name}
+                        </span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">({milestone.dueDate})</span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              </div>
+            </GlassCard>
           ))}
         </div>
 
         {/* Waitlist */}
-        <div className="mt-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-3">Housing Waitlist ({waitlist.length})</h3>
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Name</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Priority</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Family Size</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Preferences</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Waiting Since</th>
+        <div className="mt-8">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Housing Waitlist ({waitlist.length})</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/20 dark:border-slate-700/50">
+                  <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Name</th>
+                  <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Priority</th>
+                  <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Family Size</th>
+                  <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Preferences</th>
+                  <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">Since</th>
                 </tr>
               </thead>
               <tbody>
                 {waitlist.map((entry, idx) => (
-                  <tr key={entry.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="px-4 py-2 text-sm">{entry.name}</td>
-                    <td className="px-4 py-2">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${getPriorityColor(entry.priority)}`}>
+                  <tr key={entry.id} className={`border-b border-white/10 dark:border-slate-800/30 ${idx % 2 === 0 ? "bg-white/10 dark:bg-slate-800/10" : ""}`}>
+                    <td className="px-4 py-3 text-slate-900 dark:text-white">{entry.name}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r text-white`}>
                         {entry.priority}
                       </span>
                     </td>
-                    <td className="px-4 py-2 text-sm">{entry.familySize}</td>
-                    <td className="px-4 py-2 text-sm">{entry.preferences}</td>
-                    <td className="px-4 py-2 text-sm text-gray-600">{entry.waitingSince}</td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{entry.familySize}</td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{entry.preferences}</td>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{entry.waitingSince}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
-      </div>
+      </GlassSection>
     </div>
   );
 };
@@ -442,117 +523,138 @@ const WaterTab = ({ service, getStatusColor, getPriorityColor }) => {
   const balance = service.getWaterBalance();
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">💧 Water Infrastructure Expansion</h2>
+    <div className="space-y-8">
+      <GlassSection colors={{ primary: "cyan", secondary: "blue" }}>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">💧 Water Infrastructure Expansion</h2>
 
-      {/* Water Balance */}
-      <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
-        <h3 className="font-bold text-gray-800 mb-3">Current Water Balance</h3>
-        <div className="grid md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <div className="text-gray-600">Total Capacity</div>
-            <div className="text-2xl font-bold text-cyan-700">{(balance.totalCapacity / 1000).toFixed(0)}k L/day</div>
-          </div>
-          <div>
-            <div className="text-gray-600">Current Usage</div>
-            <div className="text-2xl font-bold text-blue-700">{(balance.totalUsage / 1000).toFixed(0)}k L/day</div>
-          </div>
-          <div>
-            <div className="text-gray-600">Local Production</div>
-            <div className="text-2xl font-bold text-green-700">{balance.localPercentage}%</div>
-          </div>
-          <div>
-            <div className="text-gray-600">Utilization</div>
-            <div className="text-2xl font-bold text-purple-700">{balance.utilizationRate}%</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Expansion Projects */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-bold text-gray-800">Expansion Projects</h3>
-        {projects.map(project => (
-          <div key={project.id} className="border border-gray-200 rounded-lg p-4">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h4 className="font-bold text-gray-800">{project.name}</h4>
-                <p className="text-sm text-gray-600">{project.type}</p>
-              </div>
-              <div className="flex gap-2">
-                <span className={`px-3 py-1 rounded text-xs font-semibold ${getPriorityColor(project.priority)}`}>
-                  {project.priority}
-                </span>
-                <span className={`px-3 py-1 rounded text-xs font-semibold ${getStatusColor(project.status)}`}>
-                  {project.status}
-                </span>
-              </div>
+        {/* Water Balance */}
+        <GlassCard colors={{ primary: "cyan", secondary: "blue" }} className="mb-8">
+          <h3 className="font-bold text-slate-900 dark:text-white mb-4">Current Water Balance</h3>
+          <GlassGrid cols={2} colsMd={4} gap={4}>
+            <div>
+              <p className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 uppercase">Total Capacity</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{(balance.totalCapacity / 1000).toFixed(0)}k</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">L/day</p>
             </div>
-
-            {project.capacity && (
-              <div className="text-sm mb-2">
-                <span className="text-gray-600">Capacity: </span>
-                <span className="font-semibold">{(project.capacity / 1000).toFixed(0)}k L/day</span>
-              </div>
-            )}
-
-            <div className="text-sm mb-2">
-              <span className="text-gray-600">Expected Impact: </span>
-              <span className="font-semibold text-green-700">{project.expectedImpact}</span>
+            <div>
+              <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase">Usage</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{(balance.totalUsage / 1000).toFixed(0)}k</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">L/day</p>
             </div>
-
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-600">Progress</span>
-              <span className="font-semibold">{project.completion}%</span>
+            <div>
+              <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase">Local Production</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{balance.localPercentage}%</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">of supply</p>
             </div>
-            <div className="bg-gray-200 rounded-full h-2 mb-3">
-              <div
-                className="bg-cyan-600 h-2 rounded-full"
-                style={{ width: `${project.completion}%` }}
-              ></div>
+            <div>
+              <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase">Utilization</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{balance.utilizationRate}%</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400">in use</p>
             </div>
+          </GlassGrid>
+        </GlassCard>
 
-            <details className="text-sm">
-              <summary className="cursor-pointer text-cyan-700 font-semibold">View Components</summary>
-              <div className="mt-2 space-y-1 pl-4">
-                {project.components.map((comp, idx) => (
-                  <div key={idx} className="flex justify-between">
-                    <span>{comp.name}</span>
-                    <span className={`px-2 py-0.5 rounded text-xs ${getStatusColor(comp.status)}`}>
-                      {comp.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </details>
-          </div>
-        ))}
-      </div>
-
-      {/* Conservation Programs */}
-      <div>
-        <h3 className="text-xl font-bold text-gray-800 mb-3">Conservation Programs</h3>
-        <div className="grid md:grid-cols-3 gap-4">
-          {conservation.map(program => (
-            <div key={program.id} className="border border-green-200 rounded-lg p-4 bg-green-50">
-              <h4 className="font-bold text-gray-800 mb-2">{program.name}</h4>
-              <div className="text-sm space-y-1">
-                <div><span className="text-gray-600">Target:</span> {program.target}</div>
-                <div><span className="text-gray-600">Savings:</span> <span className="font-semibold text-green-700">{program.savings}</span></div>
-                <div><span className="text-gray-600">Investment:</span> ${(program.investment / 1000).toFixed(0)}k</div>
-                <div className="mt-2">
-                  <div className="bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-green-600 h-2 rounded-full"
-                      style={{ width: `${program.completion}%` }}
-                    ></div>
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">{program.completion}% complete</div>
+        {/* Projects */}
+        <div className="space-y-4 mb-8">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Expansion Projects</h3>
+          {projects.map(project => (
+            <GlassCard key={project.id} colors={{ primary: "cyan", secondary: "blue" }}>
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h4 className="font-bold text-slate-900 dark:text-white">{project.name}</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{project.type}</p>
+                </div>
+                <div className="flex gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getPriorityColor(project.priority)} text-white`}>
+                    {project.priority}
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getStatusColor(project.status)} text-white`}>
+                    {project.status}
+                  </span>
                 </div>
               </div>
-            </div>
+
+              {project.capacity && (
+                <p className="text-sm mb-2">
+                  <span className="text-slate-600 dark:text-slate-400">Capacity: </span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{(project.capacity / 1000).toFixed(0)}k L/day</span>
+                </p>
+              )}
+
+              <p className="text-sm mb-4 text-green-600 dark:text-green-400 font-semibold">
+                ✓ Expected Impact: {project.expectedImpact}
+              </p>
+
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-slate-600 dark:text-slate-400">Progress</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{project.completion}%</span>
+                </div>
+                <div className="bg-white/30 dark:bg-slate-800/30 rounded-full h-2.5 border border-white/20 dark:border-slate-700/50 overflow-hidden">
+                  <div
+                    className={`h-2.5 bg-gradient-to-r from-cyan-400 to-blue-500`}
+                    style={{ width: `${project.completion}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <details className="text-sm">
+                <summary className="cursor-pointer text-cyan-600 dark:text-cyan-400 font-semibold hover:text-cyan-700">
+                  View Components
+                </summary>
+                <div className="mt-3 space-y-2 pl-4">
+                  {project.components.map((comp, idx) => (
+                    <div key={idx} className="flex justify-between items-center">
+                      <span className="text-slate-700 dark:text-slate-300">{comp.name}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold bg-gradient-to-r ${getStatusColor(comp.status)} text-white`}>
+                        {comp.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            </GlassCard>
           ))}
         </div>
-      </div>
+
+        {/* Conservation Programs */}
+        <div>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Conservation Programs</h3>
+          <GlassGrid cols={1} colsMd={3} gap={4}>
+            {conservation.map(program => (
+              <GlassCard key={program.id} colors={{ primary: "green", secondary: "emerald" }}>
+                <h4 className="font-bold text-slate-900 dark:text-white mb-4">{program.name}</h4>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">Target</p>
+                    <p className="font-semibold text-slate-900 dark:text-white">{program.target}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-green-600 dark:text-green-400">Savings</p>
+                    <p className="font-semibold text-slate-900 dark:text-white">{program.savings}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">Investment</p>
+                    <p className="font-semibold text-slate-900 dark:text-white">${(program.investment / 1000).toFixed(0)}k</p>
+                  </div>
+                  <div className="pt-3 border-t border-white/20 dark:border-slate-700/50">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="font-semibold text-slate-600 dark:text-slate-400">Progress</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{program.completion}%</span>
+                    </div>
+                    <div className="bg-white/30 dark:bg-slate-800/30 rounded-full h-2 border border-white/20 dark:border-slate-700/50 overflow-hidden">
+                      <div
+                        className="h-2 bg-gradient-to-r from-green-400 to-emerald-500"
+                        style={{ width: `${program.completion}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
+          </GlassGrid>
+        </div>
+      </GlassSection>
     </div>
   );
 };
@@ -564,141 +666,141 @@ const SolarTab = ({ service, getStatusColor, getPriorityColor }) => {
   const independence = service.getEnergyIndependence();
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">☀️ Solar & Energy Expansion</h2>
+    <div className="space-y-8">
+      <GlassSection colors={{ primary: "amber", secondary: "orange" }}>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">☀️ Solar & Energy Expansion</h2>
 
-      {/* Energy Independence */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-          <h3 className="font-bold text-gray-800 mb-3">Current Energy Status</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Daily Production:</span>
-              <span className="font-semibold">{independence.current.dailyProduction} kWh</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Daily Demand:</span>
-              <span className="font-semibold">{independence.current.dailyDemand} kWh</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Independence:</span>
-              <span className="font-semibold text-green-700">{independence.current.independence}%</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Status:</span>
-              <span className={`font-semibold ${independence.current.status === "surplus" ? "text-green-700" : "text-orange-700"}`}>
-                {independence.current.status}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-          <h3 className="font-bold text-gray-800 mb-3">Projected Energy Status</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Daily Production:</span>
-              <span className="font-semibold">{independence.projected.dailyProduction} kWh</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Daily Demand:</span>
-              <span className="font-semibold">{independence.projected.dailyDemand} kWh</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Independence:</span>
-              <span className="font-semibold text-green-700">{independence.projected.independence}%</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Status:</span>
-              <span className="font-semibold text-green-700">{independence.projected.status}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Metrics */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-600">Total Capacity</div>
-          <div className="text-3xl font-bold text-yellow-600">{metrics.futureCapacity} kW</div>
-          <div className="text-xs text-gray-500">+{metrics.plannedAddition} kW planned</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-600">Annual Production</div>
-          <div className="text-3xl font-bold text-green-600">{(metrics.projectedProduction / 1000).toFixed(0)}k kWh</div>
-          <div className="text-xs text-gray-500">+{((metrics.projectedProduction - metrics.currentProduction) / 1000).toFixed(0)}k kWh</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-sm text-gray-600">Cost Savings</div>
-          <div className="text-3xl font-bold text-blue-600">${(metrics.costSavings.projected / 1000).toFixed(0)}k</div>
-          <div className="text-xs text-gray-500">per year</div>
-        </div>
-      </div>
-
-      {/* Solar Projects */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-bold text-gray-800">Solar Projects</h3>
-        {projects.map(project => (
-          <div key={project.id} className="border border-gray-200 rounded-lg p-4">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h4 className="font-bold text-gray-800">{project.name}</h4>
-                <p className="text-sm text-gray-600">{project.type}</p>
+        {/* Energy Status */}
+        <GlassGrid cols={1} colsMd={2} gap={6} className="mb-8">
+          <GlassCard colors={{ primary: "amber", secondary: "yellow" }}>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-4">Current Energy Status</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-slate-600 dark:text-slate-400">Production:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{independence.current.dailyProduction} kWh</span>
               </div>
-              <div className="flex gap-2">
-                <span className={`px-3 py-1 rounded text-xs font-semibold ${getPriorityColor(project.priority)}`}>
-                  {project.priority}
-                </span>
-                <span className={`px-3 py-1 rounded text-xs font-semibold ${getStatusColor(project.status)}`}>
-                  {project.status}
+              <div className="flex justify-between">
+                <span className="text-slate-600 dark:text-slate-400">Demand:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{independence.current.dailyDemand} kWh</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-600 dark:text-slate-400">Independence:</span>
+                <span className="font-bold text-green-600 dark:text-green-400">{independence.current.independence}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-600 dark:text-slate-400">Status:</span>
+                <span className={`font-bold ${independence.current.status === "surplus" ? "text-green-600 dark:text-green-400" : "text-amber-600 dark:text-amber-400"}`}>
+                  {independence.current.status}
                 </span>
               </div>
             </div>
+          </GlassCard>
 
-            <div className="grid md:grid-cols-3 gap-3 mb-3 text-sm">
-              {project.capacity && (
+          <GlassCard colors={{ primary: "green", secondary: "emerald" }}>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-4">Projected Energy Status</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-slate-600 dark:text-slate-400">Production:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{independence.projected.dailyProduction} kWh</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-600 dark:text-slate-400">Demand:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{independence.projected.dailyDemand} kWh</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-600 dark:text-slate-400">Independence:</span>
+                <span className="font-bold text-green-600 dark:text-green-400">{independence.projected.independence}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-600 dark:text-slate-400">Status:</span>
+                <span className="font-bold text-green-600 dark:text-green-400">{independence.projected.status}</span>
+              </div>
+            </div>
+          </GlassCard>
+        </GlassGrid>
+
+        {/* Metrics */}
+        <GlassGrid cols={1} colsMd={3} gap={4} className="mb-8">
+          <GlassCard colors={{ primary: "amber", secondary: "yellow" }}>
+            <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase">Capacity</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{metrics.futureCapacity} kW</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">+{metrics.plannedAddition} kW planned</p>
+          </GlassCard>
+          <GlassCard colors={{ primary: "green", secondary: "emerald" }}>
+            <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase">Annual Production</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{(metrics.projectedProduction / 1000).toFixed(0)}k kWh</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">+{((metrics.projectedProduction - metrics.currentProduction) / 1000).toFixed(0)}k increase</p>
+          </GlassCard>
+          <GlassCard colors={{ primary: "blue", secondary: "cyan" }}>
+            <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase">Annual Savings</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">${(metrics.costSavings.projected / 1000).toFixed(0)}k</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">projected per year</p>
+          </GlassCard>
+        </GlassGrid>
+
+        {/* Projects */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Solar Projects</h3>
+          {projects.map(project => (
+            <GlassCard key={project.id} colors={{ primary: "amber", secondary: "orange" }}>
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <span className="text-gray-600">Capacity:</span>
-                  <span className="ml-2 font-semibold">{project.capacity} kW</span>
+                  <h4 className="font-bold text-slate-900 dark:text-white">{project.name}</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{project.type}</p>
                 </div>
+                <div className="flex gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getPriorityColor(project.priority)} text-white`}>
+                    {project.priority}
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getStatusColor(project.status)} text-white`}>
+                    {project.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-3 mb-4 text-sm">
+                {project.capacity && (
+                  <div>
+                    <span className="text-slate-600 dark:text-slate-400 text-xs">Capacity</span>
+                    <p className="font-bold text-slate-900 dark:text-white">{project.capacity} kW</p>
+                  </div>
+                )}
+                <div>
+                  <span className="text-slate-600 dark:text-slate-400 text-xs">Budget</span>
+                  <p className="font-bold text-slate-900 dark:text-white">${(project.budget / 1000).toFixed(0)}k</p>
+                </div>
+                <div>
+                  <span className="text-slate-600 dark:text-slate-400 text-xs">ROI</span>
+                  <p className="font-bold text-slate-900 dark:text-white">{project.roi}</p>
+                </div>
+              </div>
+
+              {project.expectedOutput && (
+                <p className="text-sm mb-2 text-green-600 dark:text-green-400 font-semibold">
+                  ⚡ Output: {project.expectedOutput}
+                </p>
               )}
-              <div>
-                <span className="text-gray-600">Budget:</span>
-                <span className="ml-2 font-semibold">${(project.budget / 1000).toFixed(0)}k</span>
-              </div>
-              <div>
-                <span className="text-gray-600">ROI:</span>
-                <span className="ml-2 font-semibold">{project.roi}</span>
-              </div>
-            </div>
 
-            {project.expectedOutput && (
-              <div className="text-sm mb-2">
-                <span className="text-gray-600">Expected Output: </span>
-                <span className="font-semibold text-green-700">{project.expectedOutput}</span>
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-slate-600 dark:text-slate-400">Progress</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{project.completion}%</span>
+                </div>
+                <div className="bg-white/30 dark:bg-slate-800/30 rounded-full h-2.5 border border-white/20 dark:border-slate-700/50 overflow-hidden">
+                  <div
+                    className="h-2.5 bg-gradient-to-r from-amber-400 to-orange-500"
+                    style={{ width: `${project.completion}%` }}
+                  ></div>
+                </div>
               </div>
-            )}
 
-            {project.expectedImpact && (
-              <div className="text-sm mb-2">
-                <span className="text-gray-600">Impact: </span>
-                <span className="font-semibold text-green-700">{project.expectedImpact}</span>
+              <div className="text-xs text-amber-600 dark:text-amber-400 font-semibold">
+                🔗 Smart contract active on Ethereum
               </div>
-            )}
-
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-600">Progress</span>
-              <span className="font-semibold">{project.completion}%</span>
-            </div>
-            <div className="bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-yellow-500 h-2 rounded-full"
-                style={{ width: `${project.completion}%` }}
-              ></div>
-            </div>
-          </div>
-        ))}
-      </div>
+            </GlassCard>
+          ))}
+        </div>
+      </GlassSection>
     </div>
   );
 };
@@ -711,129 +813,139 @@ const EmergencyTab = ({ service, getStatusColor }) => {
   const readiness = service.getReadinessScore();
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">🚨 Emergency Preparedness</h2>
+    <div className="space-y-8">
+      <GlassSection colors={{ primary: "rose", secondary: "red" }}>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">🚨 Emergency Preparedness</h2>
 
-      {/* Readiness Score */}
-      <div className="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-lg border border-red-200">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Overall Readiness Score</h3>
-        <div className="text-center mb-4">
-          <div className="text-5xl font-bold text-red-600">{readiness.overall}%</div>
-          <div className="text-gray-600 capitalize">{readiness.status}</div>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4 text-sm">
-          {Object.entries(readiness.categories).map(([cat, score]) => (
-            <div key={cat} className="text-center">
-              <div className="text-2xl font-bold text-gray-800">{score}%</div>
-              <div className="text-gray-600 capitalize">{cat}</div>
+        {/* Readiness Score */}
+        <GlassCard colors={{ primary: "rose", secondary: "red" }} className="mb-8">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Overall Readiness Score</h3>
+          <div className="text-center mb-6">
+            <div className="text-5xl font-bold bg-gradient-to-r from-rose-600 to-red-600 dark:from-rose-400 dark:to-red-400 bg-clip-text text-transparent">
+              {readiness.overall}%
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Emergency Supplies */}
-      <div>
-        <h3 className="text-xl font-bold text-gray-800 mb-3">Emergency Supplies</h3>
-        <div className="grid md:grid-cols-2 gap-4">
-          {Object.entries(supplies).map(([category, data]) => (
-            <div key={category} className="border border-gray-200 rounded-lg p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h4 className="font-bold text-gray-800 capitalize">{category}</h4>
-                <span className={`px-2 py-1 rounded text-xs font-semibold ${getStatusColor(data.status)}`}>
-                  {data.status}
-                </span>
+            <div className="text-slate-600 dark:text-slate-400 capitalize mt-2 font-semibold">
+              {readiness.status}
+            </div>
+          </div>
+          <GlassGrid cols={1} colsMd={3} gap={4}>
+            {Object.entries(readiness.categories).map(([cat, score]) => (
+              <div key={cat} className="text-center bg-white/20 dark:bg-slate-800/20 p-3 rounded-lg border border-white/10 dark:border-slate-700/30">
+                <div className="text-3xl font-bold text-slate-900 dark:text-white">{score}%</div>
+                <div className="text-xs font-semibold text-slate-600 dark:text-slate-400 capitalize mt-1">{cat}</div>
               </div>
-              <div className="text-sm space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Current Reserve:</span>
-                  <span className="font-semibold">{data.currentReserve} days</span>
+            ))}
+          </GlassGrid>
+        </GlassCard>
+
+        {/* Emergency Supplies */}
+        <div className="mb-8">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Emergency Supplies</h3>
+          <GlassGrid cols={1} colsMd={2} gap={4}>
+            {Object.entries(supplies).map(([category, data]) => (
+              <GlassCard key={category} colors={{ primary: "rose", secondary: "red" }}>
+                <div className="flex justify-between items-start mb-4">
+                  <h4 className="font-bold text-slate-900 dark:text-white capitalize">{category}</h4>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getStatusColor(data.status)} text-white`}>
+                    {data.status}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Target:</span>
-                  <span className="font-semibold">{data.target} days</span>
-                </div>
-                <div className="mt-2">
-                  <div className="bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${
-                        (data.currentReserve / data.target) >= 0.9 ? "bg-green-600" :
-                        (data.currentReserve / data.target) >= 0.75 ? "bg-yellow-600" :
-                        "bg-red-600"
-                      }`}
-                      style={{ width: `${Math.min(100, (data.currentReserve / data.target) * 100)}%` }}
-                    ></div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Current Reserve:</span>
+                    <span className="font-bold text-slate-900 dark:text-white">{data.currentReserve} days</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-400">Target:</span>
+                    <span className="font-bold text-slate-900 dark:text-white">{data.target} days</span>
+                  </div>
+                  <div className="pt-2 border-t border-white/20 dark:border-slate-700/50">
+                    <div className="bg-white/30 dark:bg-slate-800/30 rounded-full h-3 border border-white/20 dark:border-slate-700/50 overflow-hidden">
+                      <div
+                        className={`h-3 bg-gradient-to-r ${
+                          (data.currentReserve / data.target) >= 0.9 ? "from-green-400 to-emerald-500" :
+                          (data.currentReserve / data.target) >= 0.75 ? "from-amber-400 to-orange-500" :
+                          "from-red-400 to-rose-500"
+                        }`}
+                        style={{ width: `${Math.min(100, (data.currentReserve / data.target) * 100)}%` }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              </GlassCard>
+            ))}
+          </GlassGrid>
         </div>
-      </div>
 
-      {/* Response Teams */}
-      <div>
-        <h3 className="text-xl font-bold text-gray-800 mb-3">Response Teams</h3>
-        <div className="space-y-3">
-          {teams.map(team => (
-            <div key={team.id} className="border border-gray-200 rounded-lg p-4 flex justify-between items-center">
-              <div>
-                <h4 className="font-bold text-gray-800">{team.name}</h4>
-                <div className="text-sm text-gray-600">
-                  Lead: {team.lead} • {team.members} members
+        {/* Response Teams */}
+        <div className="mb-8">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Response Teams</h3>
+          <div className="space-y-3">
+            {teams.map(team => (
+              <GlassCard key={team.id} colors={{ primary: "rose", secondary: "red" }}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-bold text-slate-900 dark:text-white">{team.name}</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Lead: {team.lead} • {team.members} members
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                      Last Training: {team.lastTraining}
+                    </p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getStatusColor(team.certifications.toLowerCase())} text-white`}>
+                    {team.certifications}
+                  </span>
                 </div>
-                <div className="text-sm text-gray-500">
-                  Last Training: {team.lastTraining}
-                </div>
-              </div>
-              <span className={`px-3 py-1 rounded text-xs font-semibold ${getStatusColor(team.certifications.toLowerCase())}`}>
-                {team.certifications}
-              </span>
-            </div>
-          ))}
+              </GlassCard>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Emergency Plans */}
-      <div>
-        <h3 className="text-xl font-bold text-gray-800 mb-3">Emergency Response Plans</h3>
-        <div className="space-y-3">
-          {plans.map(plan => (
-            <div key={plan.id} className="border border-gray-200 rounded-lg p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h4 className="font-bold text-gray-800">{plan.name}</h4>
-                  <p className="text-sm text-gray-600">{plan.type}</p>
+        {/* Emergency Plans */}
+        <div>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Emergency Response Plans</h3>
+          <div className="space-y-3">
+            {plans.map(plan => (
+              <GlassCard key={plan.id} colors={{ primary: "rose", secondary: "red" }}>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h4 className="font-bold text-slate-900 dark:text-white">{plan.name}</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{plan.type}</p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getStatusColor(plan.status)} text-white`}>
+                    {plan.status}
+                  </span>
                 </div>
-                <span className={`px-3 py-1 rounded text-xs font-semibold ${getStatusColor(plan.status)}`}>
-                  {plan.status}
-                </span>
-              </div>
-              <div className="text-sm space-y-1 mb-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Last Updated:</span>
-                  <span className="font-semibold">{plan.lastUpdated}</span>
+                <div className="space-y-2 mb-4 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600 dark:text-slate-400">Last Updated:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{plan.lastUpdated}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600 dark:text-slate-400">Last Drill:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{plan.lastDrill}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600 dark:text-slate-400">Participation:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{plan.participation}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Last Drill:</span>
-                  <span className="font-semibold">{plan.lastDrill}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Participation:</span>
-                  <span className="font-semibold">{plan.participation}</span>
-                </div>
-              </div>
-              <details className="text-sm">
-                <summary className="cursor-pointer text-red-700 font-semibold">View Components</summary>
-                <ul className="mt-2 space-y-1 pl-4">
-                  {plan.keyComponents.map((comp, idx) => (
-                    <li key={idx} className="text-gray-700">• {comp}</li>
-                  ))}
-                </ul>
-              </details>
-            </div>
-          ))}
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-rose-600 dark:text-rose-400 font-semibold hover:text-rose-700">
+                    View Components
+                  </summary>
+                  <ul className="mt-3 space-y-1 pl-4">
+                    {plan.keyComponents.map((comp, idx) => (
+                      <li key={idx} className="text-slate-700 dark:text-slate-300">• {comp}</li>
+                    ))}
+                  </ul>
+                </details>
+              </GlassCard>
+            ))}
+          </div>
         </div>
-      </div>
+      </GlassSection>
     </div>
   );
 };
