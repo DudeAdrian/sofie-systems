@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import eventBus, { EVENTS } from "../core/EventBus";
-import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
+import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../theme/QuantumGlassTheme";
 
 const AlertCenter = () => {
   const [alerts, setAlerts] = useState([]);
@@ -67,78 +67,78 @@ const AlertCenter = () => {
   const resolvedAlerts = filteredAlerts.filter(a => a.acknowledged);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 dark:from-gray-950 dark:via-gray-900 dark:to-red-950 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-rose-950 via-gray-900 to-red-950 text-white p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
 
         {/* Header */}
-        <GlassSection colors={{ primary: "red", secondary: "rose" }} elevation="high">
+        <QuantumSection chakra="root" opacityLevel="crystal" blurLevel="deep" edgeGlow>
           <div className="py-12 px-8">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 text-white drop-shadow-[0_0_25px_rgba(255,0,85,0.55)]">
               🚨 Alert Center
             </h1>
-            <p className="text-lg text-red-700 dark:text-red-200 max-w-2xl">
+            <p className="text-lg text-rose-100 max-w-2xl drop-shadow-[0_0_12px_rgba(255,0,85,0.35)]">
               Real-time system alerts, critical notifications, and issue tracking
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
-              <span className="px-4 py-2 bg-red-100/50 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded-full text-sm font-medium backdrop-blur-sm">
+              <span className="px-4 py-2 bg-white/10 text-white rounded-full text-sm font-medium backdrop-blur-sm border border-white/15">
                 🔔 Live Alerts
               </span>
-              <span className="px-4 py-2 bg-amber-100/50 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded-full text-sm font-medium backdrop-blur-sm">
+              <span className="px-4 py-2 bg-white/10 text-amber-200 rounded-full text-sm font-medium backdrop-blur-sm border border-amber-300/30">
                 ⚙️ Auto-Detection
               </span>
-              <span className="px-4 py-2 bg-blue-100/50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium backdrop-blur-sm">
+              <span className="px-4 py-2 bg-white/10 text-cyan-200 rounded-full text-sm font-medium backdrop-blur-sm border border-cyan-300/30">
                 📊 Prioritized
               </span>
             </div>
           </div>
-        </GlassSection>
+        </QuantumSection>
 
         {/* Alert Stats */}
-        <GlassGrid cols={2} colsMd={4} gap={5}>
-          <GlassCard colors={{ primary: "red", secondary: "rose" }}>
+        <QuantumGlassGrid columns={4} gap={5}>
+          <QuantumCard chakra="root" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
             <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
-              <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Total Alerts</div>
-              <div className="text-5xl font-bold text-red-600 dark:text-red-400">{alerts.length}</div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">All-time</p>
+              <div className="text-sm text-rose-100 mb-2">Total Alerts</div>
+              <div className="text-5xl font-bold text-white drop-shadow-[0_0_20px_rgba(255,0,85,0.5)]">{alerts.length}</div>
+              <p className="text-xs text-rose-200/80 mt-3">All-time</p>
             </div>
-          </GlassCard>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "orange", secondary: "red" }}>
+          <QuantumCard chakra="sacral" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
             <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
-              <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Active</div>
-              <div className="text-5xl font-bold text-orange-600 dark:text-orange-400">{activeAlerts.length}</div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">Unresolved</p>
+              <div className="text-sm text-amber-100 mb-2">Active</div>
+              <div className="text-5xl font-bold text-white drop-shadow-[0_0_20px_rgba(255,102,0,0.5)]">{activeAlerts.length}</div>
+              <p className="text-xs text-amber-200/80 mt-3">Unresolved</p>
             </div>
-          </GlassCard>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "red", secondary: "rose" }}>
+          <QuantumCard chakra="root" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
             <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
-              <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Critical</div>
-              <div className="text-5xl font-bold text-red-600 dark:text-red-400">{alerts.filter(a => a.severity === "critical").length}</div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">Immediate action</p>
+              <div className="text-sm text-rose-100 mb-2">Critical</div>
+              <div className="text-5xl font-bold text-white drop-shadow-[0_0_22px_rgba(255,0,85,0.55)]">{alerts.filter(a => a.severity === "critical").length}</div>
+              <p className="text-xs text-rose-200/80 mt-3">Immediate action</p>
             </div>
-          </GlassCard>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "emerald", secondary: "green" }}>
+          <QuantumCard chakra="heart" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
             <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
-              <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Resolved</div>
-              <div className="text-5xl font-bold text-emerald-600 dark:text-emerald-400">{resolvedAlerts.length}</div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">Acknowledged</p>
+              <div className="text-sm text-emerald-100 mb-2">Resolved</div>
+              <div className="text-5xl font-bold text-white drop-shadow-[0_0_20px_rgba(0,255,136,0.5)]">{resolvedAlerts.length}</div>
+              <p className="text-xs text-emerald-200/80 mt-3">Acknowledged</p>
             </div>
-          </GlassCard>
-        </GlassGrid>
+          </QuantumCard>
+        </QuantumGlassGrid>
 
         {/* Filters & Tabs */}
-        <GlassSection colors={{ primary: "red", secondary: "rose" }}>
-          <div className="flex flex-wrap border-b border-red-300/30 dark:border-red-700/30 backdrop-blur-sm">
+        <QuantumSection chakra="root" opacityLevel="crystal" blurLevel="deep" edgeGlow>
+          <div className="flex flex-wrap border-b border-red-700/40 backdrop-blur-sm">
             {["active", "resolved"].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-8 py-4 font-medium capitalize text-lg transition-all duration-200 ${
                   activeTab === tab
-                    ? "bg-gradient-to-b from-red-400/40 to-red-300/20 dark:from-red-600/50 dark:to-red-700/30 text-red-700 dark:text-red-300 border-b-2 border-red-600 dark:border-red-400"
-                    : "text-gray-700 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-200/10 dark:hover:bg-red-700/10"
+                    ? "bg-gradient-to-b from-red-700/60 to-rose-600/50 text-white border-b-2 border-rose-300 shadow-[0_10px_30px_rgba(255,0,85,0.3)]"
+                    : "text-rose-100 hover:text-white hover:bg-white/10"
                 }`}
               >
                 {tab === "active" && "🔴"}
@@ -149,15 +149,15 @@ const AlertCenter = () => {
           </div>
 
           {/* Severity Filter */}
-          <div className="p-4 md:p-8 border-b border-red-200/30 dark:border-red-700/30 flex flex-wrap gap-3">
+          <div className="p-4 md:p-8 border-b border-red-700/30 flex flex-wrap gap-3">
             {["all", "critical", "high", "medium", "low"].map(sev => (
               <button
                 key={sev}
                 onClick={() => setFilter(sev)}
                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   filter === sev
-                    ? "bg-red-600 text-white"
-                    : "bg-red-100/30 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200/50"
+                    ? "bg-gradient-to-r from-red-600 to-rose-500 text-white shadow-[0_0_15px_rgba(255,0,85,0.4)]"
+                    : "bg-white/10 text-rose-100 hover:bg-white/20"
                 }`}
               >
                 {sev.charAt(0).toUpperCase() + sev.slice(1)}
@@ -171,7 +171,7 @@ const AlertCenter = () => {
               activeAlerts.length > 0 ? activeAlerts.map(alert => {
                 const colors = getSeverityColor(alert.severity);
                 return (
-                  <GlassCard key={alert.id} colors={{ primary: "red", secondary: "rose" }}>
+                  <QuantumCard key={alert.id} chakra="root" blurLevel="medium" opacityLevel="veil" glow edgeGlow>
                     <div className={`p-6 border-l-4 ${colors.border} ${colors.bg}`}>
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
@@ -182,16 +182,16 @@ const AlertCenter = () => {
                           {alert.severity.toUpperCase()}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center pt-3 border-t border-gray-200/30 dark:border-gray-700/30">
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <div className="flex justify-between items-center pt-3 border-t border-red-900/40">
+                        <p className="text-xs text-rose-100/80">
                           {alert.service.toUpperCase()} • {new Date(alert.timestamp).toLocaleTimeString()}
                         </p>
-                        <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition">
+                        <button className="px-3 py-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:shadow-[0_0_15px_rgba(0,187,255,0.5)] text-white text-xs font-bold rounded-lg transition">
                           Acknowledge
                         </button>
                       </div>
                     </div>
-                  </GlassCard>
+                  </QuantumCard>
                 );
               }) : (
                 <div className="text-center py-12 text-gray-600 dark:text-gray-400">
@@ -202,22 +202,22 @@ const AlertCenter = () => {
               resolvedAlerts.length > 0 ? resolvedAlerts.map(alert => {
                 const colors = getSeverityColor(alert.severity);
                 return (
-                  <GlassCard key={alert.id} colors={{ primary: "red", secondary: "rose" }}>
-                    <div className={`p-6 border-l-4 border-gray-400 opacity-75`}>
+                  <QuantumCard key={alert.id} chakra="heart" blurLevel="medium" opacityLevel="veil" glow edgeGlow>
+                    <div className={`p-6 border-l-4 border-gray-400/60 opacity-80`}>
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-through">{alert.title}</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{alert.message}</p>
+                          <h3 className="font-bold text-lg text-white line-through drop-shadow-[0_0_12px_rgba(0,255,136,0.35)]">{alert.title}</h3>
+                          <p className="text-sm text-rose-100/80 mt-2">{alert.message}</p>
                         </div>
-                        <span className="px-3 py-1 bg-emerald-100/50 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-bold">
+                        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-200 rounded-full text-xs font-bold border border-emerald-300/30">
                           ✓ RESOLVED
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-rose-100/70">
                         {alert.service.toUpperCase()} • Resolved {new Date(alert.timestamp).toLocaleTimeString()}
                       </p>
                     </div>
-                  </GlassCard>
+                  </QuantumCard>
                 );
               }) : (
                 <div className="text-center py-12 text-gray-600 dark:text-gray-400">
@@ -226,7 +226,7 @@ const AlertCenter = () => {
               )
             )}
           </div>
-        </GlassSection>
+        </QuantumSection>
 
       </div>
     </div>

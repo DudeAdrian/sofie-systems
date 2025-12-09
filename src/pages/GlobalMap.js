@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRegion } from "../context/RegionContext";
 import GlobalMapService from "../services/GlobalMapService";
 import InteractiveMap from "../components/InteractiveMap";
-import { GlassSection, GlassCard } from "../theme/GlassmorphismTheme";
+import { QuantumSection, QuantumCard } from "../theme/QuantumGlassTheme";
 
 // Map RegionSelector selection -> GlobalMapService continent keys
 const CONTINENT_BY_REGION = {
@@ -44,7 +44,7 @@ const GlobalMap = () => {
   const renderCommunityCard = (community) => {
     if (!community) return null;
     return (
-      <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+      <QuantumCard chakra="throat" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Selected community</p>
@@ -66,14 +66,14 @@ const GlobalMap = () => {
             </div>
           ))}
         </div>
-      </GlassCard>
+      </QuantumCard>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-950 via-gray-900 to-blue-950 text-white p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <GlassSection colors={{ primary: "slate", secondary: "gray" }} elevation="high">
+        <QuantumSection chakra="throat" opacityLevel="crystal" blurLevel="deep" edgeGlow>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
@@ -104,18 +104,18 @@ const GlobalMap = () => {
               Select a region in the header to load its communities.
             </p>
           )}
-        </GlassSection>
+        </QuantumSection>
 
         {selectedRegion && (
-          <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+          <QuantumCard chakra="throat" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase text-slate-500 dark:text-slate-400 font-semibold">Region</p>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{selectedRegion.name}</h2>
-                  <p className="text-sm text-slate-600 dark:text-slate-300">{continent}</p>
+                  <p className="text-xs uppercase text-cyan-200 font-semibold drop-shadow-[0_0_10px_rgba(0,187,255,0.5)]">Region</p>
+                  <h2 className="text-2xl font-bold text-white drop-shadow-[0_0_15px_rgba(0,187,255,0.4)]">{selectedRegion.name}</h2>
+                  <p className="text-sm text-cyan-100/80">{continent}</p>
                 </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">
+                <div className="text-sm text-cyan-100/80">
                   {communities.length} communities in view
                 </div>
               </div>
@@ -137,8 +137,8 @@ const GlobalMap = () => {
                           onClick={() => setSelectedCommunity(c)}
                           className={`px-3 py-2 rounded-lg text-xs font-semibold border transition ${
                             selectedCommunity && selectedCommunity.id === c.id
-                              ? "border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200"
-                              : "border-slate-200 dark:border-slate-700 bg-white/40 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60"
+                              ? "border-cyan-400 bg-cyan-500/10 text-cyan-200 shadow-[0_0_15px_rgba(0,187,255,0.5)]"
+                              : "border-cyan-700/50 bg-white/5 text-white hover:bg-white/10"
                           }`}
                         >
                           {GlobalMapService.getMetricIndicator(c[selectedLayer])} {c.name}
@@ -153,7 +153,7 @@ const GlobalMap = () => {
                 </div>
               )}
             </div>
-          </GlassCard>
+          </QuantumCard>
         )}
       </div>
     </div>

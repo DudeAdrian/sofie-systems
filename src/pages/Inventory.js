@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
-import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
+import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../theme/QuantumGlassTheme";
 
 const Inventory = () => {
   const [inventory, setInventory] = useState({});
@@ -30,20 +30,20 @@ const Inventory = () => {
   const categories = Object.keys(inventory);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-teal-950 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-gray-950 to-teal-950 text-white p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <GlassSection colors={{ primary: "teal", secondary: "cyan" }} elevation="high">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-900 to-cyan-700 dark:from-teal-100 dark:to-cyan-400 bg-clip-text text-transparent">
+        <QuantumSection chakra="heart" opacityLevel="crystal" blurLevel="deep" edgeGlow>
+          <h1 className="text-4xl font-bold text-white drop-shadow-[0_0_22px_rgba(16,185,129,0.55)]">
             📦 Community Inventory
           </h1>
-          <p className="text-slate-600 dark:text-slate-300 mt-2">Track and manage shared resources across the community</p>
-        </GlassSection>
+          <p className="text-emerald-100/80 mt-2 drop-shadow-[0_0_12px_rgba(16,185,129,0.4)]">Track and manage shared resources across the community</p>
+        </QuantumSection>
 
-        <GlassGrid cols={1} colsMd={2} gap={6}>
+        <QuantumGlassGrid columns={2} gap={6} className="grid-cols-1 md:grid-cols-2">
           {/* Categories Sidebar */}
-          <GlassCard colors={{ primary: "teal", secondary: "cyan" }}>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Categories</h2>
+          <QuantumCard chakra="heart" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+            <h2 className="text-2xl font-bold text-white mb-4 drop-shadow-[0_0_12px_rgba(16,185,129,0.45)]">Categories</h2>
             <div className="space-y-2">
               {categories.map((category) => (
                 <button
@@ -51,8 +51,8 @@ const Inventory = () => {
                   onClick={() => setSelectedCategory(category)}
                   className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition ${
                     selectedCategory === category
-                      ? "bg-gradient-to-r from-teal-500 to-cyan-600 text-white"
-                      : "bg-white/30 dark:bg-slate-800/30 text-slate-700 dark:text-slate-300 border border-white/20 dark:border-slate-700/50 hover:bg-white/50 dark:hover:bg-slate-800/50"
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border border-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.45)]"
+                      : "bg-white/5 text-white border border-emerald-500/30 hover:bg-white/10"
                   }`}
                 >
                   <span className="capitalize">{category}</span>
@@ -60,71 +60,71 @@ const Inventory = () => {
                 </button>
               ))}
             </div>
-          </GlassCard>
+          </QuantumCard>
 
           {/* Add Item Form */}
-          <GlassCard colors={{ primary: "green", secondary: "emerald" }}>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Add to Inventory</h2>
+          <QuantumCard chakra="heart" blurLevel="deep" opacityLevel="ultraClear" glow>
+            <h2 className="text-2xl font-bold text-white mb-4 drop-shadow-[0_0_12px_rgba(16,185,129,0.45)]">Add to Inventory</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Item Name</label>
+                <label className="block text-sm font-semibold text-emerald-100/90 mb-2">Item Name</label>
                 <input
                   type="text"
                   placeholder="e.g., Tomato Seeds"
                   value={newItem}
                   onChange={(e) => setNewItem(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg bg-white/50 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 text-slate-900 dark:text-white placeholder-slate-500"
+                  className="w-full px-4 py-2 rounded-lg bg-white/10 border border-emerald-500/30 text-white placeholder-emerald-200/70 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Quantity</label>
+                <label className="block text-sm font-semibold text-emerald-100/90 mb-2">Quantity</label>
                 <input
                   type="number"
                   placeholder="Enter quantity"
                   value={newQuantity}
                   onChange={(e) => setNewQuantity(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg bg-white/50 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700/50 text-slate-900 dark:text-white placeholder-slate-500"
+                  className="w-full px-4 py-2 rounded-lg bg-white/10 border border-emerald-500/30 text-white placeholder-emerald-200/70 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
                 />
               </div>
               <button
                 onClick={handleAddItem}
-                className="w-full px-4 py-2 rounded-lg font-bold bg-gradient-to-r from-green-400 to-emerald-500 text-white hover:shadow-lg transition-all"
+                className="w-full px-4 py-2 rounded-lg font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all"
               >
                 Add to Inventory
               </button>
             </div>
-          </GlassCard>
-        </GlassGrid>
+          </QuantumCard>
+        </QuantumGlassGrid>
 
         {/* Items Grid */}
-        <GlassSection colors={{ primary: "slate", secondary: "gray" }}>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+        <QuantumSection chakra="throat" opacityLevel="veil" blurLevel="medium" edgeGlow>
+          <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-[0_0_12px_rgba(34,211,238,0.45)]">
             {selectedCategory.toUpperCase()} Items
           </h2>
-          <GlassGrid cols={1} colsMd={3} gap={4}>
+          <QuantumGlassGrid columns={3} gap={4} className="grid-cols-1 md:grid-cols-3">
             {inventory[selectedCategory]?.categories &&
               Object.entries(inventory[selectedCategory].categories).map(([item, quantity]) => (
-                <GlassCard key={item} colors={{ primary: "teal", secondary: "cyan" }}>
-                  <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase">Item</p>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-2 mb-2">{item}</h3>
-                  <p className="text-3xl font-bold text-teal-600 dark:text-teal-400 mb-2">{quantity}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">{inventory[selectedCategory]?.unit}</p>
-                </GlassCard>
+                <QuantumCard key={item} chakra="heart" blurLevel="deep" opacityLevel="ultraClear" glow>
+                  <p className="text-xs font-semibold text-emerald-200 uppercase">Item</p>
+                  <h3 className="text-xl font-bold text-white mt-2 mb-2 drop-shadow-[0_0_10px_rgba(16,185,129,0.4)]">{item}</h3>
+                  <p className="text-3xl font-bold text-emerald-200 drop-shadow-[0_0_14px_rgba(16,185,129,0.45)] mb-2">{quantity}</p>
+                  <p className="text-sm text-emerald-100/75">{inventory[selectedCategory]?.unit}</p>
+                </QuantumCard>
               ))}
             {(!inventory[selectedCategory]?.categories || Object.keys(inventory[selectedCategory].categories).length === 0) && (
               <div className="col-span-full text-center py-12">
-                <p className="text-slate-600 dark:text-slate-400 text-lg font-semibold">No items in this category yet</p>
+                <p className="text-emerald-100/75 text-lg font-semibold">No items in this category yet</p>
               </div>
             )}
-          </GlassGrid>
-        </GlassSection>
+          </QuantumGlassGrid>
+        </QuantumSection>
 
         {/* Web3 Badge */}
-        <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
-          <p className="text-center text-sm font-semibold text-slate-600 dark:text-slate-400">
+        <QuantumCard chakra="throat" opacityLevel="veil" blurLevel="shallow" edgeGlow>
+          <p className="text-center text-sm font-semibold text-cyan-100/80 drop-shadow-[0_0_12px_rgba(34,211,238,0.4)]">
             🔗 Inventory tracked on blockchain • Verified across network
           </p>
-        </GlassCard>
+        </QuantumCard>
       </div>
     </div>
   );

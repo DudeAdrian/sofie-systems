@@ -7,7 +7,11 @@
 class APIService {
   constructor() {
     this.name = "API";
-    this.baseURL = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+    // Prefer shared backend env, then legacy API URL, then localhost fallback
+    this.baseURL =
+      process.env.REACT_APP_BACKEND_URL ||
+      process.env.REACT_APP_API_URL ||
+      "http://localhost:3001/api";
     this.weatherAPIKey = process.env.REACT_APP_WEATHER_API_KEY || "demo";
     this.endpoints = {
       weather: "https://api.openweathermap.org/data/2.5",

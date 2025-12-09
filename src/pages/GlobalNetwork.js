@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
-import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
+import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../theme/QuantumGlassTheme";
 
 const GlobalNetwork = () => {
   const [networkService, setNetworkService] = useState(null);
@@ -70,61 +70,61 @@ const GlobalNetwork = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-teal-950 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-950 via-gray-900 to-blue-950 text-white p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <GlassSection colors={{ primary: "teal", secondary: "cyan" }} elevation="high">
+        <QuantumSection chakra="throat" opacityLevel="crystal" blurLevel="deep" edgeGlow>
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-900 to-blue-700 dark:from-teal-100 dark:to-blue-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold text-white drop-shadow-[0_0_25px_rgba(0,187,255,0.55)]">
                 🌍 Global Community Network
               </h1>
-              <p className="text-slate-600 dark:text-slate-300 mt-2">
+              <p className="text-cyan-100/80 mt-2 drop-shadow-[0_0_12px_rgba(0,187,255,0.35)]">
                 Connecting {metrics.totalCommunities} sustainable communities worldwide • {metrics.totalPopulation.toLocaleString()} members
               </p>
             </div>
             <div className="text-right text-xs">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/40 dark:bg-slate-800/40 backdrop-blur-md border border-white/20 dark:border-slate-700/50">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-cyan-400/30 shadow-[0_0_20px_rgba(0,187,255,0.35)]">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="font-semibold text-slate-700 dark:text-slate-200">{web3Status}</span>
+                <span className="font-semibold text-white">{web3Status}</span>
               </div>
-              <p className="text-slate-500 dark:text-slate-400 mt-2">Blockchain verified</p>
+              <p className="text-cyan-100/80 mt-2">Blockchain verified</p>
             </div>
           </div>
-        </GlassSection>
+        </QuantumSection>
 
         {/* Global Metrics */}
-        <GlassGrid cols={2} colsMd={6} gap={3}>
-          <GlassCard colors={{ primary: "teal", secondary: "cyan" }}>
-            <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase">Communities</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{metrics.totalCommunities}</p>
-          </GlassCard>
+        <QuantumGlassGrid columns={6} gap={4}>
+          <QuantumCard chakra="throat" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+            <p className="text-xs font-semibold text-cyan-200 uppercase drop-shadow-[0_0_10px_rgba(0,187,255,0.5)]">Communities</p>
+            <p className="text-3xl font-bold text-white mt-1 drop-shadow-[0_0_15px_rgba(0,187,255,0.35)]">{metrics.totalCommunities}</p>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "blue", secondary: "cyan" }}>
-            <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase">Population</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{(metrics.totalPopulation / 1000).toFixed(0)}k</p>
-          </GlassCard>
+          <QuantumCard chakra="third_eye" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+            <p className="text-xs font-semibold text-violet-200 uppercase drop-shadow-[0_0_10px_rgba(170,76,255,0.45)]">Population</p>
+            <p className="text-2xl font-bold text-white mt-1 drop-shadow-[0_0_15px_rgba(170,76,255,0.35)]">{(metrics.totalPopulation / 1000).toFixed(0)}k</p>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "green", secondary: "emerald" }}>
-            <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase">Avg Self-Suff.</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{metrics.averageSelfSufficiency}%</p>
-          </GlassCard>
+          <QuantumCard chakra="heart" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+            <p className="text-xs font-semibold text-emerald-200 uppercase drop-shadow-[0_0_10px_rgba(0,255,136,0.5)]">Avg Self-Suff.</p>
+            <p className="text-3xl font-bold text-white mt-1 drop-shadow-[0_0_15px_rgba(0,255,136,0.35)]">{metrics.averageSelfSufficiency}%</p>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "amber", secondary: "orange" }}>
-            <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase">Energy Exchanged</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{metrics.energyExchanged} MWh</p>
-          </GlassCard>
+          <QuantumCard chakra="solar" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+            <p className="text-xs font-semibold text-amber-200 uppercase drop-shadow-[0_0_10px_rgba(255,255,0,0.45)]">Energy Exchanged</p>
+            <p className="text-2xl font-bold text-white mt-1 drop-shadow-[0_0_15px_rgba(255,255,0,0.35)]">{metrics.energyExchanged} MWh</p>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "green", secondary: "lime" }}>
-            <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase">Food Exchanged</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{(metrics.foodExchanged / 1000).toFixed(1)}t</p>
-          </GlassCard>
+          <QuantumCard chakra="heart" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+            <p className="text-xs font-semibold text-emerald-200 uppercase drop-shadow-[0_0_10px_rgba(0,255,136,0.5)]">Food Exchanged</p>
+            <p className="text-2xl font-bold text-white mt-1 drop-shadow-[0_0_15px_rgba(0,255,136,0.35)]">{(metrics.foodExchanged / 1000).toFixed(1)}t</p>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "cyan", secondary: "blue" }}>
-            <p className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 uppercase">Water Shared</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{(metrics.waterShared / 1000).toFixed(0)}k L</p>
-          </GlassCard>
-        </GlassGrid>
+          <QuantumCard chakra="throat" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+            <p className="text-xs font-semibold text-cyan-200 uppercase drop-shadow-[0_0_10px_rgba(0,187,255,0.5)]">Water Shared</p>
+            <p className="text-2xl font-bold text-white mt-1 drop-shadow-[0_0_15px_rgba(0,187,255,0.35)]">{(metrics.waterShared / 1000).toFixed(0)}k L</p>
+          </QuantumCard>
+        </QuantumGlassGrid>
 
         {/* Tab Navigation */}
         <div className="flex gap-2 overflow-x-auto pb-2">
@@ -149,8 +149,8 @@ const GlobalNetwork = () => {
 
         {/* Map Tab */}
         {selectedTab === "map" && (
-          <GlassSection colors={{ primary: "slate", secondary: "gray" }}>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Network Map by Region</h3>
+          <QuantumSection chakra="throat" opacityLevel="veil" blurLevel="medium" edgeGlow>
+            <h3 className="text-2xl font-bold text-white mb-4 drop-shadow-[0_0_15px_rgba(0,187,255,0.4)]">Network Map by Region</h3>
             
             <div className="flex flex-wrap gap-2 mb-6">
               {regions.map(region => (
@@ -159,8 +159,8 @@ const GlobalNetwork = () => {
                   onClick={() => setSelectedRegion(region.name)}
                   className={`px-4 py-2 rounded-full font-semibold text-sm transition-all ${
                     selectedRegion === region.name
-                      ? "bg-gradient-to-r from-teal-400 to-blue-500 text-white shadow-lg"
-                      : "bg-white/40 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 border border-white/20 dark:border-slate-700/50"
+                      ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-[0_0_18px_rgba(0,187,255,0.45)]"
+                      : "bg-white/5 text-white border border-cyan-700/50 hover:bg-white/10"
                   }`}
                 >
                   {region.label}
@@ -168,7 +168,7 @@ const GlobalNetwork = () => {
               ))}
             </div>
 
-            <div className="space-y-3">
+                <div className="space-y-3">
               {filteredCommunities.map(community => (
                 <div key={community.id} className="flex items-center justify-between p-4 rounded-lg bg-white/20 dark:bg-slate-800/20 border border-white/10 dark:border-slate-700/30 hover:bg-white/30 transition-all">
                   <div className="flex items-center gap-3 flex-1">
@@ -187,23 +187,23 @@ const GlobalNetwork = () => {
                         {community.status}
                       </span>
                     </div>
-                    <p className="text-xs text-amber-600 dark:text-amber-400 font-bold mt-1">↑ {community.sustainabilityScore}%</p>
+                    <p className="text-xs text-amber-200 font-bold mt-1">↑ {community.sustainabilityScore}%</p>
                   </div>
                 </div>
               ))}
             </div>
-          </GlassSection>
+          </QuantumSection>
         )}
 
         {/* Communities Tab */}
         {selectedTab === "communities" && (
-          <GlassGrid cols={1} colsMd={2} gap={6}>
+          <QuantumGlassGrid columns={2} gap={6}>
             {filteredCommunities.map(community => (
-              <GlassCard key={community.id} colors={{ primary: "teal", secondary: "cyan" }}>
+              <QuantumCard key={community.id} chakra="throat" blurLevel="medium" opacityLevel="veil" glow edgeGlow>
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h4 className="text-lg font-bold text-slate-900 dark:text-white">{community.name}</h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{community.region}</p>
+                    <h4 className="text-lg font-bold text-white drop-shadow-[0_0_12px_rgba(0,187,255,0.4)]">{community.name}</h4>
+                    <p className="text-sm text-cyan-100/80">{community.region}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${getTierColor(community.tier)} text-white`}>
                     {community.tier}
@@ -212,17 +212,17 @@ const GlobalNetwork = () => {
 
                 <div className="space-y-2 text-sm mb-4">
                   <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">Population:</span>
-                    <span className="font-bold text-slate-900 dark:text-white">{community.population}</span>
+                    <span className="text-cyan-100/70">Population:</span>
+                    <span className="font-bold text-white">{community.population}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">Sustainability:</span>
-                    <span className="font-bold text-amber-600 dark:text-amber-400">{community.sustainabilityScore}%</span>
+                    <span className="text-cyan-100/70">Sustainability:</span>
+                    <span className="font-bold text-amber-200">{community.sustainabilityScore}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">Status:</span>
+                    <span className="text-cyan-100/70">Status:</span>
                     <span className={`font-bold ${
-                      community.status === "operational" ? "text-green-600 dark:text-green-400" : "text-amber-600 dark:text-amber-400"
+                      community.status === "operational" ? "text-emerald-200" : "text-amber-200"
                     }`}>
                       {community.status}
                     </span>
@@ -230,104 +230,104 @@ const GlobalNetwork = () => {
                 </div>
 
                 <div className="pt-3 border-t border-white/20 dark:border-slate-700/50">
-                  <button className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-teal-400 to-cyan-500 text-white font-semibold text-sm hover:shadow-lg transition-all">
+                  <button className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-sm hover:shadow-[0_0_15px_rgba(0,187,255,0.5)] transition-all">
                     View Details
                   </button>
                 </div>
-              </GlassCard>
+              </QuantumCard>
             ))}
-          </GlassGrid>
+          </QuantumGlassGrid>
         )}
 
         {/* Analytics Tab */}
         {selectedTab === "analytics" && (
-          <GlassSection colors={{ primary: "purple", secondary: "violet" }}>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Network Analytics</h3>
+          <QuantumSection chakra="third_eye" opacityLevel="veil" blurLevel="medium" edgeGlow>
+            <h3 className="text-2xl font-bold text-white mb-6 drop-shadow-[0_0_15px_rgba(170,76,255,0.45)]">Network Analytics</h3>
             
-            <GlassGrid cols={1} colsMd={2} gap={6}>
-              <GlassCard colors={{ primary: "purple", secondary: "violet" }}>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Self-Sufficiency Leaderboard</h4>
+            <QuantumGlassGrid columns={2} gap={6}>
+              <QuantumCard chakra="third_eye" blurLevel="medium" opacityLevel="ultraClear" glow edgeGlow>
+                <h4 className="text-lg font-bold text-white mb-4 drop-shadow-[0_0_12px_rgba(170,76,255,0.4)]">Self-Sufficiency Leaderboard</h4>
                 <div className="space-y-2">
                   {[
                     { rank: 1, name: "Harmony Village", score: 92 },
                     { rank: 2, name: "Green Haven", score: 88 },
                     { rank: 3, name: "Eco Community", score: 79 },
                   ].map(item => (
-                    <div key={item.rank} className="flex items-center justify-between p-2 rounded bg-white/20 dark:bg-slate-800/20">
+                    <div key={item.rank} className="flex items-center justify-between p-2 rounded bg-white/5 border border-violet-500/20">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-purple-600 dark:text-purple-400">#{item.rank}</span>
-                        <p className="font-semibold text-slate-900 dark:text-white">{item.name}</p>
+                        <span className="text-lg font-bold text-violet-200">#{item.rank}</span>
+                        <p className="font-semibold text-white">{item.name}</p>
                       </div>
-                      <span className="text-lg font-bold text-slate-900 dark:text-white">{item.score}%</span>
+                      <span className="text-lg font-bold text-white">{item.score}%</span>
                     </div>
                   ))}
                 </div>
-              </GlassCard>
+              </QuantumCard>
 
-              <GlassCard colors={{ primary: "blue", secondary: "cyan" }}>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Resource Exchange Rate</h4>
+              <QuantumCard chakra="throat" blurLevel="medium" opacityLevel="ultraClear" glow edgeGlow>
+                <h4 className="text-lg font-bold text-white mb-4 drop-shadow-[0_0_12px_rgba(0,187,255,0.4)]">Resource Exchange Rate</h4>
                 <div className="space-y-3">
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-slate-600 dark:text-slate-400">Energy (MWh)</span>
-                      <span className="font-bold text-slate-900 dark:text-white">{metrics.energyExchanged}</span>
+                      <span className="text-cyan-100/80">Energy (MWh)</span>
+                      <span className="font-bold text-white">{metrics.energyExchanged}</span>
                     </div>
-                    <div className="h-2 bg-white/30 dark:bg-slate-800/30 rounded-full overflow-hidden">
+                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-amber-400 to-orange-500" style={{ width: "65%" }}></div>
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-slate-600 dark:text-slate-400">Food (tonnes)</span>
-                      <span className="font-bold text-slate-900 dark:text-white">{(metrics.foodExchanged / 1000).toFixed(1)}</span>
+                      <span className="text-cyan-100/80">Food (tonnes)</span>
+                      <span className="font-bold text-white">{(metrics.foodExchanged / 1000).toFixed(1)}</span>
                     </div>
-                    <div className="h-2 bg-white/30 dark:bg-slate-800/30 rounded-full overflow-hidden">
+                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500" style={{ width: "72%" }}></div>
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-slate-600 dark:text-slate-400">Water (k liters)</span>
-                      <span className="font-bold text-slate-900 dark:text-white">{(metrics.waterShared / 1000).toFixed(0)}</span>
+                      <span className="text-cyan-100/80">Water (k liters)</span>
+                      <span className="font-bold text-white">{(metrics.waterShared / 1000).toFixed(0)}</span>
                     </div>
-                    <div className="h-2 bg-white/30 dark:bg-slate-800/30 rounded-full overflow-hidden">
+                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-blue-400 to-cyan-500" style={{ width: "78%" }}></div>
                     </div>
                   </div>
                 </div>
-              </GlassCard>
-            </GlassGrid>
-          </GlassSection>
+              </QuantumCard>
+            </QuantumGlassGrid>
+          </QuantumSection>
         )}
 
         {/* Trades Tab */}
         {selectedTab === "trades" && (
-          <GlassSection colors={{ primary: "slate", secondary: "gray" }}>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Recent Inter-Community Trades</h3>
+          <QuantumSection chakra="heart" opacityLevel="veil" blurLevel="medium" edgeGlow>
+            <h3 className="text-2xl font-bold text-white mb-4 drop-shadow-[0_0_15px_rgba(0,255,136,0.4)]">Recent Inter-Community Trades</h3>
             <div className="space-y-2">
               {[
                 { from: "Harmony Village", to: "Green Haven", resource: "Energy", amount: "250 MWh" },
                 { from: "Eco Community", to: "Harmony Village", resource: "Food", amount: "45 tonnes" },
                 { from: "Green Haven", to: "Eco Community", resource: "Water", amount: "12000 L" },
               ].map((trade, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-white/20 dark:bg-slate-800/20 border border-white/10 dark:border-slate-700/30">
+                <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-emerald-500/20 shadow-[0_0_20px_rgba(0,255,136,0.15)]">
                   <div className="flex items-center gap-3 flex-1">
                     <span className="text-lg">🔄</span>
                     <div>
-                      <p className="font-semibold text-slate-900 dark:text-white">{trade.resource} Trade</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">{trade.from} → {trade.to}</p>
+                      <p className="font-semibold text-white">{trade.resource} Trade</p>
+                      <p className="text-xs text-emerald-100/80">{trade.from} → {trade.to}</p>
                     </div>
                   </div>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">{trade.amount}</p>
+                  <p className="text-sm font-bold text-white">{trade.amount}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-6 pt-6 border-t border-white/20 dark:border-slate-700/50">
-              <p className="text-xs text-green-600 dark:text-green-400 font-semibold">
+            <div className="mt-6 pt-6 border-t border-emerald-500/30">
+              <p className="text-xs text-emerald-200 font-semibold">
                 🔗 All trades recorded on blockchain • Smart contract verified
               </p>
             </div>
-          </GlassSection>
+          </QuantumSection>
         )}
       </div>
     </div>
