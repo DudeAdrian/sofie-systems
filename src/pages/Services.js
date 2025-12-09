@@ -7,6 +7,13 @@ import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme"
 const Services = () => {
   const services = [
     {
+      title: "Global Community Map",
+      path: "/global-map",
+      description: "Interactive continental map showing all 50+ communities worldwide with region filters.",
+      icon: "🗺️",
+      color: "blue",
+    },
+    {
       title: "Community Tools",
       path: "community",
       description: "Organize, connect, and empower community initiatives.",

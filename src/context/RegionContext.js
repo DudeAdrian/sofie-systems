@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import RegionService from '../services/RegionService';
+import GlobalMapService from '../services/GlobalMapService';
 
 export const RegionContext = createContext();
 
@@ -14,7 +15,28 @@ export default function RegionProvider({ children }) {
 
   async function loadRegions() {
     setLoading(true);
-    const data = await RegionService.fetchRegions();
+    
+    // Try to fetch from backend first
+    let data = await RegionService.fetchRegions();
+    
+    // If backend fails, use GlobalMapService continents as fallback
+    if (!data || data.length === 0) {
+      console.log('[RegionContext] Backend unavailable, using GlobalMapService continents');
+      if (GlobalMapService.status === 'idle') {
+        GlobalMapService.initialize();
+      }
+      
+      const continents = GlobalMapService.getContinents();
+      data = continents.map(continent => ({
+        id: continent.id,
+        name: continent.displayName,
+        climateZone: continent.emoji,
+        latitude: continent.coordinates.lat,
+        longitude: continent.coordinates.lng,
+        description: continent.description
+      }));
+    }
+    
     setRegions(data);
     setLoading(false);
   }

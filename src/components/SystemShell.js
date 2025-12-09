@@ -110,7 +110,7 @@ const SystemShell = ({ children }) => {
             </button>
 
             {/* Region Selector */}
-            <div className="hidden lg:flex">
+            <div className="flex flex-col">
               <RegionSelector />
             </div>
             

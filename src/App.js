@@ -39,7 +39,14 @@ import ImpactTracking from "./pages/ImpactTracking";
 import HerbalLibrary from "./pages/HerbalLibrary";
 import Predictions from "./pages/Predictions";
 import GlobalBenchmarks from "./pages/GlobalBenchmarks";
+import GlobalMap from "./pages/GlobalMap";
+import GlobalMapPage from "./pages/GlobalMapPage";
 import SystemShell from "./components/SystemShell";
+
+// Phase 2 - Community Dashboard Components
+import CommunityDashboard from "./components/CommunityDashboard";
+import GlobalAdminDashboard from "./components/GlobalAdminDashboard";
+import CommunityManagerDataSheet from "./components/CommunityManagerDataSheet";
 
 // Block extensions trying to redefine ethereum
 if (window.ethereum && Object.getOwnPropertyDescriptor(window, 'ethereum')?.configurable === false) {
@@ -89,6 +96,11 @@ const App = () => {
                 <Route path="/impact-tracking" element={<ImpactTracking />} />
                 <Route path="/herbal-library" element={<HerbalLibrary />} />
                 <Route path="/predictions" element={<Predictions />} />
+                <Route path="/global-map" element={<GlobalMap />} />
+                <Route path="/map" element={<GlobalMapPage />} />
+                <Route path="/global-admin" element={<GlobalAdminDashboard />} />
+                <Route path="/community/:slug" element={<CommunityDashboard />} />
+                <Route path="/community/:slug/report" element={<CommunityManagerDataSheet />} />
               </Routes>
             </SystemShell>
           </Router>
