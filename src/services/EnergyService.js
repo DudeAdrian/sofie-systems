@@ -1,5 +1,6 @@
 // src/services/EnergyService.js
 import sofieCore from "../core/SofieCore";
+import APIService from "./APIService";
 
 class EnergyService {
   constructor() {
@@ -10,16 +11,42 @@ class EnergyService {
       gridBalance: 0,
     };
     this.history = [];
+    this.apiService = APIService;
+    this.currentRegionId = null;
   }
 
-  initialize() {
+  initialize(regionId) {
     try {
+      this.currentRegionId = regionId;
       this.status = "initialized";
-      sofieCore.getService("logger").log("[EnergyService] Energy module initialized.");
+      sofieCore.getService("logger").log("[EnergyService] Energy module initialized for region: " + regionId);
+      // Fetch energy data from backend
+      this.fetchEnergyDataFromAPI(regionId);
     } catch (error) {
       this.status = "error";
       sofieCore.getService("logger").error("[EnergyService] Initialization failed", error);
       throw error;
+    }
+  }
+
+  async fetchEnergyDataFromAPI(regionId) {
+    try {
+      const backendURL = this.apiService.baseURL || "http://localhost:3001/api";
+      const response = await fetch(`${backendURL}/regions/${regionId}/energy`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.metrics && data.metrics.length > 0) {
+          const latest = data.metrics[0];
+          this.energyData = {
+            solarProduction: latest.energyProduction || 0,
+            batteryLevel: 85,
+            gridBalance: latest.energyScore || 50,
+          };
+          this.history = data.metrics;
+        }
+      }
+    } catch (error) {
+      sofieCore.getService("logger").warn("[EnergyService] API fetch failed, using local data", error);
     }
   }
 
@@ -35,9 +62,31 @@ class EnergyService {
       });
       sofieCore.updateState("energyData", this.energyData);
       sofieCore.getService("logger").debug("[EnergyService] Energy data updated");
+      
+      // Save to backend
+      if (this.currentRegionId) {
+        this.saveToBackend();
+      }
     } catch (error) {
       sofieCore.getService("logger").error("[EnergyService] Update failed", error);
       throw error;
+    }
+  }
+
+  async saveToBackend() {
+    try {
+      const backendURL = this.apiService.baseURL || "http://localhost:3001/api";
+      await fetch(`${backendURL}/regions/${this.currentRegionId}/energy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          energyProduction: this.energyData.solarProduction,
+          energyConsumption: this.energyData.gridBalance,
+          energyScore: 75
+        })
+      });
+    } catch (error) {
+      sofieCore.getService("logger").warn("[EnergyService] Could not save to backend", error);
     }
   }
 

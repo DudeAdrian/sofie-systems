@@ -1,5 +1,6 @@
 // src/services/WaterService.js
 import sofieCore from "../core/SofieCore";
+import APIService from "./APIService";
 
 class WaterService {
   constructor() {
@@ -13,16 +14,45 @@ class WaterService {
       plants: [], // water-consuming plants
     };
     this.history = [];
+    this.apiService = APIService;
+    this.currentRegionId = null;
   }
 
-  initialize() {
+  initialize(regionId) {
     try {
+      this.currentRegionId = regionId;
       this.status = "initialized";
-      sofieCore.getService("logger").log("[WaterService] Water conservation module initialized.");
+      sofieCore.getService("logger").log("[WaterService] Water conservation module initialized for region: " + regionId);
+      // Fetch water data from backend
+      this.fetchWaterDataFromAPI(regionId);
     } catch (error) {
       this.status = "error";
       sofieCore.getService("logger").error("[WaterService] Initialization failed", error);
       throw error;
+    }
+  }
+
+  async fetchWaterDataFromAPI(regionId) {
+    try {
+      const backendURL = this.apiService.baseURL || "http://localhost:3001/api";
+      const response = await fetch(`${backendURL}/regions/${regionId}/water`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.metrics && data.metrics.length > 0) {
+          const latest = data.metrics[0];
+          this.waterData = {
+            totalReserve: latest.waterAvailability || 5000,
+            dailyUsage: (latest.waterAvailability || 5000) * 0.2,
+            rainfall: 0,
+            systems: [],
+            purificationCapacity: (latest.waterAvailability || 5000) * 0.5,
+            plants: []
+          };
+          this.history = data.metrics;
+        }
+      }
+    } catch (error) {
+      sofieCore.getService("logger").warn("[WaterService] API fetch failed, using local data", error);
     }
   }
 
@@ -37,7 +67,28 @@ class WaterService {
     this.waterData.systems.push(system);
     sofieCore.updateState("waterSystems", this.waterData.systems);
     sofieCore.getService("logger").log("[WaterService] Water system added:", system.name);
+    
+    // Save to backend
+    if (this.currentRegionId) {
+      this.saveToBackend();
+    }
     return system;
+  }
+
+  async saveToBackend() {
+    try {
+      const backendURL = this.apiService.baseURL || "http://localhost:3001/api";
+      await fetch(`${backendURL}/regions/${this.currentRegionId}/water`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          waterAvailability: this.waterData.totalReserve,
+          waterScore: 70
+        })
+      });
+    } catch (error) {
+      sofieCore.getService("logger").warn("[WaterService] Could not save to backend", error);
+    }
   }
 
   recordRainfall(liters) {

@@ -1,5 +1,6 @@
 // src/services/FoodService.js
 import sofieCore from "../core/SofieCore";
+import APIService from "./APIService";
 
 class FoodService {
   constructor() {
@@ -17,16 +18,65 @@ class FoodService {
       },
     };
     this.history = [];
+    this.apiService = APIService;
+    this.currentRegionId = null;
   }
 
-  initialize() {
+  initialize(regionId) {
     try {
+      this.currentRegionId = regionId;
       this.status = "initialized";
-      sofieCore.getService("logger").log("[FoodService] Food production module initialized.");
+      sofieCore.getService("logger").log("[FoodService] Food production module initialized for region: " + regionId);
+      // Fetch food data from backend
+      this.fetchFoodDataFromAPI(regionId);
     } catch (error) {
       this.status = "error";
       sofieCore.getService("logger").error("[FoodService] Initialization failed", error);
       throw error;
+    }
+  }
+
+  async fetchFoodDataFromAPI(regionId) {
+    try {
+      const backendURL = this.apiService.baseURL || "http://localhost:3001/api";
+      const response = await fetch(`${backendURL}/regions/${regionId}/food`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.metrics && data.metrics.length > 0) {
+          const latest = data.metrics[0];
+          this.foodData = {
+            gardens: [],
+            crops: [],
+            yields: latest.foodProductionTon ? (latest.foodProductionTon * 1000) : 0,
+            storage: (latest.foodProductionTon ? (latest.foodProductionTon * 1000) : 0) * 0.3,
+            seedBank: [],
+            nutritionGoals: {
+              calories: 2000,
+              proteins: 50,
+              vegetables: 5,
+            }
+          };
+          this.history = data.metrics;
+        }
+      }
+    } catch (error) {
+      sofieCore.getService("logger").warn("[FoodService] API fetch failed, using local data", error);
+    }
+  }
+
+  async saveToBackend() {
+    try {
+      const backendURL = this.apiService.baseURL || "http://localhost:3001/api";
+      await fetch(`${backendURL}/regions/${this.currentRegionId}/food`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          foodProductionTon: this.foodData.yields / 1000,
+          foodScore: 75
+        })
+      });
+    } catch (error) {
+      sofieCore.getService("logger").warn("[FoodService] Could not save to backend", error);
     }
   }
 
@@ -43,6 +93,11 @@ class FoodService {
       this.foodData.gardens.push(garden);
       sofieCore.updateState("foodGardens", this.foodData.gardens);
       sofieCore.getService("logger").debug("[FoodService] Garden added");
+      
+      // Save to backend
+      if (this.currentRegionId) {
+        this.saveToBackend();
+      }
       return garden;
     } catch (error) {
       sofieCore.getService("logger").error("[FoodService] Add garden failed", error);
