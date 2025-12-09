@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import sofieCore from "../../core/SofieCore";
+import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../../theme/QuantumGlassTheme";
 
 const Community = () => {
   const communityService = sofieCore.getService("community");
@@ -28,76 +29,77 @@ const Community = () => {
   };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-5xl font-bold text-gray-800 mb-2">👥 Community Hub</h1>
-        <p className="text-lg text-gray-600">Connect, collaborate, and empower local initiatives</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-cyan-950 via-gray-900 to-blue-950 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <QuantumSection chakra="throat">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,187,255,0.5)] mb-2">👥 Community Hub</h1>
+          <p className="text-cyan-200">Connect, collaborate, and empower local initiatives</p>
+        </QuantumSection>
 
-      {/* Create Post */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Share with the Community</h2>
+        {/* Create Post */}
+        <QuantumCard chakra="throat" blurLevel="deep" opacityLevel="ultraClear" glow={true} edgeGlow={true}>
+          <h2 className="text-xl font-bold text-white mb-4 drop-shadow-[0_0_15px_rgba(0,187,255,0.5)]">Share with the Community</h2>
           <div className="space-y-4">
             <input
               type="text"
               placeholder="Your name or role"
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-4 py-2 bg-white/10 border border-cyan-400/30 rounded-lg text-white placeholder-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm"
             />
             <textarea
               placeholder="What would you like to share?"
               value={newPost}
               onChange={(e) => setNewPost(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none h-24"
+              className="w-full px-4 py-3 bg-white/10 border border-cyan-400/30 rounded-lg text-white placeholder-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent backdrop-blur-sm resize-none h-24"
             />
             <button
               onClick={addPost}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition shadow-md"
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:shadow-[0_0_30px_rgba(0,187,255,0.7)] text-white font-bold py-2 px-6 rounded-lg transition"
             >
               📤 Post to Community
             </button>
           </div>
-      </div>
+        </QuantumCard>
 
-      {/* Posts Feed */}
+        {/* Posts Feed */}
         <div className="space-y-6">
           {posts.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow-md">
-              <p className="text-xl text-gray-600">No posts yet. Be the first to share! 💬</p>
-            </div>
+            <QuantumCard chakra="throat" blurLevel="medium" opacityLevel="veil" glow={true}>
+              <div className="text-center py-12">
+                <p className="text-xl text-cyan-200">No posts yet. Be the first to share! 💬</p>
+              </div>
+            </QuantumCard>
           ) : (
             posts.map((post, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition"
-              >
+              <QuantumCard key={idx} chakra="throat" blurLevel="deep" opacityLevel="ultraClear" glow={true} edgeGlow={true}>
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <p className="text-lg font-bold text-gray-800">{post.author}</p>
-                    <p className="text-sm text-gray-500">{post.timestamp}</p>
+                    <p className="text-lg font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{post.author}</p>
+                    <p className="text-sm text-cyan-300">{post.timestamp}</p>
                   </div>
-                  <span className="text-2xl">💭</span>
+                  <span className="text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">💭</span>
                 </div>
-                <p className="text-gray-700 mb-4 leading-relaxed">{post.content}</p>
+                <p className="text-cyan-100 mb-4 leading-relaxed">{post.content}</p>
                 <div className="flex gap-4 items-center">
                   <button
                     onClick={() => handleLike(idx)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-red-600 font-semibold transition"
+                    className="flex items-center gap-2 text-cyan-200 hover:text-pink-400 font-semibold transition drop-shadow-[0_0_5px_rgba(0,187,255,0.3)]"
                   >
                     ❤️ {post.likes} Likes
                   </button>
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-semibold transition">
+                  <button className="flex items-center gap-2 text-cyan-200 hover:text-blue-400 font-semibold transition">
                     💬 Reply
                   </button>
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-green-600 font-semibold transition">
+                  <button className="flex items-center gap-2 text-cyan-200 hover:text-green-400 font-semibold transition">
                     🔄 Share
                   </button>
                 </div>
-              </div>
+              </QuantumCard>
             ))
           )}
+        </div>
       </div>
     </div>
   );

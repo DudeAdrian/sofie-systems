@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
-import { GlassSection, GlassCard, GlassGrid, GlassButton } from "../theme/GlassmorphismTheme";
+import { QuantumSection, QuantumCard, QuantumGlassGrid, QuantumEnergyButton } from "../theme/QuantumGlassTheme";
 
 const AdminDashboard = () => {
   const [logs, setLogs] = useState([]);
@@ -71,12 +71,12 @@ const AdminDashboard = () => {
   const serviceData = getServiceData(selectedService);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-gray-900 to-purple-950 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
 
         {/* Status Banner */}
         {debug.coreServices.length > 0 && (
-          <GlassCard colors={{ primary: "emerald", secondary: "green" }}>
+          <QuantumCard chakra="third_eye">
             <div className="p-4 md:p-6 flex items-center gap-4 bg-gradient-to-r from-emerald-500/10 to-green-500/10 dark:from-emerald-900/20 dark:to-green-900/20 border-l-4 border-emerald-500">
               <span className="text-2xl">✅</span>
               <div className="flex-1">
@@ -84,11 +84,11 @@ const AdminDashboard = () => {
                 <p className="text-sm text-gray-700 dark:text-gray-300">{debug.coreServices.length} services initialized • All systems healthy</p>
               </div>
             </div>
-          </GlassCard>
+          </QuantumCard>
         )}
 
         {/* Header */}
-        <GlassSection colors={{ primary: "slate", secondary: "gray" }} elevation="high">
+        <QuantumSection chakra="third_eye" elevation="high">
           <div className="py-12 px-8">
             <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-slate-600 to-gray-600 bg-clip-text text-transparent">
               ⚙️ Admin Dashboard
@@ -108,37 +108,37 @@ const AdminDashboard = () => {
               </span>
             </div>
           </div>
-        </GlassSection>
+        </QuantumSection>
 
         {/* Quick Stats */}
-        <GlassGrid cols={2} colsMd={3} gap={5}>
-          <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+        <QuantumGlassGrid cols={2} colsMd={3} gap={5}>
+          <QuantumCard chakra="third_eye">
             <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
               <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Active Services</div>
               <div className="text-5xl font-bold text-slate-600 dark:text-slate-400">{serviceCount || 7}</div>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">All operational</p>
             </div>
-          </GlassCard>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "emerald", secondary: "green" }}>
+          <QuantumCard chakra="third_eye">
             <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
               <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">System Status</div>
               <div className="text-5xl font-bold text-emerald-600 dark:text-emerald-400">✓</div>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">Healthy</p>
             </div>
-          </GlassCard>
+          </QuantumCard>
 
-          <GlassCard colors={{ primary: "blue", secondary: "cyan" }}>
+          <QuantumCard chakra="third_eye">
             <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
               <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Uptime Average</div>
               <div className="text-5xl font-bold text-blue-600 dark:text-blue-400">99.8%</div>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">Last 30 days</p>
             </div>
-          </GlassCard>
-        </GlassGrid>
+          </QuantumCard>
+        </QuantumGlassGrid>
 
         {/* Main Content - Tabs */}
-        <GlassSection colors={{ primary: "slate", secondary: "gray" }}>
+        <QuantumSection chakra="third_eye">
           <div className="flex flex-wrap border-b border-slate-300/30 dark:border-slate-700/30 backdrop-blur-sm">
             {["overview", "services", "logs", "integration"].map(tab => (
               <button
@@ -163,7 +163,7 @@ const AdminDashboard = () => {
           {activeTab === "overview" && (
             <div className="p-8 space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+                <QuantumCard chakra="third_eye">
                   <div className="p-6">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">System Performance</h3>
                     <div className="space-y-4">
@@ -190,9 +190,9 @@ const AdminDashboard = () => {
                       ))}
                     </div>
                   </div>
-                </GlassCard>
+                </QuantumCard>
 
-                <GlassCard colors={{ primary: "gray", secondary: "slate" }}>
+                <QuantumCard chakra="third_eye">
                   <div className="p-6">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Service Status Overview</h3>
                     <div className="space-y-3">
@@ -212,7 +212,7 @@ const AdminDashboard = () => {
                       ))}
                     </div>
                   </div>
-                </GlassCard>
+                </QuantumCard>
               </div>
             </div>
           )}
@@ -222,7 +222,7 @@ const AdminDashboard = () => {
             <div className="p-8">
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="md:col-span-1">
-                  <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+                  <QuantumCard chakra="third_eye">
                     <div className="p-6">
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Services</h3>
                       <div className="space-y-2">
@@ -245,12 +245,12 @@ const AdminDashboard = () => {
                         ))}
                       </div>
                     </div>
-                  </GlassCard>
+                  </QuantumCard>
                 </div>
 
                 {/* Service Details */}
                 <div className="md:col-span-2">
-                  <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+                  <QuantumCard chakra="third_eye">
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-6">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -265,7 +265,7 @@ const AdminDashboard = () => {
                         <pre>{JSON.stringify(serviceData, null, 2)}</pre>
                       </div>
                     </div>
-                  </GlassCard>
+                  </QuantumCard>
                 </div>
               </div>
             </div>
@@ -274,7 +274,7 @@ const AdminDashboard = () => {
           {/* Logs Tab */}
           {activeTab === "logs" && (
             <div className="p-8">
-              <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+              <QuantumCard chakra="third_eye">
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">System Logs</h3>
                   <div className="bg-gray-900/50 dark:bg-gray-950/50 rounded-lg p-4 font-mono text-xs text-green-400 overflow-y-auto h-96">
@@ -291,7 +291,7 @@ const AdminDashboard = () => {
                     )}
                   </div>
                 </div>
-              </GlassCard>
+              </QuantumCard>
             </div>
           )}
 
@@ -299,7 +299,7 @@ const AdminDashboard = () => {
           {activeTab === "integration" && (
             <div className="p-8 space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+                <QuantumCard chakra="third_eye">
                   <div className="p-6">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                       <span>🔗</span> Web3 Integration
@@ -321,9 +321,9 @@ const AdminDashboard = () => {
                       ))}
                     </div>
                   </div>
-                </GlassCard>
+                </QuantumCard>
 
-                <GlassCard colors={{ primary: "gray", secondary: "slate" }}>
+                <QuantumCard chakra="third_eye">
                   <div className="p-6">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                       <span>🔐</span> Security Status
@@ -342,11 +342,11 @@ const AdminDashboard = () => {
                       ))}
                     </div>
                   </div>
-                </GlassCard>
+                </QuantumCard>
               </div>
             </div>
           )}
-        </GlassSection>
+        </QuantumSection>
 
       </div>
     </div>
@@ -354,3 +354,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
