@@ -1,7 +1,6 @@
 import React from 'react';
 import { useRegion } from '../context/RegionContext';
 import { GlassCard } from '../theme/GlassmorphismTheme';
-import MapPanel from './MapPanel';
 
 /**
  * RegionSelector Component
@@ -33,13 +32,19 @@ export default function RegionSelector() {
           ))}
         </select>
         {selectedRegion && (
-          <span className="text-xs text-gray-600 dark:text-gray-300">
-            ✓ {selectedRegion.name}
-          </span>
+          <>
+            <span className="text-xs text-gray-600 dark:text-gray-300">
+              ✓ {selectedRegion.name}
+            </span>
+            <button
+              onClick={() => navigate('/map')}
+              className="px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white transition"
+            >
+              🗺️ View Map
+            </button>
+          </>
         )}
       </div>
-      
-      <MapPanel />
     </div>
   );
 }

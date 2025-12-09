@@ -338,7 +338,7 @@ export const GlassTabs = ({
   );
 };
 
-export default {
+const GlassPageLayouts = {
   PageTransition,
   GlassPageHeader,
   GlassPageContainer,
@@ -348,3 +348,5 @@ export default {
   GlassPageLayout,
   GlassTabs,
 };
+
+export default GlassPageLayouts;

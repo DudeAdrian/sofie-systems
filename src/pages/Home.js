@@ -1,10 +1,23 @@
 // src/pages/Home_v2.js - Glassmorphic Landing Page with Web3 Integration
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
+import BiometricsMonitor from "../components/BiometricsMonitor";
+import VoiceInterface from "../components/VoiceInterface";
+import biometricsService from "../services/BiometricsService";
 
 const Home = () => {
+  const [showWellness, setShowWellness] = useState(false);
+
+  useEffect(() => {
+    // Check if user has biometric data
+    const readings = biometricsService.getCurrentReadings();
+    if (readings.timestamp) {
+      setShowWellness(true);
+    }
+  }, []);
+
   const features = [
     {
       icon: "⚡",
@@ -33,6 +46,20 @@ const Home = () => {
       description: "Manage users, settings, and system configuration.",
       link: "/admin",
       color: "slate",
+    },
+    {
+      icon: "🧘‍♀️",
+      title: "Wellness Intelligence",
+      description: "Real-time biometrics with voice-activated health monitoring.",
+      link: "/wellness-dashboard",
+      color: "purple",
+    },
+    {
+      icon: "🌿",
+      title: "Herbal Library",
+      description: "Natural remedies and personalized wellness recommendations.",
+      link: "/herbal-library",
+      color: "emerald",
     },
   ];
 
@@ -79,6 +106,25 @@ const Home = () => {
             ))}
           </GlassGrid>
         </div>
+
+        {/* Wellness Intelligence Widgets (if user has data) */}
+        {showWellness && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">🧘‍♀️ Wellness Intelligence</h2>
+              <Link 
+                to="/wellness-dashboard"
+                className="text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline"
+              >
+                View Full Dashboard →
+              </Link>
+            </div>
+            <GlassGrid cols={1} colsMd={2} gap={6}>
+              <BiometricsMonitor compact={true} />
+              <VoiceInterface compact={true} />
+            </GlassGrid>
+          </div>
+        )}
 
         {/* System Overview */}
         <GlassSection colors={{ primary: "slate", secondary: "gray" }}>

@@ -40,8 +40,9 @@ import HerbalLibrary from "./pages/HerbalLibrary";
 import Predictions from "./pages/Predictions";
 import GlobalBenchmarks from "./pages/GlobalBenchmarks";
 import GlobalMap from "./pages/GlobalMap";
-import GlobalMapPage from "./pages/GlobalMapPage";
-import SystemShell from "./components/SystemShell";
+import WellnessDashboard from "./pages/WellnessDashboard";
+import WellnessIntake from "./pages/WellnessIntake";
+import SystemShell from "./components/SystemShellTouchOS";
 
 // Phase 2 - Community Dashboard Components
 import CommunityDashboard from "./components/CommunityDashboard";
@@ -80,6 +81,8 @@ const App = () => {
                 <Route path="/governance" element={<Governance />} />
                 <Route path="/resilience" element={<Resilience />} />
                 <Route path="/wellness" element={<Wellness />} />
+                <Route path="/wellness-dashboard" element={<WellnessDashboard />} />
+                <Route path="/wellness-intake" element={<WellnessIntake />} />
                 <Route path="/expansion" element={<Expansion />} />
                 <Route path="/seedbank" element={<SeedBank />} />
                 <Route path="/global-network" element={<GlobalNetwork />} />
@@ -97,7 +100,7 @@ const App = () => {
                 <Route path="/herbal-library" element={<HerbalLibrary />} />
                 <Route path="/predictions" element={<Predictions />} />
                 <Route path="/global-map" element={<GlobalMap />} />
-                <Route path="/map" element={<GlobalMapPage />} />
+                <Route path="/map" element={<GlobalMap />} />
                 <Route path="/global-admin" element={<GlobalAdminDashboard />} />
                 <Route path="/community/:slug" element={<CommunityDashboard />} />
                 <Route path="/community/:slug/report" element={<CommunityManagerDataSheet />} />

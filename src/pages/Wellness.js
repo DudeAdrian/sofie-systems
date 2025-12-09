@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import sofieCore from "../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
 
@@ -42,6 +43,12 @@ const Wellness = () => {
               <span className="px-4 py-2 bg-teal-100/50 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 rounded-full text-sm font-medium backdrop-blur-sm">
                 📊 Wellness Tracking
               </span>
+              <Link
+                to="/wellness-intake"
+                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full text-sm font-semibold hover:opacity-90"
+              >
+                🧾 Start Intake
+              </Link>
             </div>
           </div>
         </GlassSection>

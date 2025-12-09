@@ -13,6 +13,10 @@ const InteractiveMap = ({ communities, onCommunitySelect, defaultLayer = 'health
   const dragStartRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
+    setCurrentLayer(defaultLayer);
+  }, [defaultLayer]);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -108,21 +112,6 @@ const InteractiveMap = ({ communities, onCommunitySelect, defaultLayer = 'health
       const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
       projection.zoom(zoomFactor, { x, y });
       draw();
-    };
-
-    const drawRect = (latMin, latMax, lngMin, lngMax) => {
-      ctx.beginPath();
-      const corners = [
-        [latMax, lngMin], [latMax, lngMax], [latMin, lngMax], [latMin, lngMin]
-      ];
-      corners.forEach((coord, i) => {
-        const proj = projection.project(coord[0], coord[1]);
-        if (i === 0) ctx.moveTo(proj.x, proj.y);
-        else ctx.lineTo(proj.x, proj.y);
-      });
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
     };
 
     const drawGeoJsonFeature = (feature) => {

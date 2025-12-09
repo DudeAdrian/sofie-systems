@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import sofieCore from "../core/SofieCore";
-import { GlassSection, GlassCard } from "../theme/GlassmorphismTheme";
+import { GlassCard } from "../theme/GlassmorphismTheme";
 
 const Login = () => {
   const [mode, setMode] = useState("login");
@@ -24,8 +24,7 @@ const Login = () => {
     const result = await authService.login(email, password);
 
     if (result.success) {
-      navigate("/");
-      window.location.reload();
+      navigate("/wellness-intake");
     } else {
       setError(result.error || "Login failed");
     }
@@ -41,8 +40,7 @@ const Login = () => {
     const result = await authService.register(email, password, name, community);
 
     if (result.success) {
-      navigate("/");
-      window.location.reload();
+      navigate("/wellness-intake");
     } else {
       setError(result.error || "Registration failed");
     }
@@ -54,8 +52,7 @@ const Login = () => {
     const authService = sofieCore.getService("auth");
     const result = await authService.login("demo@harmonichabitats.org", "demo123");
     if (result.success) {
-      navigate("/");
-      window.location.reload();
+      navigate("/wellness-intake");
     }
     setLoading(false);
   };
