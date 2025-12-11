@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import sofieCore from "../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
-import { useCommunityData } from "../hooks/useApi";
+import { useCommunityData, useWellnessDataAPI } from "../hooks/useApi";
 
 const Wellness = () => {
+  const communityData = useCommunityData("default");
+  const { data: apiWellnessData, loading: apiLoading, error: apiError, refetch } = useWellnessDataAPI("default");
+  
   const [programs, setPrograms] = useState([]);
   const [events, setEvents] = useState([]);
   const [resources, setResources] = useState([]);
@@ -12,18 +15,29 @@ const Wellness = () => {
   const [activeTab, setActiveTab] = useState("programs");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const communityData = useCommunityData("default");
 
+  // Use API data or fallback to sofieCore
   useEffect(() => {
-    const wellnessService = sofieCore.getService("wellness");
-    if (wellnessService) {
-      setPrograms(wellnessService.getWellnessPrograms() || []);
-      setEvents(wellnessService.getCommunityEvents() || []);
-      setResources(wellnessService.getWellnessResources() || []);
-      setStats(wellnessService.getWellnessStats() || {});
+    if (apiWellnessData) {
+      setPrograms(apiWellnessData.programs || []);
+      setEvents(apiWellnessData.events || []);
+      setResources(apiWellnessData.resources || []);
+      setStats(apiWellnessData.stats || {});
+      setError(null);
+      setLoading(false);
+    } else if (!apiLoading) {
+      // Fallback to sofieCore
+      const wellnessService = sofieCore.getService("wellness");
+      if (wellnessService) {
+        setPrograms(wellnessService.getWellnessPrograms() || []);
+        setEvents(wellnessService.getCommunityEvents() || []);
+        setResources(wellnessService.getWellnessResources() || []);
+        setStats(wellnessService.getWellnessStats() || {});
+      }
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+    if (apiError) setError(apiError);
+  }, [apiWellnessData, apiLoading, apiError]);
 
   useEffect(() => {
     try {
@@ -95,6 +109,26 @@ const Wellness = () => {
             Loading wellness data...
           </div>
         </GlassCard>
+
+        if (error) {
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-emerald-950 flex items-center justify-center p-4">
+              <GlassCard colors={{ primary: "emerald", secondary: "green" }}>
+                <div className="p-8 text-center">
+                  <div className="text-5xl mb-4">⚠️</div>
+                  <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Error Loading Wellness Data</h2>
+                  <p className="text-gray-700 dark:text-gray-300 mb-4">{error}</p>
+                  <button 
+                    onClick={refetch}
+                    className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:shadow-lg transition-all"
+                  >
+                    Retry
+                  </button>
+                </div>
+              </GlassCard>
+            </div>
+          );
+        }
       </div>
     );
   }

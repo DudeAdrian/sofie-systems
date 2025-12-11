@@ -3,19 +3,29 @@
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import { GlassSection, GlassCard } from "../theme/GlassmorphismTheme";
+import { useSettingsData } from "../hooks/useApi";
 
 const Settings = () => {
+  const authService = sofieCore.getService("auth");
+  const currentUser = authService?.getCurrentUser?.();
+  const { data: settingsData, loading, error, refetch } = useSettingsData(currentUser?.id);
+  
   const [user, setUser] = useState(null);
   const [storageStats, setStorageStats] = useState({});
   const [activeTab, setActiveTab] = useState("profile");
 
   useEffect(() => {
-    const authService = sofieCore.getService("auth");
-    const storageService = sofieCore.getService("storage");
-
-    setUser(authService.getCurrentUser());
-    setStorageStats(storageService?.getStats?.() || {});
-  }, []);
+    if (settingsData) {
+      // Use API data
+      setUser(settingsData.user || currentUser);
+      setStorageStats(settingsData.storageStats || {});
+    } else {
+      // Fallback to sofieCore
+      const storageService = sofieCore.getService("storage");
+      setUser(currentUser);
+      setStorageStats(storageService?.getStats?.() || {});
+    }
+  }, [settingsData, currentUser]);
 
   const handleLogout = () => {
     const authService = sofieCore.getService("auth");
@@ -46,6 +56,41 @@ const Settings = () => {
       window.location.reload();
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
+        <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+          <div className="p-8 text-slate-700 dark:text-slate-300 flex items-center">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-slate-500 border-t-transparent rounded-full mr-3"></div>
+            Loading settings...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "slate", secondary: "gray" }}>
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Error Loading Settings</h2>
+            <p className="text-slate-600 dark:text-slate-300 mb-4">{error}</p>
+            <button 
+              onClick={refetch}
+              className="px-6 py-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-lg hover:shadow-lg transition-all"
+            >
+              Retry
+            </button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

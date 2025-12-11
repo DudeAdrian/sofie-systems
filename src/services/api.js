@@ -629,6 +629,55 @@ class ApiService {
       body: JSON.stringify(updates)
     });
   }
+
+  // ============ ADMIN & SYSTEM MANAGEMENT ============
+
+  async getAdminDashboard() {
+    return this.request('/api/admin/dashboard');
+  }
+
+  async getSystemLogs(limit = 100) {
+    return this.request(`/api/admin/logs?limit=${limit}`);
+  }
+
+  async getSystemServices() {
+    return this.request('/api/admin/services');
+  }
+
+  async getUserSettings(userId = null) {
+    const query = userId ? `?userId=${userId}` : '';
+    return this.request(`/api/settings${query}`);
+  }
+
+  async updateUserSettings(settings) {
+    return this.request('/api/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings)
+    });
+  }
+
+  async getWellnessData(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/wellness${query}`);
+  }
+
+  async getAutomationRules() {
+    return this.request('/api/automation/rules');
+  }
+
+  async createAutomationRule(ruleData) {
+    return this.request('/api/automation/rules', {
+      method: 'POST',
+      body: JSON.stringify(ruleData)
+    });
+  }
+
+  async updateAutomationRule(ruleId, updates) {
+    return this.request(`/api/automation/rules/${ruleId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates)
+    });
+  }
 }
 
 // Export singleton instance

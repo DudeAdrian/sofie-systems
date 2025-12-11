@@ -1,30 +1,41 @@
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import { QuantumSection, QuantumCard, QuantumGlassGrid, QuantumEnergyButton } from "../theme/QuantumGlassTheme";
+import { useAdminData } from "../hooks/useApi";
 
 const AdminDashboard = () => {
+  const { data: adminData, loading: adminLoading, error: adminError, refetch } = useAdminData();
   const [logs, setLogs] = useState([]);
   const [selectedService, setSelectedService] = useState("logger");
   const [serviceCount, setServiceCount] = useState(0);
   const [debug, setDebug] = useState({ servicesLoaded: false, coreServices: [] });
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Use API data or fallback to sofieCore
   useEffect(() => {
     try {
-      const serviceKeys = Object.keys(sofieCore.services || {});
-      setDebug({ servicesLoaded: true, coreServices: serviceKeys });
-      setServiceCount(serviceKeys.length);
+      if (adminData) {
+        // Use API data
+        setLogs(adminData.logs || []);
+        setServiceCount(adminData.services?.length || 0);
+        setDebug({ servicesLoaded: true, coreServices: adminData.services || [], source: 'API' });
+      } else {
+        // Fallback to sofieCore
+        const serviceKeys = Object.keys(sofieCore.services || {});
+        setDebug({ servicesLoaded: true, coreServices: serviceKeys, source: 'sofieCore' });
+        setServiceCount(serviceKeys.length);
 
-      const logger = sofieCore.getService("logger");
-      if (logger && typeof logger.getLogs === "function") {
-        const allLogs = logger.getLogs();
-        setLogs(Array.isArray(allLogs) ? allLogs.slice(-10) : []);
+        const logger = sofieCore.getService("logger");
+        if (logger && typeof logger.getLogs === "function") {
+          const allLogs = logger.getLogs();
+          setLogs(Array.isArray(allLogs) ? allLogs.slice(-10) : []);
+        }
       }
     } catch (error) {
       console.error("Error loading admin data:", error);
       setDebug(prev => ({ ...prev, error: error.message }));
     }
-  }, []);
+  }, [adminData]);
 
   const services = [
     { name: "logger", icon: "📝", status: "active", uptime: "99.8%" },
@@ -69,6 +80,38 @@ const AdminDashboard = () => {
   };
 
   const serviceData = getServiceData(selectedService);
+
+  // Loading state
+  if (adminLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-violet-950 via-gray-900 to-purple-950 flex items-center justify-center">
+        <QuantumCard chakra="third_eye">
+          <div className="p-8 text-gray-300 flex items-center">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-violet-500 border-t-transparent rounded-full mr-3"></div>
+            Loading admin dashboard...
+          </div>
+        </QuantumCard>
+      </div>
+    );
+  }
+
+  // Error state
+  if (adminError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-violet-950 via-gray-900 to-purple-950 flex items-center justify-center p-4">
+        <QuantumCard chakra="third_eye">
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-red-400 mb-2">Error Loading Admin Data</h2>
+            <p className="text-gray-300 mb-4">{adminError}</p>
+            <QuantumEnergyButton onClick={refetch} className="px-6 py-2">
+              Retry
+            </QuantumEnergyButton>
+          </div>
+        </QuantumCard>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-950 via-gray-900 to-purple-950 p-4 md:p-8">

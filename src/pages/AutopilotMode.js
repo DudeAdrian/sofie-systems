@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../theme/QuantumGlassTheme";
+import { useAutomationData } from "../hooks/useApi";
 
 const AutopilotMode = () => {
+  const { data: automationData, loading: automationLoading, error: automationError, refetch } = useAutomationData();
   const [autopilotService, setAutopilotService] = useState(null);
   const [mode, setMode] = useState("manual");
   const [activeTab, setActiveTab] = useState("overview");
@@ -15,16 +17,25 @@ const AutopilotMode = () => {
   const [executionHistory, setExecutionHistory] = useState([]);
   const [contractStatus, setContractStatus] = useState("0x2f8a...");
 
+  // Initialize with API data or sofieCore fallback
   useEffect(() => {
-    sofieCore.init();
-    const service = sofieCore.getService("autopilot");
-    
-    if (service) {
-      setAutopilotService(service);
-      setMode(service.mode);
-      updateDisplayData(service);
+    if (automationData) {
+      // Use API data
+      setPlaybooks(automationData.rules || automationData.playbooks || []);
+      setStatistics(automationData.statistics || null);
+      setExecutionHistory(automationData.history || []);
+    } else {
+      // Fallback to sofieCore
+      sofieCore.init();
+      const service = sofieCore.getService("autopilot");
+      
+      if (service) {
+        setAutopilotService(service);
+        setMode(service.mode);
+        updateDisplayData(service);
+      }
     }
-  }, []);
+  }, [automationData]);
 
   const updateDisplayData = (service) => {
     if (!service) return;
@@ -71,6 +82,42 @@ const AutopilotMode = () => {
   };
 
   if (!autopilotService) {
+      // Loading state
+      if (automationLoading) {
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-gray-950 to-green-950 flex items-center justify-center">
+            <QuantumCard chakra="heart">
+              <div className="p-8 text-emerald-100 flex items-center">
+                <div className="animate-spin inline-block w-6 h-6 border-3 border-emerald-400 border-t-transparent rounded-full mr-3"></div>
+                Loading automation data...
+              </div>
+            </QuantumCard>
+          </div>
+        );
+      }
+
+      // Error state
+      if (automationError) {
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-gray-950 to-green-950 flex items-center justify-center p-4">
+            <QuantumCard chakra="heart">
+              <div className="p-8 text-center">
+                <div className="text-5xl mb-4">⚠️</div>
+                <h2 className="text-xl font-bold text-red-400 mb-2">Error Loading Automation Data</h2>
+                <p className="text-emerald-100/80 mb-4">{automationError}</p>
+                <button 
+                  onClick={refetch}
+                  className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:shadow-lg transition-all"
+                >
+                  Retry
+                </button>
+              </div>
+            </QuantumCard>
+          </div>
+        );
+      }
+
+      if (!autopilotService && !automationData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-gray-950 to-green-950 text-white p-4 md:p-8">
         <div className="max-w-7xl mx-auto">

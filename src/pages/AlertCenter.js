@@ -2,22 +2,31 @@ import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import eventBus, { EVENTS } from "../core/EventBus";
 import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../theme/QuantumGlassTheme";
+import { useAlerts } from "../hooks/useApi";
 
 const AlertCenter = () => {
+  const { data: apiAlerts, loading: alertsLoading, error: alertsError, refetch } = useAlerts("active");
   const [alerts, setAlerts] = useState([]);
   const [filter, setFilter] = useState("all");
   const [acknowledgedFilter, setAcknowledgedFilter] = useState("unacknowledged");
   const [activeTab, setActiveTab] = useState("active");
 
+  // Initialize with API data or fallback to sample alerts
   useEffect(() => {
-    initializeAlerts();
+    if (apiAlerts && Array.isArray(apiAlerts)) {
+      setAlerts(apiAlerts);
+    } else {
+      initializeAlerts();
+    }
+  }, [apiAlerts]);
+
+  // Subscribe to real-time events
+  useEffect(() => {
     const unsubscribers = [];
     unsubscribers.push(eventBus.on(EVENTS.ALERT_CREATED, handleNewAlert));
     unsubscribers.push(eventBus.on(EVENTS.WATER_QUALITY_ALERT, handleWaterAlert));
     unsubscribers.push(eventBus.on(EVENTS.PEST_RISK_CHANGED, handlePestAlert));
-    return () => {
-      unsubscribers.forEach(unsub => unsub());
-    };
+    return () => unsubscribers.forEach(unsub => unsub());
   }, []);
 
   const initializeAlerts = () => {
@@ -65,6 +74,41 @@ const AlertCenter = () => {
 
   const activeAlerts = filteredAlerts.filter(a => !a.acknowledged && a.severity !== "low");
   const resolvedAlerts = filteredAlerts.filter(a => a.acknowledged);
+
+  // Loading state
+  if (alertsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-rose-950 via-gray-900 to-red-950 flex items-center justify-center">
+        <QuantumCard chakra="root">
+          <div className="p-8 text-rose-100 flex items-center">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-rose-400 border-t-transparent rounded-full mr-3"></div>
+            Loading alerts...
+          </div>
+        </QuantumCard>
+      </div>
+    );
+  }
+
+  // Error state
+  if (alertsError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-rose-950 via-gray-900 to-red-950 flex items-center justify-center p-4">
+        <QuantumCard chakra="root">
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-red-400 mb-2">Error Loading Alerts</h2>
+            <p className="text-rose-100/80 mb-4">{alertsError}</p>
+            <button 
+              onClick={refetch}
+              className="px-6 py-2 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-lg hover:shadow-lg transition-all"
+            >
+              Retry
+            </button>
+          </div>
+        </QuantumCard>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-950 via-gray-900 to-red-950 text-white p-4 md:p-8">

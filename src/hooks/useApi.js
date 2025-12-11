@@ -530,3 +530,127 @@ export const useInventoryData = (regionId = null, category = null) => {
 
   return { data, loading, error, refetch };
 };
+
+/**
+ * Custom Hook: useAdminData
+ * Fetches admin dashboard, logs, and system services
+ */
+export const useAdminData = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const refetch = async () => {
+    setLoading(true);
+    try {
+      const [dashboard, logs, services] = await Promise.all([
+        api.getAdminDashboard(),
+        api.getSystemLogs(100),
+        api.getSystemServices()
+      ]);
+      setData({ dashboard, logs, services });
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to load admin data');
+      console.error('Admin data error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
+  }, []);
+
+  return { data, loading, error, refetch };
+};
+
+/**
+ * Custom Hook: useSettingsData
+ * Fetches user settings
+ */
+export const useSettingsData = (userId = null) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const refetch = async () => {
+    setLoading(true);
+    try {
+      const settings = await api.getUserSettings(userId);
+      setData(settings);
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to load settings');
+      console.error('Settings error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [userId]);
+
+  return { data, loading, error, refetch };
+};
+
+/**
+ * Custom Hook: useWellnessDataAPI
+ * Fetches wellness tracking data from API
+ */
+export const useWellnessDataAPI = (regionId = null) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const refetch = async () => {
+    setLoading(true);
+    try {
+      const wellness = await api.getWellnessData(regionId);
+      setData(wellness);
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to load wellness data');
+      console.error('Wellness error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [regionId]);
+
+  return { data, loading, error, refetch };
+};
+
+/**
+ * Custom Hook: useAutomationData
+ * Fetches automation rules
+ */
+export const useAutomationData = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const refetch = async () => {
+    setLoading(true);
+    try {
+      const rules = await api.getAutomationRules();
+      setData(rules);
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to load automation rules');
+      console.error('Automation error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
+  }, []);
+
+  return { data, loading, error, refetch };
+};
