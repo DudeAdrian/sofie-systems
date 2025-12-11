@@ -26,7 +26,7 @@ import React from 'react';
  */
 export const GlassCard = ({ 
   children, 
-  blurAmount = 'md', 
+  blurAmount = 'lg', 
   opacity = 'fog',
   role = 'article', 
   ariaLabel, 
@@ -74,12 +74,13 @@ export const GlassCard = ({
       className={`
         ${blurClasses[blurAmount]}
         ${finalBg}
-        rounded-xl
-        border border-white/40 dark:border-gray-700/50
-        p-4
-        shadow-lg dark:shadow-2xl
-        hover:shadow-xl dark:hover:shadow-2xl
-        hover:bg-white/35 dark:hover:bg-gray-900/60
+        bg-gradient-to-br from-white/14 via-white/6 to-white/12 dark:from-gray-900/45 dark:via-gray-900/30 dark:to-gray-900/40
+        rounded-2xl
+        border border-white/35 dark:border-gray-700/50
+        p-5
+        shadow-[0_14px_38px_rgba(0,0,0,0.28)] dark:shadow-[0_18px_42px_rgba(0,0,0,0.35)]
+        hover:shadow-[0_18px_48px_rgba(0,0,0,0.32)] dark:hover:shadow-[0_22px_56px_rgba(0,0,0,0.42)]
+        hover:bg-white/28 dark:hover:bg-gray-900/55
         transition-all duration-300 ease-out
         hover:-translate-y-0.5
         ${className}
@@ -104,13 +105,14 @@ export const GlassHeader = ({ children, primaryColor = 'blue', accentColor = 'cy
       className={`
         w-full
         backdrop-blur-lg
-        bg-white/20 dark:bg-gray-900/40
-        border-b border-white/30 dark:border-gray-700/50
-        shadow-lg dark:shadow-2xl
-        py-6
-        px-6
-        bg-gradient-to-r from-${primaryColor}-50 to-${accentColor}-50
-        dark:from-${primaryColor}-950 dark:to-${accentColor}-950
+        bg-white/14 dark:bg-gray-900/35
+        border border-white/30 dark:border-gray-700/50
+        shadow-[0_16px_40px_rgba(0,0,0,0.26)] dark:shadow-[0_20px_48px_rgba(0,0,0,0.34)]
+        py-7
+        px-7
+        rounded-2xl
+        bg-gradient-to-r from-${primaryColor}-100/25 to-${accentColor}-100/20
+        dark:from-${primaryColor}-900/45 dark:to-${accentColor}-900/35
         ${className}
       `}
       {...props}

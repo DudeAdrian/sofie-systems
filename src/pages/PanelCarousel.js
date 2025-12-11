@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaTint, FaLeaf, FaBolt, FaCloudSun, FaHeart, FaCog, FaGlobe } from "react-icons/fa";
 import { glassPanel } from "../theme/glassTokens";
 import "./PanelCarousel.css";
@@ -62,7 +62,17 @@ export default function PanelCarousel() {
   const [activeRing, setActiveRing] = useState(null);
   const [rotations, setRotations] = useState([0, 0, 0, 0, 0, 0]);
   const navigate = useNavigate();
+  const location = useLocation();
   const activeRingData = activeRing !== null ? RINGS[activeRing] : null;
+  const [displayText, setDisplayText] = useState("");
+  const fullText = "S.O.F.I.E. Systems Global Network";
+
+  // Check if returning from a branch page
+  useEffect(() => {
+    if (location.state?.activeRing !== undefined) {
+      setActiveRing(location.state.activeRing);
+    }
+  }, [location]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -78,6 +88,48 @@ export default function PanelCarousel() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    let index = 0;
+    const typeInterval = setInterval(() => {
+      if (index <= fullText.length) {
+        setDisplayText(fullText.slice(0, index));
+        index++;
+      } else {
+        clearInterval(typeInterval);
+      }
+    }, 100);
+    return () => clearInterval(typeInterval);
+  }, []);
+
+  useEffect(() => {
+    let index = 0;
+    let typingInterval;
+    let restartTimeout;
+
+    const startTyping = () => {
+      typingInterval = setInterval(() => {
+        if (index <= fullText.length) {
+          setDisplayText(fullText.slice(0, index));
+          index++;
+        } else {
+          clearInterval(typingInterval);
+          restartTimeout = setTimeout(() => {
+            index = 0;
+            setDisplayText("");
+            startTyping();
+          }, 5000);
+        }
+      }, 100);
+    };
+
+    startTyping();
+
+    return () => {
+      clearInterval(typingInterval);
+      clearTimeout(restartTimeout);
+    };
+  }, []);
+
   const handleRingClick = (idx) => {
     console.log("Ring clicked:", idx, RINGS[idx].name);
     setActiveRing(idx);
@@ -85,13 +137,12 @@ export default function PanelCarousel() {
 
   return (
     <div className="panel-carousel-container">
-      {/* Globe hub with orbiting wordmark */}
+      {/* Globe hub with typewriter text */}
       <div className="globe-hub" onClick={() => navigate("/global/map")}>
         <div className="globe-core">
           <FaGlobe className="globe-icon" />
         </div>
-        <div className="band-text-top">S.O.F.I.E SYSTEMS GLOBAL NETWORK</div>
-        <div className="band-text-bottom">S.O.F.I.E SYSTEMS GLOBAL NETWORK</div>
+        <div className="band-text-top">{displayText}</div>
       </div>
 
       {/* Concentric rings with rotating icons */}
@@ -160,7 +211,7 @@ export default function PanelCarousel() {
                 key={branch.name}
                 className="branch-item"
                 style={{ border: `1px solid ${activeRingData.color}66`, background: `${activeRingData.color}14` }}
-                onClick={() => navigate(branch.route)}
+                onClick={() => navigate(branch.route, { state: { activeRing, ringName: activeRingData.name, ringColor: activeRingData.color } })}
               >
                 <div
                   className="branch-circle"

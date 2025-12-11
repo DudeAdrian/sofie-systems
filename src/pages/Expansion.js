@@ -1,11 +1,15 @@
 // src/pages/Expansion_v2.js - Glassmorphic Web3-Integrated Community Expansion Dashboard
 
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../core/SofieCore";
-import { Link } from "react-router-dom";
 import { GlassSection, GlassCard, GlassGrid, GlassButton } from "../theme/GlassmorphismTheme";
 
 const Expansion = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const ringData = location.state || {};
   const [housingService, setHousingService] = useState(null);
   const [waterService, setWaterService] = useState(null);
   const [solarService, setSolarService] = useState(null);
@@ -60,7 +64,21 @@ const Expansion = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <GlassSection colors={{ primary: "slate", secondary: "green" }} elevation="high">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between" style={{ position: 'relative' }}>
+            <button
+              onClick={() => navigate("/", { state: { activeRing: ringData.activeRing } })}
+              className="return-button"
+              style={{
+                position: 'absolute',
+                top: '12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: '#e8d3ba',
+                zIndex: 10
+              }}
+            >
+              <FaArrowLeft size={12} /> {ringData.ringName || 'Back'}
+            </button>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-green-700 dark:from-slate-100 dark:to-green-400 bg-clip-text text-transparent">
                 🚀 Expansion Dashboard

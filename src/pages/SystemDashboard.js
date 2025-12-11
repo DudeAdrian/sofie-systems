@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../core/SofieCore";
 import eventBus, { EVENTS } from "../core/EventBus";
 import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
 
 const SystemDashboard = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const ringData = location.state || {};
   const [services, setServices] = useState({});
   const [systemHealth, setSystemHealth] = useState(null);
   const [recentAlerts, setRecentAlerts] = useState([]);
@@ -71,7 +76,20 @@ const SystemDashboard = () => {
 
         {/* Header */}
         <GlassSection colors={{ primary: "gray", secondary: "slate" }} elevation="high">
-          <div className="py-12 px-8">
+          <div className="py-12 px-8" style={{ position: 'relative' }}>
+            <button
+              onClick={() => navigate("/", { state: { activeRing: ringData.activeRing } })}
+              className="return-button"
+              style={{
+                position: 'absolute',
+                top: '12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: '#e8d3ba'
+              }}
+            >
+              <FaArrowLeft size={12} /> {ringData.ringName || 'Back'}
+            </button>
             <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-gray-600 to-slate-600 bg-clip-text text-transparent">
               ⚙️ System Dashboard
             </h1>

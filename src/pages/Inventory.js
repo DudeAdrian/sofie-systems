@@ -1,10 +1,15 @@
 // src/pages/Inventory_v2.js - Glassmorphic Community Inventory
 
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../core/SofieCore";
 import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../theme/QuantumGlassTheme";
 
 const Inventory = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const ringData = location.state || {};
   const [inventory, setInventory] = useState({});
   const [selectedCategory, setSelectedCategory] = useState("food");
   const [newItem, setNewItem] = useState("");
@@ -34,10 +39,25 @@ const Inventory = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <QuantumSection chakra="heart" opacityLevel="crystal" blurLevel="deep" edgeGlow>
-          <h1 className="text-4xl font-bold text-white drop-shadow-[0_0_22px_rgba(16,185,129,0.55)]">
-            📦 Community Inventory
-          </h1>
-          <p className="text-emerald-100/80 mt-2 drop-shadow-[0_0_12px_rgba(16,185,129,0.4)]">Track and manage shared resources across the community</p>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => navigate("/", { state: { activeRing: ringData.activeRing } })}
+              className="return-button"
+              style={{
+                position: 'absolute',
+                top: '12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: '#e8d3ba'
+              }}
+            >
+              <FaArrowLeft size={12} /> {ringData.ringName || 'Back'}
+            </button>
+            <h1 className="text-4xl font-bold text-white drop-shadow-[0_0_22px_rgba(16,185,129,0.55)]">
+              📦 Community Inventory
+            </h1>
+            <p className="text-emerald-100/80 mt-2 drop-shadow-[0_0_12px_rgba(16,185,129,0.4)]">Track and manage shared resources across the community</p>
+          </div>
         </QuantumSection>
 
         <QuantumGlassGrid columns={2} gap={6} className="grid-cols-1 md:grid-cols-2">

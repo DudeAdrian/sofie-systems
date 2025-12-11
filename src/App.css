@@ -36,3 +36,38 @@
     transform: rotate(360deg);
   }
 }
+
+.return-button {
+  background: rgba(8, 12, 18, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 9px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #f4f6fb;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), 0 0 16px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0.95;
+  transition: all 0.18s ease;
+  z-index: 20;
+}
+
+.return-button:hover {
+  opacity: 1;
+  background: rgba(12, 18, 28, 0.9);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.38), 0 0 18px rgba(255, 255, 255, 0.12);
+}
+
+.return-button:active {
+  transform: translate(-50%, 0) scale(0.995);
+}
+
+.return-button svg {
+  flex-shrink: 0;
+}

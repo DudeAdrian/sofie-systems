@@ -1,9 +1,14 @@
 // src/pages/IoT_v2.js - Glassmorphic IoT Sensor Network Dashboard
 
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
 
 const IoT = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const ringData = location.state || {};
   const [sensors, setSensors] = useState([
     { id: "1", name: "Water pH Monitor", type: "water_ph", location: "Tank A", lastReading: 7.2, status: "active" },
     { id: "2", name: "Soil Moisture", type: "soil_moisture", location: "Garden B", lastReading: 65, status: "active" },
@@ -77,12 +82,27 @@ const IoT = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <GlassSection colors={{ primary: "slate", secondary: "gray" }} elevation="high">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
-            📡 IoT Sensor Network
-          </h1>
-          <p className="text-slate-600 dark:text-slate-300 mt-2">
-            Real-time monitoring and management of connected sensors across your communities
-          </p>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => navigate("/", { state: { activeRing: ringData.activeRing } })}
+              className="return-button"
+              style={{
+                position: 'absolute',
+                top: '12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: '#e8d3ba'
+              }}
+            >
+              <FaArrowLeft size={12} /> {ringData.ringName || 'Back'}
+            </button>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
+              📡 IoT Sensor Network
+            </h1>
+            <p className="text-slate-600 dark:text-slate-300 mt-2">
+              Real-time monitoring and management of connected sensors across your communities
+            </p>
+          </div>
         </GlassSection>
 
         {/* Health Overview */}

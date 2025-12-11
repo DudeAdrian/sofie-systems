@@ -1,10 +1,15 @@
 // src/pages/PluginMarketplace_v2.js - Glassmorphic Plugin Marketplace with Web3
 
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
 
 const PluginMarketplace = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const ringData = location.state || {};
   const [availablePlugins, setAvailablePlugins] = useState([
     { id: "weather", name: "Weather Integration", category: "integration", downloads: 1250, rating: 4.8, enabled: true },
     { id: "iot-devices", name: "IoT Device Manager", category: "integration", downloads: 890, rating: 4.6, enabled: true },
@@ -67,12 +72,27 @@ const PluginMarketplace = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <GlassSection colors={{ primary: "green", secondary: "emerald" }} elevation="high">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-900 to-emerald-700 dark:from-green-100 dark:to-emerald-400 bg-clip-text text-transparent">
-            🔌 Plugin Marketplace
-          </h1>
-          <p className="text-slate-600 dark:text-slate-300 mt-2">
-            Extend Sofie Systems with powerful plugins for Harmonic Habitats communities • Web3-verified • Smart contracts
-          </p>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => navigate("/", { state: { activeRing: ringData.activeRing } })}
+              className="return-button"
+              style={{
+                position: 'absolute',
+                top: '12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: '#e8d3ba'
+              }}
+            >
+              <FaArrowLeft size={12} /> {ringData.ringName || 'Back'}
+            </button>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-green-900 to-emerald-700 dark:from-green-100 dark:to-emerald-400 bg-clip-text text-transparent">
+              🔌 Plugin Marketplace
+            </h1>
+            <p className="text-slate-600 dark:text-slate-300 mt-2">
+              Extend Sofie Systems with powerful plugins for Harmonic Habitats communities • Web3-verified • Smart contracts
+            </p>
+          </div>
         </GlassSection>
 
         {/* Stats */}
