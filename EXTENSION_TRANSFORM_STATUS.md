@@ -1,14 +1,27 @@
 # Domain Extension Pages - Glassmorphic Transformation Status
 
-## ✅ COMPLETED (2/20)
+## ✅ COMPLETED (5/20)
 
-### Water Domain (1/5)
+### Water Domain (3/5)
 - ✅ **WaterUsage.js** - COMPLETE
   - Light/dark adaptive background
   - GlassSection header with return button (#06b6d4 cyan)
   - GlassGrid with 3 summary cards
   - All data logic preserved
   - Gradient text headings (from-cyan-500 to-blue-500)
+
+- ✅ **WaterLeaks.js** - COMPLETE
+  - GlassSection header with return button
+  - GlassGrid with 3 alert summary cards (conditional coloring for active leaks)
+  - Leak events list in GlassSection
+  - Sensor network health in GlassGrid
+  - All IoT sensor data preserved
+
+- ✅ **WaterQuality.js** - COMPLETE
+  - GlassSection header with return button
+  - GlassGrid with quality metric cards (status badges, chemical parameters)
+  - Quality summary with 4 metric cards
+  - All water testing data preserved
 
 ### Energy Domain (1/5)
 - ✅ **EnergySolar.js** - COMPLETE  
@@ -19,15 +32,14 @@
   - System Performance Summary with GlassGrid
   - All solar array data preserved
 
-## 🔄 IN PROGRESS (0/20)
+## 🔄 IN PROGRESS (1/20)
+- **Next up:** WaterRecycling.js, WaterIrrigation.js
 
-## ⏳ PENDING (18/20)
+## ⏳ PENDING (15/20)
 
-### Water Domain (4 remaining)
-- ❌ **WaterLeaks.js** - Leak detection network, IoT sensors
-- ❌ **WaterQuality.js** - Potable water quality testing
-- ❌ **WaterRecycling.js** - Aquaponics systems
-- ❌ **WaterIrrigation.js** - Irrigation zone planning
+### Water Domain (2 remaining)
+- ❌ **WaterRecycling.js** - Aquaponics systems (partially done)
+- ❌ **WaterIrrigation.js** - Irrigation zone planning (partially done)
 
 ### Energy Domain (4 remaining)
 - ❌ **EnergyGrid.js** - Grid power monitoring
