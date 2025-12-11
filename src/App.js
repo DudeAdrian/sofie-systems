@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import ErrorBoundary from "./components/ErrorBoundary";
 import { SofieProvider } from "./context/SofieContext";
 import RegionProvider from "./context/RegionContext";
+import ApiStatusMonitor from "./components/ApiStatusMonitor";
 
 import PanelCarousel from "./pages/PanelCarousel";
 import Login from "./pages/Login";
@@ -72,6 +73,7 @@ const App = () => {
       <SofieProvider>
         <RegionProvider>
           <Router>
+            <ApiStatusMonitor position="top-right" />
             <PanelWrapper>
               <Routes>
                 <Route path="/login" element={<Login />} />
