@@ -215,7 +215,6 @@ export default function EnergySolar() {
           </GlassGrid>
         </div>
       </GlassSection>
-        </div>
       </div>
     </div>
   );
