@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import { GlassCard, GlassButton, GlassSection, GlassContainer, GlassGrid } from "../theme/GlassmorphismTheme";
+import { useFoodData } from "../hooks/useApi";
 
 const NutritionOptimization = () => {
+  const { data: apiFoodData, loading, error, refetch } = useFoodData("default");
   const [foodService, setFoodService] = useState(null);
   const [activeTab, setActiveTab] = useState("current");
   const [nutritionGoals, setNutritionGoals] = useState({
@@ -47,6 +49,34 @@ const NutritionOptimization = () => {
       })));
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:from-gray-950 dark:via-gray-900 dark:to-orange-950 flex items-center justify-center">
+        <GlassCard colors={{ primary: "orange", secondary: "amber" }}>
+          <div className="p-8 text-gray-700 dark:text-gray-300 flex items-center">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-orange-500 border-t-transparent rounded-full mr-3"></div>
+            Loading nutrition data...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:from-gray-950 dark:via-gray-900 dark:to-orange-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "orange", secondary: "amber" }}>
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Error Loading Nutrition Data</h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">{error}</p>
+            <button onClick={refetch} className="px-6 py-2 bg-gradient-to-r from-orange-700 to-amber-900 text-white rounded-lg hover:shadow-lg transition-all">Retry</button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
 
   const updateNutritionData = (service) => {
     if (!service) return;

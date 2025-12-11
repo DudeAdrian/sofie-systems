@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import { GlassCard, GlassButton, GlassSection, GlassContainer, GlassGrid } from "../theme/GlassmorphismTheme";
+import { useFoodData } from "../hooks/useApi";
 
 const PestManagement = () => {
+  const { data: apiFoodData, loading, error, refetch } = useFoodData("default");
   const [pestService, setPestService] = useState(null);
   const [activeAlerts, setActiveAlerts] = useState([]);
   const [riskAssessments, setRiskAssessments] = useState([]);
@@ -49,6 +51,34 @@ const PestManagement = () => {
     if (score >= 50) return "⚠️ MEDIUM RISK";
     return "✓ LOW RISK";
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-lime-50 dark:from-gray-950 dark:via-gray-900 dark:to-green-950 flex items-center justify-center">
+        <GlassCard colors={{ primary: "green", secondary: "lime" }}>
+          <div className="p-8 text-gray-700 dark:text-gray-300 flex items-center">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-green-500 border-t-transparent rounded-full mr-3"></div>
+            Loading pest management...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-lime-50 dark:from-gray-950 dark:via-gray-900 dark:to-green-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "green", secondary: "lime" }}>
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Error Loading Pest Data</h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">{error}</p>
+            <button onClick={refetch} className="px-6 py-2 bg-gradient-to-r from-green-700 to-lime-900 text-white rounded-lg hover:shadow-lg transition-all">Retry</button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
 
   if (!pestService) {
     return (

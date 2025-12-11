@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
+import { useClimateData } from "../hooks/useApi";
 
 const Predictions = () => {
+  const { data: apiClimate, loading, error, refetch } = useClimateData("default");
   const [predictions, setPredictions] = useState([]);
   const [anomalies, setAnomalies] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
@@ -45,6 +47,34 @@ const Predictions = () => {
 
   const crops = ["tomato", "lettuce", "basil", "pepper", "cucumber", "spinach", "kale"];
   const zones = ["tropical", "subtropical", "temperate", "cold"];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950 flex items-center justify-center">
+        <GlassCard colors={{ primary: "blue", secondary: "cyan" }}>
+          <div className="p-8 text-gray-700 dark:text-gray-300 flex items-center">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-blue-500 border-t-transparent rounded-full mr-3"></div>
+            Loading predictions...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "blue", secondary: "cyan" }}>
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Error Loading Predictions</h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">{error}</p>
+            <button onClick={refetch} className="px-6 py-2 bg-gradient-to-r from-blue-700 to-cyan-900 text-white rounded-lg hover:shadow-lg transition-all">Retry</button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
 
   const getConfidenceColor = (confidence) => {
     if (confidence >= 0.9) return { bg: "bg-emerald-100/40 dark:bg-emerald-900/40", text: "text-emerald-700 dark:text-emerald-300", icon: "🎯" };

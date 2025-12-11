@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import { GlassCard, GlassButton, GlassSection, GlassContainer, GlassGrid } from "../theme/GlassmorphismTheme";
+import { useFoodData } from "../hooks/useApi";
 
 const HarvestForecast = () => {
+  const { data: apiFoodData, loading, error, refetch } = useFoodData("default");
   const [forecastService, setForecastService] = useState(null);
   const [forecasts, setForecasts] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(1);
@@ -63,6 +65,34 @@ const HarvestForecast = () => {
   const currentForecast = forecasts.find(f => f.monthIndex === selectedMonth);
   const zoneForecast = currentForecast?.zoneForecasts.find(zf => zf.zone === selectedZone);
   const nutrition = forecastService?.getNutritionAnalysis(selectedMonth);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-green-950 flex items-center justify-center">
+        <GlassCard colors={{ primary: "green", secondary: "emerald" }}>
+          <div className="p-8 text-gray-700 dark:text-gray-300 flex items-center">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-green-500 border-t-transparent rounded-full mr-3"></div>
+            Loading harvest forecast...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-green-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "green", secondary: "emerald" }}>
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Error Loading Forecast</h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">{error}</p>
+            <button onClick={refetch} className="px-6 py-2 bg-gradient-to-r from-green-700 to-emerald-900 text-white rounded-lg hover:shadow-lg transition-all">Retry</button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
 
   if (!forecastService) {
     return (

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
+import { useWellnessDataAPI } from "../hooks/useApi";
 
 const ImpactTracking = () => {
+  const { data: apiWellness, loading, error, refetch } = useWellnessDataAPI("default");
   const [impact, setImpact] = useState(null);
   const [summary, setSummary] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
@@ -39,6 +41,34 @@ const ImpactTracking = () => {
     if (score >= 40) return { bg: "bg-orange-100/40 dark:bg-orange-900/40", text: "text-orange-700 dark:text-orange-300", bar: "bg-orange-500" };
     return { bg: "bg-red-100/40 dark:bg-red-900/40", text: "text-red-700 dark:text-red-300", bar: "bg-red-500" };
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950 flex items-center justify-center">
+        <GlassCard colors={{ primary: "purple", secondary: "violet" }}>
+          <div className="p-8 text-gray-700 dark:text-gray-300 flex items-center">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-purple-500 border-t-transparent rounded-full mr-3"></div>
+            Loading impact data...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "purple", secondary: "violet" }}>
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Error Loading Impact Data</h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">{error}</p>
+            <button onClick={refetch} className="px-6 py-2 bg-gradient-to-r from-purple-700 to-violet-900 text-white rounded-lg hover:shadow-lg transition-all">Retry</button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
 
   const scoreColor = summary ? getScoreColor(summary.overallScore) : getScoreColor(0);
 
