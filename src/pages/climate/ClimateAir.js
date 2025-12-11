@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../../core/SofieCore";
-import { glassPanel } from "../../theme/glassTokens";
+import { GlassSection, GlassCard, GlassGrid } from "../../theme/GlassmorphismTheme";
 
 export default function ClimateAir() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const ringData = location.state || {};
   const [airQuality, setAirQuality] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,16 +27,20 @@ export default function ClimateAir() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-gray-900 flex items-center justify-center">
-        <div style={glassPanel} className="text-white">Loading air quality data...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
+        <GlassCard colors={{ primary: "emerald", secondary: "teal" }}>
+          <div className="p-8 text-gray-700 dark:text-gray-300">Loading air quality data...</div>
+        </GlassCard>
       </div>
     );
   }
 
   if (!airQuality) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-gray-900 flex items-center justify-center">
-        <div style={glassPanel} className="text-white">No air quality data available</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
+        <GlassCard colors={{ primary: "emerald", secondary: "teal" }}>
+          <div className="p-8 text-gray-700 dark:text-gray-300">No air quality data available</div>
+        </GlassCard>
       </div>
     );
   }
@@ -39,7 +48,7 @@ export default function ClimateAir() {
   const getRatingColor = (rating) => {
     const colors = {
       Excellent: "#4ade80",
-      Good: "#5dd0b1",
+      Good: "#10b981",
       Moderate: "#f59e0b",
       Poor: "#ef4444",
       "Very Poor": "#dc2626"
@@ -48,208 +57,218 @@ export default function ClimateAir() {
   };
 
   const getAqiColor = (aqi) => {
-    if (aqi <= 50) return "#4ade80";
-    if (aqi <= 100) return "#5dd0b1";
-    if (aqi <= 150) return "#f59e0b";
-    if (aqi <= 200) return "#ef4444";
-    return "#dc2626";
+    if (aqi <= 50) return "emerald";
+    if (aqi <= 100) return "teal";
+    if (aqi <= 150) return "amber";
+    if (aqi <= 200) return "red";
+    return "rose";
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-gray-900 p-6">
-      {/* Header */}
-      <div style={{ 
-        ...glassPanel, 
-        background: 'linear-gradient(135deg, #5dd0b122, rgba(210, 175, 135, 0.12))',
-        border: '1px solid #5dd0b166',
-        boxShadow: '0 10px 28px rgba(0, 0, 0, 0.28), 0 0 24px #5dd0b155, inset 0 0 16px rgba(255, 255, 255, 0.08)',
-        marginBottom: '24px'
-      }}>
-        <h1 className="text-3xl font-bold mb-2" style={{ color: '#5dd0b1' }}>
-          🌬️ Air Quality Monitoring
-        </h1>
-        <p className="text-gray-300">Real-time indoor and outdoor air quality sensors and analysis</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
 
-      {/* Outdoor Air Quality */}
-      <div
-        className="mb-6"
-        style={{
-          ...glassPanel,
-          background: 'linear-gradient(135deg, #5dd0b118, rgba(210, 175, 135, 0.10))',
-          border: '1px solid #5dd0b155',
-        }}
-      >
-        <h2 className="text-2xl font-bold mb-4" style={{ color: '#5dd0b1' }}>Outdoor Air Quality</h2>
-        
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-6xl font-bold" style={{ color: getAqiColor(airQuality.outdoor.aqi) }}>
-              {airQuality.outdoor.aqi}
-            </p>
-            <p className="text-xl" style={{ color: getRatingColor(airQuality.outdoor.rating) }}>
-              {airQuality.outdoor.rating}
-            </p>
-            <p className="text-sm text-gray-400 mt-2">Source: {airQuality.outdoor.source}</p>
-          </div>
-          <div className="text-6xl">🌍</div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-green-500/10 rounded-lg p-3">
-            <p className="text-xs text-gray-400 mb-1">PM2.5</p>
-            <p className="text-2xl font-bold text-white">{airQuality.outdoor.pm25}</p>
-            <p className="text-xs text-gray-500">µg/m³</p>
-          </div>
-          <div className="bg-green-500/10 rounded-lg p-3">
-            <p className="text-xs text-gray-400 mb-1">PM10</p>
-            <p className="text-2xl font-bold text-white">{airQuality.outdoor.pm10}</p>
-            <p className="text-xs text-gray-500">µg/m³</p>
-          </div>
-          <div className="bg-green-500/10 rounded-lg p-3">
-            <p className="text-xs text-gray-400 mb-1">Ozone</p>
-            <p className="text-2xl font-bold" style={{ color: '#60a5fa' }}>{airQuality.outdoor.o3}</p>
-            <p className="text-xs text-gray-500">ppb</p>
-          </div>
-          <div className="bg-green-500/10 rounded-lg p-3">
-            <p className="text-xs text-gray-400 mb-1">NO₂</p>
-            <p className="text-2xl font-bold text-white">{airQuality.outdoor.no2}</p>
-            <p className="text-xs text-gray-500">ppb</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          <div className="flex justify-between text-sm bg-green-500/10 rounded-lg p-2">
-            <span className="text-gray-400">SO₂:</span>
-            <span className="text-white font-semibold">{airQuality.outdoor.so2} ppb</span>
-          </div>
-          <div className="flex justify-between text-sm bg-green-500/10 rounded-lg p-2">
-            <span className="text-gray-400">CO:</span>
-            <span className="text-white font-semibold">{airQuality.outdoor.co} ppm</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Indoor Air Quality */}
-      <div
-        className="mb-6"
-        style={{
-          ...glassPanel,
-          background: 'linear-gradient(135deg, #5dd0b118, rgba(210, 175, 135, 0.10))',
-          border: '1px solid #5dd0b155',
-        }}
-      >
-        <h2 className="text-xl font-bold mb-4" style={{ color: '#5dd0b1' }}>Indoor Air Quality by Zone</h2>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {airQuality.indoor.map((zone) => (
-            <div
-              key={zone.location}
-              className="bg-green-500/10 rounded-lg p-4"
+        {/* Header */}
+        <GlassSection colors={{ primary: "emerald", secondary: "teal" }} elevation="high">
+          <div className="py-12 px-8" style={{ position: 'relative' }}>
+            <button
+              onClick={() => navigate("/", { state: { activeRing: ringData.activeRing } })}
+              className="return-button"
+              style={{
+                position: 'absolute',
+                top: '12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: '#059669'
+              }}
             >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-bold text-white">{zone.location}</h3>
-                <span
-                  className="px-3 py-1 rounded-full text-xs font-bold"
-                  style={{
-                    backgroundColor: `${getRatingColor(zone.rating)}20`,
-                    color: getRatingColor(zone.rating),
-                    border: `1px solid ${getRatingColor(zone.rating)}40`
-                  }}
-                >
-                  {zone.rating}
-                </span>
-              </div>
+              <FaArrowLeft size={12} /> {ringData.ringName || 'Back'}
+            </button>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
+              🌬️ Air Quality Monitoring
+            </h1>
+            <p className="text-lg text-gray-700 dark:text-gray-200 max-w-2xl">
+              Real-time indoor and outdoor air quality sensors and analysis
+            </p>
+          </div>
+        </GlassSection>
 
-              <div className="mb-3">
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-400 text-sm">Air Quality Index</span>
-                  <span className="text-white font-bold">{zone.aqi}</span>
-                </div>
-                <div className="w-full bg-gray-700/30 rounded-full h-2">
-                  <div
-                    className="h-2 rounded-full transition-all"
-                    style={{
-                      width: `${Math.min((zone.aqi / 200) * 100, 100)}%`,
-                      backgroundColor: getAqiColor(zone.aqi)
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                <div>
-                  <p className="text-xs text-gray-400">PM2.5</p>
-                  <p className="text-lg font-semibold" style={{ color: '#5dd0b1' }}>{zone.pm25}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400">PM10</p>
-                  <p className="text-lg font-semibold" style={{ color: '#5dd0b1' }}>{zone.pm10}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400">CO₂</p>
-                  <p className="text-lg font-semibold text-white">{zone.co2}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-400">VOC:</span>
-                  <span className="text-white font-semibold">{zone.voc} ppb</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-400">NO₂:</span>
-                  <span className="text-white font-semibold">{zone.no2} ppb</span>
-                </div>
-              </div>
-
-              <p className="text-xs text-gray-500 mt-3">
-                Updated: {new Date(zone.lastUpdated).toLocaleTimeString()}
+        {/* Outdoor vs Indoor Summary */}
+        <GlassGrid cols={1} colsMd={2} gap={6}>
+          <GlassCard colors={{ primary: "emerald", secondary: "teal" }}>
+            <div className="flex flex-col items-center justify-center min-h-[160px]">
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">Outdoor AQI</p>
+              <p className="text-6xl font-bold bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent mb-2">
+                {airQuality.outdoor.aqi}
+              </p>
+              <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                {airQuality.outdoor.rating}
               </p>
             </div>
-          ))}
-        </div>
-      </div>
+          </GlassCard>
+          <GlassCard colors={{ primary: "emerald", secondary: "teal" }}>
+            <div className="flex flex-col items-center justify-center min-h-[160px]">
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">Indoor Avg AQI</p>
+              <p className="text-6xl font-bold bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent mb-2">
+                {Math.round(airQuality.indoor.reduce((sum, z) => sum + z.aqi, 0) / airQuality.indoor.length)}
+              </p>
+              <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                {airQuality.indoor.reduce((min, z) => z.aqi < min.aqi ? z : min).rating || 'Good'}
+              </p>
+            </div>
+          </GlassCard>
+        </GlassGrid>
 
-      {/* Air Quality Comparison */}
-      <div
-        style={{
-          ...glassPanel,
-          background: 'linear-gradient(135deg, #5dd0b118, rgba(210, 175, 135, 0.10))',
-          border: '1px solid #5dd0b155',
-        }}
-      >
-        <h2 className="text-xl font-bold mb-4" style={{ color: '#5dd0b1' }}>
-          Indoor vs Outdoor Comparison
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <p className="text-sm text-gray-400 mb-1">Indoor Avg AQI</p>
-            <p className="text-3xl font-bold" style={{ 
-              color: getAqiColor(Math.round(airQuality.indoor.reduce((sum, z) => sum + z.aqi, 0) / airQuality.indoor.length))
-            }}>
-              {Math.round(airQuality.indoor.reduce((sum, z) => sum + z.aqi, 0) / airQuality.indoor.length)}
-            </p>
+        {/* Outdoor Air Quality Details */}
+        <GlassSection colors={{ primary: "emerald", secondary: "teal" }}>
+          <div className="p-8">
+            <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
+              Outdoor Air Quality
+            </h2>
+            <GlassGrid cols={2} colsMd={4} gap={4}>
+              <GlassCard>
+                <div className="flex flex-col items-center justify-center min-h-[120px]">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">PM2.5</p>
+                  <p className="text-4xl font-bold text-gray-900 dark:text-white">{airQuality.outdoor.pm25}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">µg/m³</p>
+                </div>
+              </GlassCard>
+              <GlassCard>
+                <div className="flex flex-col items-center justify-center min-h-[120px]">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">PM10</p>
+                  <p className="text-4xl font-bold text-gray-900 dark:text-white">{airQuality.outdoor.pm10}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">µg/m³</p>
+                </div>
+              </GlassCard>
+              <GlassCard colors={{ primary: "blue", secondary: "sky" }}>
+                <div className="flex flex-col items-center justify-center min-h-[120px]">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Ozone</p>
+                  <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">{airQuality.outdoor.o3}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">ppb</p>
+                </div>
+              </GlassCard>
+              <GlassCard>
+                <div className="flex flex-col items-center justify-center min-h-[120px]">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">NO₂</p>
+                  <p className="text-4xl font-bold text-gray-900 dark:text-white">{airQuality.outdoor.no2}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">ppb</p>
+                </div>
+              </GlassCard>
+            </GlassGrid>
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="bg-emerald-500/10 dark:bg-emerald-900/20 rounded-lg p-4">
+                <span className="text-gray-600 dark:text-gray-400">SO₂:</span>
+                <span className="text-gray-900 dark:text-white font-semibold ml-2">{airQuality.outdoor.so2} ppb</span>
+              </div>
+              <div className="bg-emerald-500/10 dark:bg-emerald-900/20 rounded-lg p-4">
+                <span className="text-gray-600 dark:text-gray-400">CO:</span>
+                <span className="text-gray-900 dark:text-white font-semibold ml-2">{airQuality.outdoor.co} ppm</span>
+              </div>
+            </div>
           </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-400 mb-1">Outdoor AQI</p>
-            <p className="text-3xl font-bold" style={{ color: getAqiColor(airQuality.outdoor.aqi) }}>
-              {airQuality.outdoor.aqi}
-            </p>
+        </GlassSection>
+
+        {/* Indoor Air Quality by Zone */}
+        <GlassSection colors={{ primary: "emerald", secondary: "teal" }}>
+          <div className="p-8">
+            <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
+              Indoor Air Quality by Zone
+            </h2>
+            <GlassGrid cols={1} colsMd={2} gap={6}>
+              {airQuality.indoor.map((zone) => (
+                <GlassCard key={zone.location}>
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{zone.location}</h3>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+                        {zone.rating}
+                      </span>
+                    </div>
+
+                    <div className="mb-6">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">AQI: {zone.aqi}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div
+                          className="h-3 rounded-full transition-all bg-gradient-to-r from-emerald-500 to-teal-500"
+                          style={{
+                            width: `${Math.min((zone.aqi / 200) * 100, 100)}%`
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <GlassGrid cols={3} gap={3} className="mb-4">
+                      <div className="bg-emerald-500/10 dark:bg-emerald-900/20 rounded p-2 text-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">PM2.5</p>
+                        <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{zone.pm25}</p>
+                      </div>
+                      <div className="bg-teal-500/10 dark:bg-teal-900/20 rounded p-2 text-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">PM10</p>
+                        <p className="text-lg font-bold text-teal-600 dark:text-teal-400">{zone.pm10}</p>
+                      </div>
+                      <div className="bg-gray-200 dark:bg-gray-700 rounded p-2 text-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">CO₂</p>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white">{zone.co2}</p>
+                      </div>
+                    </GlassGrid>
+
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="flex justify-between bg-gray-100 dark:bg-gray-800 rounded p-2">
+                        <span className="text-gray-600 dark:text-gray-400">VOC:</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">{zone.voc} ppb</span>
+                      </div>
+                      <div className="flex justify-between bg-gray-100 dark:bg-gray-800 rounded p-2">
+                        <span className="text-gray-600 dark:text-gray-400">NO₂:</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">{zone.no2} ppb</span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-4">
+                      Updated: {new Date(zone.lastUpdated).toLocaleTimeString()}
+                    </p>
+                  </div>
+                </GlassCard>
+              ))}
+            </GlassGrid>
           </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-400 mb-1">Best Zone</p>
-            <p className="text-xl font-bold" style={{ color: '#4ade80' }}>
-              {airQuality.indoor.reduce((min, z) => z.aqi < min.aqi ? z : min).location}
-            </p>
-            <p className="text-sm text-gray-500">AQI: {airQuality.indoor.reduce((min, z) => z.aqi < min.aqi ? z : min).aqi}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-400 mb-1">Filtration</p>
-            <p className="text-3xl font-bold" style={{ color: '#4ade80' }}>ACTIVE</p>
-            <p className="text-sm text-gray-500">All zones</p>
-          </div>
-        </div>
+        </GlassSection>
+
+        {/* Comparison Summary */}
+        <GlassGrid cols={2} colsMd={4} gap={6}>
+          <GlassCard colors={{ primary: "emerald", secondary: "teal" }}>
+            <div className="flex flex-col items-center justify-center min-h-[120px]">
+              <p className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
+                {Math.round(airQuality.indoor.reduce((sum, z) => sum + z.aqi, 0) / airQuality.indoor.length)}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Indoor Avg</p>
+            </div>
+          </GlassCard>
+          <GlassCard colors={{ primary: "emerald", secondary: "teal" }}>
+            <div className="flex flex-col items-center justify-center min-h-[120px]">
+              <p className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
+                {airQuality.outdoor.aqi}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Outdoor</p>
+            </div>
+          </GlassCard>
+          <GlassCard colors={{ primary: "emerald", secondary: "green" }}>
+            <div className="flex flex-col items-center justify-center min-h-[120px]">
+              <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                {airQuality.indoor.reduce((min, z) => z.aqi < min.aqi ? z : min).location}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Best Zone</p>
+            </div>
+          </GlassCard>
+          <GlassCard colors={{ primary: "emerald", secondary: "green" }}>
+            <div className="flex flex-col items-center justify-center min-h-[120px]">
+              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">ACTIVE</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Filtration</p>
+            </div>
+          </GlassCard>
+        </GlassGrid>
+
       </div>
     </div>
   );
