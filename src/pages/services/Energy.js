@@ -1,11 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import sofieCore from "../../core/SofieCore";
 import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../../theme/QuantumGlassTheme";
+import { useEnergyData } from "../../hooks/useApi";
 
 const Energy = () => {
+  const { data: apiEnergy, loading, error, refetch } = useEnergyData("default");
   const energyService = sofieCore.getService("energy");
   const [data, setData] = useState(energyService.getEnergyData());
   const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    if (apiEnergy) {
+      setData({
+        solarProduction: apiEnergy.solarProduction || data.solarProduction,
+        batteryLevel: apiEnergy.batteryLevel || data.batteryLevel,
+        gridBalance: apiEnergy.gridBalance || data.gridBalance,
+      });
+    }
+  }, [apiEnergy]);
 
   const simulateUpdate = () => {
     const newData = {
@@ -39,6 +51,34 @@ const Energy = () => {
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-950 via-gray-900 to-amber-950 flex items-center justify-center">
+        <QuantumCard chakra="solar">
+          <div className="p-8 text-yellow-100 flex items-center">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-yellow-400 border-t-transparent rounded-full mr-3"></div>
+            Loading energy data...
+          </div>
+        </QuantumCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-950 via-gray-900 to-amber-950 flex items-center justify-center p-4">
+        <QuantumCard chakra="solar">
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-red-400 mb-2">Error Loading Energy Data</h2>
+            <p className="text-yellow-100/80 mb-4">{error}</p>
+            <button onClick={refetch} className="px-6 py-2 bg-gradient-to-r from-yellow-600 to-amber-600 text-white rounded-lg hover:shadow-lg transition-all">Retry</button>
+          </div>
+        </QuantumCard>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-950 via-gray-900 to-amber-950 p-4 md:p-8">
