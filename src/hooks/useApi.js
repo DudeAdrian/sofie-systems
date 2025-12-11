@@ -211,3 +211,160 @@ export const useSystemData = (regionId = 'default') => {
     hasError: [expansions, assets, iot, config, metrics].some(d => d.error),
   };
 };
+
+/**
+ * Custom Hook: useGovernanceData
+ * Fetches governance, proposals, and voting data
+ */
+export const useGovernanceData = (regionId = null) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const refetch = async () => {
+    setLoading(true);
+    try {
+      const [stats, proposals, members, delegates] = await Promise.all([
+        api.getGovernanceStats(),
+        api.getProposals(),
+        api.getGovernanceMembers(regionId),
+        api.getGovernanceDelegates()
+      ]);
+      setData({ stats, proposals, members, delegates });
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to load governance data');
+      console.error('Governance data error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [regionId]);
+
+  return { data, loading, error, refetch };
+};
+
+/**
+ * Custom Hook: useExpansionData
+ * Fetches expansion projects, housing, water, solar data
+ */
+export const useExpansionData = (regionId = null) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const refetch = async () => {
+    setLoading(true);
+    try {
+      const [projects, metrics, housing, water, solar, timeline] = await Promise.all([
+        api.getExpansionProjects(),
+        api.getExpansionMetrics(),
+        api.getHousingExpansion(regionId),
+        api.getWaterExpansion(regionId),
+        api.getSolarExpansion(regionId),
+        api.getExpansionTimeline()
+      ]);
+      setData({ projects, metrics, housing, water, solar, timeline });
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to load expansion data');
+      console.error('Expansion data error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [regionId]);
+
+  return { data, loading, error, refetch };
+};
+
+/**
+ * Custom Hook: useResilienceData
+ * Fetches resilience metrics, emergency plans, risks, and backup systems
+ */
+export const useResilienceData = (regionId = null) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const refetch = async () => {
+    setLoading(true);
+    try {
+      const [metrics, plans, preparedness, risks, resources, backups] = await Promise.all([
+        api.getResilienceMetrics(regionId),
+        api.getEmergencyPlans(),
+        api.getEmergencyPreparedness(regionId),
+        api.getRisks(regionId),
+        api.getResilienceResources(),
+        api.getBackupSystems(regionId)
+      ]);
+      setData({ metrics, plans, preparedness, risks, resources, backups });
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to load resilience data');
+      console.error('Resilience data error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [regionId]);
+
+  return { data, loading, error, refetch };
+};
+
+/**
+ * Custom Hook: useAlerts
+ * Fetches and manages system alerts
+ */
+export const useAlerts = (status = 'active') => {
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const refetch = async () => {
+    setLoading(true);
+    try {
+      const data = await api.getAlerts(status);
+      setAlerts(data?.alerts || []);
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to load alerts');
+      console.error('Alerts error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const acknowledge = async (alertId) => {
+    try {
+      await api.acknowledgeAlert(alertId);
+      setAlerts(alerts.filter(a => a.id !== alertId));
+    } catch (err) {
+      console.error('Failed to acknowledge alert:', err);
+    }
+  };
+
+  const resolve = async (alertId, resolution) => {
+    try {
+      await api.resolveAlert(alertId, resolution);
+      setAlerts(alerts.filter(a => a.id !== alertId));
+    } catch (err) {
+      console.error('Failed to resolve alert:', err);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [status]);
+
+  return { alerts, loading, error, refetch, acknowledge, resolve };
+};

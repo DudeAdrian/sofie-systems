@@ -4,7 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
 import { createBackHandler } from "../utils/navigation";
-import { useCommunityData } from "../hooks/useApi";
+import { useCommunityData, useResilienceData } from "../hooks/useApi";
 
 const Resilience = () => {
   const navigate = useNavigate();
@@ -16,9 +16,11 @@ const Resilience = () => {
   const [risks, setRisks] = useState([]);
   const [resilienceScore, setResilienceScore] = useState(0);
   const [activeTab, setActiveTab] = useState("overview");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  
+  // API hooks
   const communityData = useCommunityData("default");
+  const { data: resilData, loading: resilLoading, error: resilError, refetch: refetchResil } = useResilienceData(selectedRegion);
 
   const mockEmergencyPlans = [
     { id: "plan-1", name: "Storm Response", description: "Checklist for severe weather and flooding", status: "active", lastReview: "2024-11-01" },
@@ -41,103 +43,36 @@ const Resilience = () => {
   const mockResilienceScore = 78;
 
   useEffect(() => {
-    const resService = sofieCore.getService("resilience");
-    if (resService) {
-      setEmergencyPlans(resService.getEmergencyPlans?.() || mockEmergencyPlans);
-      setResources(resService.getEmergencyResources?.() || mockResources);
-      setRisks(resService.assessRisks?.() || mockRisks);
-      setResilienceScore(resService.getResilienceScore?.() || mockResilienceScore);
-      setLoading(false);
+    if (resilData) {
+      // Use API data if available
+      setEmergencyPlans(resilData.plans || mockEmergencyPlans);
+      setResources(resilData.metrics?.resourceLevels || mockResources);
+      setRisks(resilData.risks || mockRisks);
+      setResilienceScore(resilData.metrics?.resilienceScore || mockResilienceScore);
     } else {
-      setEmergencyPlans(mockEmergencyPlans);
-      setResources(mockResources);
-      setRisks(mockRisks);
-      setResilienceScore(mockResilienceScore);
-      setLoading(false);
+      // Fallback to sofieCore
+      try {
+        const resService = sofieCore.getService("resilience");
+        if (resService) {
+          setEmergencyPlans(resService.getEmergencyPlans?.() || mockEmergencyPlans);
+          setResources(resService.getEmergencyResources?.() || mockResources);
+          setRisks(resService.assessRisks?.() || mockRisks);
+          setResilienceScore(resService.getResilienceScore?.() || mockResilienceScore);
+        } else {
+          setEmergencyPlans(mockEmergencyPlans);
+          setResources(mockResources);
+          setRisks(mockRisks);
+          setResilienceScore(mockResilienceScore);
+        }
+      } catch (err) {
+        console.warn('Resilience service unavailable:', err);
+        setEmergencyPlans(mockEmergencyPlans);
+        setResources(mockResources);
+        setRisks(mockRisks);
+        setResilienceScore(mockResilienceScore);
+      }
     }
-  }, []);
-
-  useEffect(() => {
-    try {
-      const apiResourcesRaw = communityData.resources?.data;
-      const apiEvents = communityData.events?.data;
-
-      const resourceList = Array.isArray(apiResourcesRaw?.resources)
-        ? apiResourcesRaw.resources
-        : Array.isArray(apiResourcesRaw)
-          ? apiResourcesRaw
-          : [];
-
-      if (resourceList.length > 0) {
-        const aggregated = resourceList.reduce((acc, res) => {
-          const key = (res.type || "general").toLowerCase();
-          const quantity = typeof res.available === "number" ? res.available : 1;
-          acc[key] = (acc[key] || 0) + (Number.isFinite(quantity) ? quantity : 0);
-          return acc;
-        }, {});
-        setResources(aggregated);
-      }
-
-      const plansFromEvents = Array.isArray(apiEvents)
-        ? apiEvents
-            .map((ev, idx) => ({
-              id: ev.id || ev.eventId || `plan-${idx}`,
-              name: ev.title || ev.name || "Preparedness Drill",
-              description: ev.description || ev.summary || "Community preparedness event",
-              status: ev.status || ev.state || "active",
-              lastReview: ev.date ? new Date(ev.date).toLocaleDateString() : "Recent"
-            }))
-            .filter((plan) => plan.name)
-        : [];
-
-      if (plansFromEvents.length > 0) {
-        setEmergencyPlans(plansFromEvents);
-      }
-
-      if (resourceList.length > 0) {
-        const availableCount = resourceList.filter((res) => res.available !== false && (typeof res.available !== "number" || res.available > 0)).length;
-        const derivedScore = Math.min(100, Math.max(0, Math.round((availableCount / resourceList.length) * 100)));
-        setResilienceScore(derivedScore);
-      }
-
-      const resourceRisks = resourceList
-        .filter((res) => res.available === false || (typeof res.available === "number" && res.available < 25))
-        .map((res, idx) => ({
-          id: res.id || res.resourceId || `risk-${idx}`,
-          type: res.type || "resource",
-          description: res.description || "Resource availability risk",
-          severity: typeof res.available === "number" && res.available < 10 ? "high" : "medium",
-          probability: 0.55
-        }));
-
-      if (resourceRisks.length > 0) {
-        setRisks(resourceRisks);
-      }
-
-      if (communityData.resources?.error || communityData.events?.error || communityData.wellness?.error) {
-        setError(
-          communityData.resources?.error?.message ||
-          communityData.events?.error?.message ||
-          communityData.wellness?.error?.message ||
-          "Failed to load resilience data"
-        );
-      }
-
-      setLoading(communityData.isLoading);
-    } catch (err) {
-      console.error("Error loading resilience data:", err);
-      setError(err.message);
-      setLoading(false);
-    }
-  }, [
-    communityData.resources?.data,
-    communityData.events?.data,
-    communityData.wellness?.data,
-    communityData.isLoading,
-    communityData.resources?.error,
-    communityData.events?.error,
-    communityData.wellness?.error
-  ]);
+  }, [resilData]);
 
   const getSeverityColor = (severity) => {
     switch (severity) {
@@ -152,7 +87,7 @@ const Resilience = () => {
     }
   };
 
-  if (loading) {
+  if (resilLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 dark:from-gray-950 dark:via-gray-900 dark:to-red-950 flex items-center justify-center">
         <GlassCard colors={{ primary: "red", secondary: "rose" }}>
@@ -165,17 +100,17 @@ const Resilience = () => {
     );
   }
 
-  if (error) {
+  if (resilError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 dark:from-gray-950 dark:via-gray-900 dark:to-red-950 flex items-center justify-center p-4">
         <GlassCard colors={{ primary: "red", secondary: "rose" }}>
           <div className="p-8">
-            <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
+            <p className="text-red-600 dark:text-red-400 mb-4">Error: {resilError}</p>
             <button
-              onClick={() => communityData.resources?.refetch?.() || communityData.events?.refetch?.() || communityData.wellness?.refetch?.() || window.location.reload()}
+              onClick={refetchResil}
               className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
             >
-              Retry
+              Retry Resilience Data
             </button>
           </div>
         </GlassCard>

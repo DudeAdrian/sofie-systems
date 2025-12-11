@@ -1,11 +1,16 @@
-// src/pages/GlobalNetwork_v2.js - Glassmorphic Global Community Network with Web3
+// src/pages/GlobalNetwork.js - Glassmorphic Global Community Network with Libraries Integration
 
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../theme/QuantumGlassTheme";
+import { useCommunityData, useSystemData } from '../hooks/useApi';
+import api from '../services/api';
 
 const GlobalNetwork = () => {
-  const [networkService, setNetworkService] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [librariesData, setLibrariesData] = useState(null);
+  
   const [communities, setCommunities] = useState([
     { id: "1", name: "Harmony Village", region: "North America", population: 245, status: "operational", tier: "hub", sustainabilityScore: 92 },
     { id: "2", name: "Green Haven", region: "Europe", population: 180, status: "operational", tier: "regional", sustainabilityScore: 88 },
@@ -21,22 +26,106 @@ const GlobalNetwork = () => {
   });
   const [selectedTab, setSelectedTab] = useState("map");
   const [selectedRegion, setSelectedRegion] = useState("all");
-  const [web3Status, setWeb3Status] = useState("synced");
+  const [web3Status] = useState("synced");
 
+  // API hooks for communities and system data
+  const { 
+    loading: communitiesLoading, 
+    error: communitiesError,
+    refetch: refetchCommunities 
+  } = useCommunityData(selectedRegion !== 'all' ? selectedRegion : null);
+
+  const { 
+    loading: systemLoading 
+  } = useSystemData();
+
+  // Fetch global libraries data
   useEffect(() => {
-    try {
-      const service = sofieCore.getService("globalNetwork");
-      if (service) {
-        setNetworkService(service);
-        const comms = service.getCommunities?.() || communities;
-        setCommunities(comms);
-        const mets = service.getGlobalMetrics?.() || metrics;
-        setMetrics(mets);
+    const loadLibrariesData = async () => {
+      try {
+        const regionId = selectedRegion === 'all' ? 'global' : selectedRegion;
+        const [herbal, seedBank, knowledge, aquaponic, globalLibs] = await Promise.all([
+          api.getHerbalLibrary(regionId),
+          api.getSeedBank(regionId),
+          api.getKnowledgeBase(regionId),
+          api.getAquaponicLibrary(regionId),
+          api.getGlobalLibraries()
+        ]);
+        
+        setLibrariesData({
+          herbal: herbal || { remedies: [], totalRemedies: 0 },
+          seedBank: seedBank || { varieties: [], totalSeeds: 0 },
+          knowledge: knowledge || { articles: [], totalArticles: 0 },
+          aquaponic: aquaponic || { species: [], totalSpecies: 0 },
+          global: globalLibs || { libraries: [] }
+        });
+      } catch (err) {
+        console.warn('Library API not available, using fallback:', err);
+        // Fallback to sofieCore if API not available
+        const networkService = await sofieCore.getService('globalNetwork');
+        if (networkService) {
+          try {
+            const libs = await networkService.getLibraries();
+            setLibrariesData(libs || {
+              herbal: { remedies: [], totalRemedies: 0 },
+              seedBank: { varieties: [], totalSeeds: 0 },
+              knowledge: { articles: [], totalArticles: 0 },
+              aquaponic: { species: [], totalSpecies: 0 }
+            });
+          } catch {
+            setLibrariesData({
+              herbal: { remedies: [], totalRemedies: 0 },
+              seedBank: { varieties: [], totalSeeds: 0 },
+              knowledge: { articles: [], totalArticles: 0 },
+              aquaponic: { species: [], totalSpecies: 0 }
+            });
+          }
+        }
       }
-    } catch (error) {
-      console.error("Error loading Global Network:", error);
-    }
-  }, []);
+    };
+    loadLibrariesData();
+  }, [selectedRegion]);
+
+  // Load global network data from API
+  useEffect(() => {
+    const loadGlobalData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Try API first
+        const [apiCommunitiesData, apiMetrics] = await Promise.all([
+          api.getGlobalCommunities(selectedRegion !== 'all' ? selectedRegion : null),
+          api.getGlobalMetrics()
+        ]);
+        
+        // Update communities and metrics with API data
+        if (apiCommunitiesData?.communities?.length > 0) {
+          setCommunities(apiCommunitiesData.communities);
+        }
+        if (apiMetrics) {
+          setMetrics(prev => ({ ...prev, ...apiMetrics }));
+        }
+      } catch (err) {
+        console.warn('Global API not available, using sofieCore fallback:', err);
+        // Fallback to sofieCore
+        try {
+          const service = sofieCore.getService("globalNetwork");
+          if (service) {
+            const comms = service.getCommunities?.();
+            if (comms && comms.length > 0) setCommunities(comms);
+            const mets = service.getGlobalMetrics?.();
+            if (mets) setMetrics(prev => ({ ...prev, ...mets }));
+          }
+        } catch (fallbackErr) {
+          setError('Unable to load global network data');
+          console.error(fallbackErr);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadGlobalData();
+  }, [selectedRegion]);
 
   const regions = [
     { name: "all", label: "All Regions" },
@@ -68,6 +157,44 @@ const GlobalNetwork = () => {
       default: return "from-slate-400 to-gray-500";
     }
   };
+
+  const handleRetry = () => {
+    refetchCommunities();
+    window.location.reload();
+  };
+
+  // Loading state
+  if (loading || communitiesLoading || systemLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-cyan-950 via-gray-900 to-blue-950">
+        <div className="text-center space-y-4">
+          <div className="text-3xl quantum-pulse text-teal-400">
+            Loading Global Network...
+          </div>
+          <div className="text-cyan-300/70">
+            Connecting to {metrics.totalCommunities} communities worldwide
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || communitiesError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-cyan-950 via-gray-900 to-blue-950 space-y-6">
+        <div className="text-3xl text-red-400">
+          {error || communitiesError}
+        </div>
+        <button
+          onClick={handleRetry}
+          className="px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-teal-500/50"
+        >
+          Retry Connection
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-950 via-gray-900 to-blue-950 text-white p-4 md:p-8">
@@ -128,7 +255,7 @@ const GlobalNetwork = () => {
 
         {/* Tab Navigation */}
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {["map", "communities", "analytics", "trades"].map(tab => (
+          {["map", "communities", "libraries", "analytics", "trades"].map(tab => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
@@ -140,6 +267,7 @@ const GlobalNetwork = () => {
             >
               {tab === "map" && "🗺️"} 
               {tab === "communities" && "🏘️"}
+              {tab === "libraries" && "📚"}
               {tab === "analytics" && "📊"}
               {tab === "trades" && "🔄"}
               {" " + tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -297,6 +425,161 @@ const GlobalNetwork = () => {
                 </div>
               </QuantumCard>
             </QuantumGlassGrid>
+          </QuantumSection>
+        )}
+
+        {/* Libraries Tab - Global Knowledge Hub */}
+        {selectedTab === "libraries" && (
+          <QuantumSection chakra="third-eye" opacityLevel="veil" blurLevel="medium" edgeGlow>
+            <h3 className="text-2xl font-bold text-white mb-6 drop-shadow-[0_0_15px_rgba(147,51,234,0.4)]">
+              📚 Global Libraries Network
+            </h3>
+            <p className="text-purple-100/80 mb-6">
+              Shared knowledge resources branching from the global community network • {selectedRegion === 'all' ? 'All Regions' : selectedRegion}
+            </p>
+
+            <QuantumGlassGrid columns={2} gap={6}>
+              {/* Herbal Library */}
+              <QuantumCard chakra="heart" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-3xl">🌿</span>
+                  <div>
+                    <h4 className="text-xl font-bold text-white drop-shadow-[0_0_12px_rgba(0,255,136,0.4)]">
+                      Herbal Library
+                    </h4>
+                    <p className="text-sm text-emerald-100/70">Traditional remedies & medicine</p>
+                  </div>
+                </div>
+                {librariesData?.herbal ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-emerald-500/20">
+                      <span className="text-emerald-100/80">Total Remedies</span>
+                      <span className="text-xl font-bold text-white">{librariesData.herbal.totalRemedies || librariesData.herbal.remedies?.length || 0}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-emerald-500/20">
+                      <span className="text-emerald-100/80">Plant Species</span>
+                      <span className="text-xl font-bold text-white">{librariesData.herbal.totalSpecies || 145}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-emerald-500/20">
+                      <span className="text-emerald-100/80">Practitioners</span>
+                      <span className="text-xl font-bold text-white">{librariesData.herbal.practitioners || 78}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-emerald-100/60 text-sm">Loading herbal library data...</div>
+                )}
+              </QuantumCard>
+
+              {/* Seed Bank */}
+              <QuantumCard chakra="root" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-3xl">🌱</span>
+                  <div>
+                    <h4 className="text-xl font-bold text-white drop-shadow-[0_0_12px_rgba(239,68,68,0.4)]">
+                      Global Seed Bank
+                    </h4>
+                    <p className="text-sm text-red-100/70">Heirloom & indigenous varieties</p>
+                  </div>
+                </div>
+                {librariesData?.seedBank ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-red-500/20">
+                      <span className="text-red-100/80">Seed Varieties</span>
+                      <span className="text-xl font-bold text-white">{librariesData.seedBank.totalSeeds || librariesData.seedBank.varieties?.length || 0}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-red-500/20">
+                      <span className="text-red-100/80">Endangered</span>
+                      <span className="text-xl font-bold text-white">{librariesData.seedBank.endangered || 34}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-red-500/20">
+                      <span className="text-red-100/80">Contributors</span>
+                      <span className="text-xl font-bold text-white">{librariesData.seedBank.contributors || 92}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-red-100/60 text-sm">Loading seed bank data...</div>
+                )}
+              </QuantumCard>
+
+              {/* Knowledge Base */}
+              <QuantumCard chakra="third-eye" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-3xl">📖</span>
+                  <div>
+                    <h4 className="text-xl font-bold text-white drop-shadow-[0_0_12px_rgba(147,51,234,0.4)]">
+                      Knowledge Base
+                    </h4>
+                    <p className="text-sm text-purple-100/70">Guides, tutorials & documentation</p>
+                  </div>
+                </div>
+                {librariesData?.knowledge ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-purple-500/20">
+                      <span className="text-purple-100/80">Articles</span>
+                      <span className="text-xl font-bold text-white">{librariesData.knowledge.totalArticles || librariesData.knowledge.articles?.length || 0}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-purple-500/20">
+                      <span className="text-purple-100/80">Categories</span>
+                      <span className="text-xl font-bold text-white">{librariesData.knowledge.categories || 12}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-purple-500/20">
+                      <span className="text-purple-100/80">Contributors</span>
+                      <span className="text-xl font-bold text-white">{librariesData.knowledge.contributors || 156}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-purple-100/60 text-sm">Loading knowledge base data...</div>
+                )}
+              </QuantumCard>
+
+              {/* Aquaponic Library */}
+              <QuantumCard chakra="sacral" blurLevel="deep" opacityLevel="ultraClear" glow edgeGlow>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-3xl">🐟</span>
+                  <div>
+                    <h4 className="text-xl font-bold text-white drop-shadow-[0_0_12px_rgba(249,115,22,0.4)]">
+                      Aquaponic Library
+                    </h4>
+                    <p className="text-sm text-orange-100/70">Aquatic life & systems</p>
+                  </div>
+                </div>
+                {librariesData?.aquaponic ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-orange-500/20">
+                      <span className="text-orange-100/80">Species Documented</span>
+                      <span className="text-xl font-bold text-white">{librariesData.aquaponic.totalSpecies || librariesData.aquaponic.species?.length || 0}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-orange-500/20">
+                      <span className="text-orange-100/80">System Designs</span>
+                      <span className="text-xl font-bold text-white">{librariesData.aquaponic.designs || 23}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-orange-500/20">
+                      <span className="text-orange-100/80">Active Systems</span>
+                      <span className="text-xl font-bold text-white">{librariesData.aquaponic.activeSystems || 67}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-orange-100/60 text-sm">Loading aquaponic data...</div>
+                )}
+              </QuantumCard>
+            </QuantumGlassGrid>
+
+            {/* Library Network Visualization */}
+            <div className="mt-8 p-6 rounded-xl bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30">
+              <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <span>🌐</span>
+                Library Network Structure
+              </h4>
+              <div className="text-sm text-purple-100/80 space-y-2">
+                <p>• <strong>Central Globe:</strong> Global community hub connecting all regions</p>
+                <p>• <strong>Regional Branches:</strong> Each region maintains local library instances</p>
+                <p>• <strong>Community Nodes:</strong> Individual communities contribute & access shared knowledge</p>
+                <p>• <strong>Library Hubs:</strong> Specialized repositories (herbal, seed, aquaponic, knowledge)</p>
+                <p className="mt-4 pt-4 border-t border-purple-500/30">
+                  🔗 All libraries synchronized via distributed ledger • Real-time updates across {metrics.totalCommunities} communities
+                </p>
+              </div>
+            </div>
           </QuantumSection>
         )}
 

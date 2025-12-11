@@ -400,6 +400,183 @@ class ApiService {
   async getRegionalBenchmarks(regionId) {
     return this.request(`/api/regions/${regionId}/benchmarks`);
   }
+
+  // ============ LIBRARIES & KNOWLEDGE ============
+
+  async getHerbalLibrary(regionId = 'default') {
+    return this.request(`/api/herbal-library?regionId=${regionId}`);
+  }
+
+  async getHerbalRemedy(id) {
+    return this.request(`/api/herbal-library/${id}`);
+  }
+
+  async getSeedBank(regionId = 'default') {
+    return this.request(`/api/seed-bank?regionId=${regionId}`);
+  }
+
+  async getSeedVarieties(regionId = 'default') {
+    return this.request(`/api/seed-bank/items?regionId=${regionId}`);
+  }
+
+  async getKnowledgeBase(regionId = 'default') {
+    return this.request(`/api/knowledge-base?regionId=${regionId}`);
+  }
+
+  async getKnowledgeArticles(category = null) {
+    const query = category ? `?category=${category}` : '';
+    return this.request(`/api/knowledge-base/articles${query}`);
+  }
+
+  async getAquaponicLibrary(regionId = 'default') {
+    return this.request(`/api/aquatic-life?regionId=${regionId}`);
+  }
+
+  async getAquaticSpecies(regionId = 'default') {
+    return this.request(`/api/aquatic-life/species?regionId=${regionId}`);
+  }
+
+  // ============ GLOBAL NETWORK ============
+
+  async getGlobalCommunities(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/global/communities${query}`);
+  }
+
+  async getGlobalMetrics() {
+    return this.request('/api/global/metrics');
+  }
+
+  async getGlobalTrades(limit = 50) {
+    return this.request(`/api/global/trades?limit=${limit}`);
+  }
+
+  async getGlobalLibraries() {
+    return this.request('/api/global/libraries');
+  }
+
+  async getGlobalResourceMap() {
+    return this.request('/api/global/resources');
+  }
+
+  // ============ GOVERNANCE & PROPOSALS ============
+
+  async getGovernanceStats() {
+    return this.request('/api/governance/stats');
+  }
+
+  async getProposals(status = null) {
+    const query = status ? `?status=${status}` : '';
+    return this.request(`/api/governance/proposals${query}`);
+  }
+
+  async getProposal(id) {
+    return this.request(`/api/governance/proposals/${id}`);
+  }
+
+  async createProposal(proposalData) {
+    return this.request('/api/governance/proposals', {
+      method: 'POST',
+      body: JSON.stringify(proposalData)
+    });
+  }
+
+  async voteOnProposal(proposalId, voteData) {
+    return this.request(`/api/governance/proposals/${proposalId}/votes`, {
+      method: 'POST',
+      body: JSON.stringify(voteData)
+    });
+  }
+
+  async getGovernanceMembers(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/governance/members${query}`);
+  }
+
+  async getGovernanceDelegates() {
+    return this.request('/api/governance/delegates');
+  }
+
+  // ============ EXPANSION PLANNING ============
+
+  async getExpansionProjects(status = null) {
+    const query = status ? `?status=${status}` : '';
+    return this.request(`/api/expansion/projects${query}`);
+  }
+
+  async getExpansionMetrics() {
+    return this.request('/api/expansion/metrics');
+  }
+
+  async getHousingExpansion(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/expansion/housing${query}`);
+  }
+
+  async getWaterExpansion(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/expansion/water${query}`);
+  }
+
+  async getSolarExpansion(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/expansion/solar${query}`);
+  }
+
+  async getExpansionTimeline() {
+    return this.request('/api/expansion/timeline');
+  }
+
+  // ============ RESILIENCE & EMERGENCY ============
+
+  async getResilienceMetrics(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/resilience/metrics${query}`);
+  }
+
+  async getEmergencyPlans() {
+    return this.request('/api/resilience/emergency-plans');
+  }
+
+  async getEmergencyPreparedness(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/resilience/preparedness${query}`);
+  }
+
+  async getRisks(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/resilience/risks${query}`);
+  }
+
+  async getResilienceResources(type = null) {
+    const query = type ? `?type=${type}` : '';
+    return this.request(`/api/resilience/resources${query}`);
+  }
+
+  async getBackupSystems(regionId = null) {
+    const query = regionId ? `?regionId=${regionId}` : '';
+    return this.request(`/api/resilience/backups${query}`);
+  }
+
+  // ============ ALERTING & NOTIFICATIONS ============
+
+  async getAlerts(status = 'active') {
+    return this.request(`/api/alerts?status=${status}`);
+  }
+
+  async acknowledgeAlert(alertId) {
+    return this.request(`/api/alerts/${alertId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ acknowledged: true })
+    });
+  }
+
+  async resolveAlert(alertId, resolution) {
+    return this.request(`/api/alerts/${alertId}/resolve`, {
+      method: 'POST',
+      body: JSON.stringify({ resolution })
+    });
+  }
 }
 
 // Export singleton instance

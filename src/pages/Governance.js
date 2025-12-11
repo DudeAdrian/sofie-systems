@@ -1,23 +1,75 @@
 import React, { useState, useEffect } from "react";
 import sofieCore from "../core/SofieCore";
 import { QuantumSection, QuantumCard, QuantumGlassGrid } from "../theme/QuantumGlassTheme";
+import { useGovernanceData } from "../hooks/useApi";
 
 const Governance = () => {
   const [stats, setStats] = useState({});
   const [proposals, setProposals] = useState([]);
   const [members, setMembers] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedRegion, setSelectedRegion] = useState(null);
 
+  // API hook for governance data
+  const { data: govData, loading: govLoading, error: govError, refetch: refetchGov } = useGovernanceData(selectedRegion);
+
+  // Initialize component
   useEffect(() => {
-    const govService = sofieCore.getService("governance");
-    if (govService) {
-      setStats(govService.getGovernanceStats());
-      setProposals(govService.getProposals());
-      setMembers(govService.getMembers());
+    if (govData) {
+      setStats(govData.stats || {});
+      setProposals(govData.proposals || []);
+      setMembers(govData.members || []);
+    } else {
+      // Fallback to sofieCore if API unavailable
+      try {
+        const govService = sofieCore.getService("governance");
+        if (govService) {
+          setStats(govService.getGovernanceStats?.() || {});
+          setProposals(govService.getProposals?.() || []);
+          setMembers(govService.getMembers?.() || []);
+        }
+      } catch (err) {
+        console.warn('Governance service unavailable:', err);
+      }
     }
-  }, []);
+  }, [govData]);
 
-  return (
+  const handleRetry = () => {
+    refetchGov();
+  };
+
+  // Loading state
+  if (govLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-indigo-950 via-gray-950 to-violet-950">
+        <div className="text-center space-y-4">
+          <div className="text-3xl quantum-pulse text-indigo-400">
+            Loading Governance System...
+          </div>
+          <div className="text-indigo-300/70">
+            Fetching proposals and member data
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (govError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-indigo-950 via-gray-950 to-violet-950 space-y-6">
+        <div className="text-3xl text-red-400">
+          {govError}
+        </div>
+        <button
+          onClick={handleRetry}
+          className="px-8 py-4 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-indigo-500/50"
+        >
+          Retry Governance Data
+        </button>
+      </div>
+    );
+  }
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-gray-950 to-violet-950 text-white p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         

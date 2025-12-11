@@ -1,31 +1,56 @@
-// src/pages/Expansion_v2.js - Glassmorphic Web3-Integrated Community Expansion Dashboard
+// src/pages/Expansion.js - Glassmorphic Web3-Integrated Community Expansion Dashboard
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../core/SofieCore";
-import { GlassSection, GlassCard, GlassGrid, GlassButton } from "../theme/GlassmorphismTheme";
+import { GlassSection, GlassCard, GlassGrid } from "../theme/GlassmorphismTheme";
 import { createBackHandler } from "../utils/navigation";
+import { useExpansionData } from "../hooks/useApi";
 
 const Expansion = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const ringData = location.state || {};
   const handleBack = createBackHandler(navigate, location);
+  const [selectedTab, setSelectedTab] = useState("overview");
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  const [web3Status] = useState("connected");
+  const [contractBalance] = useState("2.847 ETH");
+
+  // API hook for expansion data
+  const { data: expData, loading: expLoading, error: expError, refetch: refetchExp } = useExpansionData(selectedRegion);
+
+  // State for housing, water, solar, emergency data
   const [housingService, setHousingService] = useState(null);
   const [waterService, setWaterService] = useState(null);
   const [solarService, setSolarService] = useState(null);
   const [emergencyService, setEmergencyService] = useState(null);
-  const [selectedTab, setSelectedTab] = useState("overview");
-  const [web3Status, setWeb3Status] = useState("connected");
-  const [contractBalance, setContractBalance] = useState("2.847 ETH");
 
+  // Initialize with API data
   useEffect(() => {
-    setHousingService(sofieCore.getService("housingExpansion"));
-    setWaterService(sofieCore.getService("waterExpansion"));
-    setSolarService(sofieCore.getService("solarExpansion"));
-    setEmergencyService(sofieCore.getService("emergencyPreparedness"));
-  }, []);
+    if (expData) {
+      // API data available - use it for rendering
+      setHousingService(expData.housing);
+      setWaterService(expData.water);
+      setSolarService(expData.solar);
+      setEmergencyService(expData.projects);
+    } else {
+      // Fallback to sofieCore
+      try {
+        setHousingService(sofieCore.getService("housingExpansion"));
+        setWaterService(sofieCore.getService("waterExpansion"));
+        setSolarService(sofieCore.getService("solarExpansion"));
+        setEmergencyService(sofieCore.getService("emergencyPreparedness"));
+      } catch (err) {
+        console.warn('Expansion services unavailable:', err);
+      }
+    }
+  }, [expData]);
+
+  const handleRetry = () => {
+    refetchExp();
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -60,6 +85,39 @@ const Expansion = () => {
         return "from-slate-400 to-gray-500";
     }
   };
+
+  // Loading state
+  if (expLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-50 via-white to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950">
+        <div className="text-center space-y-4">
+          <div className="text-3xl quantum-pulse text-green-600 dark:text-green-400">
+            Loading Expansion Projects...
+          </div>
+          <div className="text-gray-600 dark:text-gray-300">
+            Fetching housing, water, and solar expansion data
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (expError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-slate-50 via-white to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 space-y-6">
+        <div className="text-3xl text-red-500">
+          {expError}
+        </div>
+        <button
+          onClick={handleRetry}
+          className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-green-500/50"
+        >
+          Retry Expansion Data
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 p-4 md:p-8">
