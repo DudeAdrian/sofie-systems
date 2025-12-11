@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../../theme/GlassmorphismTheme";
 import { createBackHandler } from "../../utils/navigation";
+import { useWaterData } from "../../hooks/useApi";
 
 export default function WaterIrrigation() {
   const navigate = useNavigate();
@@ -13,24 +14,52 @@ export default function WaterIrrigation() {
   const [irrigationZones, setIrrigationZones] = useState([]);
   const [irrigationEvents, setIrrigationEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const waterData = useWaterData("default");
 
   useEffect(() => {
-    try {
-      const waterService = sofieCore.getService("water");
-      if (waterService) {
-        if (waterService.getIrrigationZones) {
-          setIrrigationZones(waterService.getIrrigationZones());
+    const loadData = () => {
+      try {
+        if (waterData.irrigation.data) {
+          const payload = waterData.irrigation.data;
+          const zones = Array.isArray(payload)
+            ? payload
+            : payload.zones || payload.irrigationZones || [];
+          const events = Array.isArray(payload)
+            ? []
+            : payload.events || payload.irrigationEvents || [];
+
+          setIrrigationZones(zones);
+          if (events.length) {
+            setIrrigationEvents(events);
+          }
+          setError(null);
+        } else if (!waterData.isLoading) {
+          const waterService = sofieCore.getService("water");
+          if (waterService) {
+            if (waterService.getIrrigationZones) {
+              setIrrigationZones(waterService.getIrrigationZones());
+            }
+            if (waterService.getIrrigationEvents) {
+              setIrrigationEvents(waterService.getIrrigationEvents());
+            }
+          }
         }
-        if (waterService.getIrrigationEvents) {
-          setIrrigationEvents(waterService.getIrrigationEvents());
+
+        setLoading(waterData.isLoading);
+
+        if (waterData.irrigation.error) {
+          setError(waterData.irrigation.error.message || "Failed to load irrigation data");
         }
+      } catch (err) {
+        console.error("Error loading irrigation data:", err);
+        setError(err.message);
+        setLoading(false);
       }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error loading irrigation data:", error);
-      setLoading(false);
-    }
-  }, []);
+    };
+
+    loadData();
+  }, [waterData.irrigation.data, waterData.isLoading, waterData.irrigation.error]);
 
   const getSourceColor = (source) => {
     const colors = {
@@ -46,14 +75,35 @@ export default function WaterIrrigation() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
         <GlassCard colors={{ primary: "cyan", secondary: "blue" }}>
-          <div className="p-8 text-gray-700 dark:text-gray-300">Loading irrigation data...</div>
+          <div className="p-8 text-gray-700 dark:text-gray-300">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-cyan-500 border-t-transparent rounded-full mr-3"></div>
+            Loading irrigation data...
+          </div>
         </GlassCard>
       </div>
     );
   }
 
-  const totalAllotment = irrigationZones.reduce((sum, z) => sum + z.dailyAllotment, 0);
-  const totalArea = irrigationZones.reduce((sum, z) => sum + z.areaSqm, 0);
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "red", secondary: "orange" }}>
+          <div className="p-8">
+            <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
+            <button
+              onClick={() => waterData.irrigation.refetch?.() || window.location.reload()}
+              className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition"
+            >
+              Retry
+            </button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  const totalAllotment = irrigationZones.reduce((sum, z) => sum + (z?.dailyAllotment || 0), 0);
+  const totalArea = irrigationZones.reduce((sum, z) => sum + (z?.areaSqm || 0), 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 p-4 md:p-8">

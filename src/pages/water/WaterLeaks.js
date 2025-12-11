@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../../theme/GlassmorphismTheme";
 import { createBackHandler } from "../../utils/navigation";
+import { useWaterData } from "../../hooks/useApi";
 
 export default function WaterLeaks() {
   const navigate = useNavigate();
@@ -13,24 +14,52 @@ export default function WaterLeaks() {
   const [leakEvents, setLeakEvents] = useState([]);
   const [sensorHealth, setSensorHealth] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const waterData = useWaterData("default");
 
   useEffect(() => {
-    try {
-      const waterService = sofieCore.getService("water");
-      if (waterService) {
-        if (waterService.getLeakEvents) {
-          setLeakEvents(waterService.getLeakEvents());
+    const loadData = () => {
+      try {
+        if (waterData.leaks.data) {
+          const payload = waterData.leaks.data;
+          const events = Array.isArray(payload)
+            ? payload
+            : payload.events || payload.leaks || [];
+          const sensors = Array.isArray(payload)
+            ? []
+            : payload.sensors || payload.sensorHealth || [];
+
+          setLeakEvents(events);
+          if (sensors.length) {
+            setSensorHealth(sensors);
+          }
+          setError(null);
+        } else if (!waterData.isLoading) {
+          const waterService = sofieCore.getService("water");
+          if (waterService) {
+            if (waterService.getLeakEvents) {
+              setLeakEvents(waterService.getLeakEvents());
+            }
+            if (waterService.getSensorHealth) {
+              setSensorHealth(waterService.getSensorHealth());
+            }
+          }
         }
-        if (waterService.getSensorHealth) {
-          setSensorHealth(waterService.getSensorHealth());
+
+        setLoading(waterData.isLoading);
+
+        if (waterData.leaks.error) {
+          setError(waterData.leaks.error.message || "Failed to load leak detection data");
         }
+      } catch (err) {
+        console.error("Error loading leak detection data:", err);
+        setError(err.message);
+        setLoading(false);
       }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error loading leak detection data:", error);
-      setLoading(false);
-    }
-  }, []);
+    };
+
+    loadData();
+  }, [waterData.leaks.data, waterData.isLoading, waterData.leaks.error]);
 
   const getStatusColor = (status) => {
     const colors = {
@@ -45,7 +74,28 @@ export default function WaterLeaks() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
         <GlassCard colors={{ primary: "cyan", secondary: "blue" }}>
-          <div className="p-8 text-gray-700 dark:text-gray-300">Loading leak detection data...</div>
+          <div className="p-8 text-gray-700 dark:text-gray-300">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-cyan-500 border-t-transparent rounded-full mr-3"></div>
+            Loading leak detection data...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "red", secondary: "orange" }}>
+          <div className="p-8">
+            <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
+            <button
+              onClick={() => waterData.leaks.refetch?.() || window.location.reload()}
+              className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition"
+            >
+              Retry
+            </button>
+          </div>
         </GlassCard>
       </div>
     );

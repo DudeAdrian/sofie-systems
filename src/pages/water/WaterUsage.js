@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../../theme/GlassmorphismTheme";
 import { createBackHandler } from "../../utils/navigation";
+import { useWaterData } from "../../hooks/useApi";
 
 export default function WaterUsage() {
   const navigate = useNavigate();
@@ -12,20 +13,39 @@ export default function WaterUsage() {
   const handleBack = createBackHandler(navigate, location);
   const [usageRecords, setUsageRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const waterData = useWaterData("default");
 
   useEffect(() => {
-    try {
-      const waterService = sofieCore.getService("water");
-      if (waterService && waterService.getUsageRecords) {
-        const records = waterService.getUsageRecords();
-        setUsageRecords(records);
+    const loadData = () => {
+      try {
+        if (waterData.usage.data) {
+          const records = Array.isArray(waterData.usage.data)
+            ? waterData.usage.data
+            : waterData.usage.data.records || [];
+          setUsageRecords(records);
+          setError(null);
+        } else if (!waterData.isLoading) {
+          const waterService = sofieCore.getService("water");
+          if (waterService?.getUsageRecords) {
+            setUsageRecords(waterService.getUsageRecords());
+          }
+        }
+
+        setLoading(waterData.isLoading);
+
+        if (waterData.usage.error) {
+          setError(waterData.usage.error.message || "Failed to load usage data");
+        }
+      } catch (err) {
+        console.error("Error loading usage data:", err);
+        setError(err.message);
+        setLoading(false);
       }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error loading usage data:", error);
-      setLoading(false);
-    }
-  }, []);
+    };
+
+    loadData();
+  }, [waterData.usage.data, waterData.isLoading, waterData.usage.error]);
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -40,15 +60,40 @@ export default function WaterUsage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
         <GlassCard colors={{ primary: "cyan", secondary: "blue" }}>
-          <div className="p-8 text-gray-700 dark:text-gray-300">Loading usage data...</div>
+          <div className="p-8 text-gray-700 dark:text-gray-300">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-cyan-500 border-t-transparent rounded-full mr-3"></div>
+            Loading usage data...
+          </div>
         </GlassCard>
       </div>
     );
   }
 
-  const totalUsage = usageRecords.reduce((sum, r) => sum + r.liters, 0);
-  const domesticUsage = usageRecords.filter(r => r.category === "domestic").reduce((sum, r) => sum + r.liters, 0);
-  const irrigationUsage = usageRecords.filter(r => r.category === "irrigation").reduce((sum, r) => sum + r.liters, 0);
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "red", secondary: "orange" }}>
+          <div className="p-8">
+            <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition"
+            >
+              Retry
+            </button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  const totalUsage = usageRecords.reduce((sum, r) => sum + (r?.liters || 0), 0);
+  const domesticUsage = usageRecords
+    .filter(r => r.category === "domestic")
+    .reduce((sum, r) => sum + (r?.liters || 0), 0);
+  const irrigationUsage = usageRecords
+    .filter(r => r.category === "irrigation")
+    .reduce((sum, r) => sum + (r?.liters || 0), 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 p-4 md:p-8">
@@ -93,7 +138,7 @@ export default function WaterUsage() {
             <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
               <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Domestic</div>
               <div className="text-5xl font-bold text-blue-600 dark:text-blue-400">{domesticUsage}L</div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">{Math.round((domesticUsage/totalUsage)*100)}% of total</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">{totalUsage ? Math.round((domesticUsage/totalUsage)*100) : 0}% of total</p>
             </div>
           </GlassCard>
 
@@ -101,7 +146,7 @@ export default function WaterUsage() {
             <div className="p-8 text-center min-h-[160px] flex flex-col justify-center">
               <div className="text-sm text-gray-700 dark:text-gray-300 mb-2">Irrigation</div>
               <div className="text-5xl font-bold text-emerald-600 dark:text-emerald-400">{irrigationUsage}L</div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">{Math.round((irrigationUsage/totalUsage)*100)}% of total</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">{totalUsage ? Math.round((irrigationUsage/totalUsage)*100) : 0}% of total</p>
             </div>
           </GlassCard>
         </GlassGrid>
@@ -113,7 +158,7 @@ export default function WaterUsage() {
             <div className="space-y-3">
               {usageRecords.map((record) => (
                 <div
-                  key={record.id}
+                  key={record.id || `${record.meterId}-${record.timestamp}`}
                   className="p-4 rounded-lg bg-cyan-100/20 dark:bg-cyan-900/20 flex items-center justify-between hover:bg-cyan-100/30 dark:hover:bg-cyan-900/30 transition-all"
                 >
                   <div className="flex items-center gap-4">
@@ -151,8 +196,10 @@ export default function WaterUsage() {
             <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Usage by Category</h2>
             <div className="space-y-6">
               {["domestic", "irrigation"].map((category) => {
-                const categoryUsage = usageRecords.filter(r => r.category === category).reduce((sum, r) => sum + r.liters, 0);
-                const percentage = Math.round((categoryUsage / totalUsage) * 100);
+                const categoryUsage = usageRecords
+                  .filter(r => r.category === category)
+                  .reduce((sum, r) => sum + (r?.liters || 0), 0);
+                const percentage = totalUsage ? Math.round((categoryUsage / totalUsage) * 100) : 0;
                 
                 return (
                   <div key={category}>

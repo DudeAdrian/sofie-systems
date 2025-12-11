@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../../theme/GlassmorphismTheme";
 import { createBackHandler } from "../../utils/navigation";
+import { useClimateData } from "../../hooks/useApi";
 
 export default function ClimateForecast() {
   const navigate = useNavigate();
@@ -12,26 +13,64 @@ export default function ClimateForecast() {
   const handleBack = createBackHandler(navigate, location);
   const [forecast, setForecast] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const climateData = useClimateData("default");
 
   useEffect(() => {
-    try {
-      const climateService = sofieCore.getService("climate");
-      if (climateService && climateService.getOutdoorForecast) {
-        const data = climateService.getOutdoorForecast();
-        setForecast(data);
+    const loadData = () => {
+      try {
+        if (climateData.weather.data) {
+          const data = climateData.weather.data;
+          setForecast(data);
+          setError(null);
+        } else if (!climateData.isLoading) {
+          const climateService = sofieCore.getService("climate");
+          if (climateService?.getOutdoorForecast) {
+            setForecast(climateService.getOutdoorForecast());
+          }
+        }
+
+        setLoading(climateData.isLoading);
+
+        if (climateData.weather.error) {
+          setError(climateData.weather.error.message || "Failed to load forecast data");
+        }
+      } catch (err) {
+        console.error("Error loading forecast data:", err);
+        setError(err.message);
+        setLoading(false);
       }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error loading forecast data:", error);
-      setLoading(false);
-    }
-  }, []);
+    };
+
+    loadData();
+  }, [climateData.weather.data, climateData.isLoading, climateData.weather.error]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
         <GlassCard colors={{ primary: "emerald", secondary: "teal" }}>
-          <div className="p-8 text-gray-700 dark:text-gray-300">Loading forecast data...</div>
+          <div className="p-8 text-gray-700 dark:text-gray-300">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-emerald-500 border-t-transparent rounded-full mr-3"></div>
+            Loading forecast data...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "red", secondary: "orange" }}>
+          <div className="p-8">
+            <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
+            <button
+              onClick={() => climateData.weather.refetch?.() || window.location.reload()}
+              className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition"
+            >
+              Retry
+            </button>
+          </div>
         </GlassCard>
       </div>
     );

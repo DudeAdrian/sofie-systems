@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../../theme/GlassmorphismTheme";
 import { createBackHandler } from "../../utils/navigation";
+import { useEnergyData } from "../../hooks/useApi";
 
 export default function EnergyGrid() {
   const navigate = useNavigate();
@@ -12,35 +13,75 @@ export default function EnergyGrid() {
   const handleBack = createBackHandler(navigate, location);
   const [gridMetrics, setGridMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const energyData = useEnergyData("default");
 
   useEffect(() => {
-    try {
-      const energyService = sofieCore.getService("energy");
-      if (energyService && energyService.getGridMetrics) {
-        const metrics = energyService.getGridMetrics();
-        setGridMetrics(metrics);
+    const loadData = () => {
+      try {
+        if (energyData.grid.data) {
+          const metrics = Array.isArray(energyData.grid.data)
+            ? energyData.grid.data
+            : energyData.grid.data.metrics || [];
+          setGridMetrics(metrics);
+          setError(null);
+        } else if (!energyData.isLoading) {
+          const energyService = sofieCore.getService("energy");
+          if (energyService?.getGridMetrics) {
+            setGridMetrics(energyService.getGridMetrics());
+          }
+        }
+
+        setLoading(energyData.isLoading);
+
+        if (energyData.grid.error) {
+          setError(energyData.grid.error.message || "Failed to load grid data");
+        }
+      } catch (err) {
+        console.error("Error loading grid data:", err);
+        setError(err.message);
+        setLoading(false);
       }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error loading grid data:", error);
-      setLoading(false);
-    }
-  }, []);
+    };
+
+    loadData();
+  }, [energyData.grid.data, energyData.isLoading, energyData.grid.error]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
         <GlassCard colors={{ primary: "amber", secondary: "orange" }}>
-          <div className="p-8 text-gray-700 dark:text-gray-300">Loading grid data...</div>
+          <div className="p-8 text-gray-700 dark:text-gray-300">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-amber-500 border-t-transparent rounded-full mr-3"></div>
+            Loading grid data...
+          </div>
         </GlassCard>
       </div>
     );
   }
 
-  const totalImported = gridMetrics.reduce((sum, m) => sum + m.imported, 0);
-  const totalExported = gridMetrics.reduce((sum, m) => sum + m.exported, 0);
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "red", secondary: "orange" }}>
+          <div className="p-8">
+            <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
+            <button
+              onClick={() => energyData.grid.refetch?.() || window.location.reload()}
+              className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition"
+            >
+              Retry
+            </button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  const totalImported = gridMetrics.reduce((sum, m) => sum + (m?.imported || 0), 0);
+  const totalExported = gridMetrics.reduce((sum, m) => sum + (m?.exported || 0), 0);
   const netBalance = totalExported - totalImported;
-  const totalCost = gridMetrics.reduce((sum, m) => sum + m.cost, 0);
+  const totalCost = gridMetrics.reduce((sum, m) => sum + (m?.cost || 0), 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 p-4 md:p-8">
