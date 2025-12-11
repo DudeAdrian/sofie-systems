@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../../theme/GlassmorphismTheme";
 import { createBackHandler } from "../../utils/navigation";
+import { useClimateData } from "../../hooks/useApi";
 
 export default function ClimateHumidity() {
   const navigate = useNavigate();
@@ -12,26 +13,65 @@ export default function ClimateHumidity() {
   const handleBack = createBackHandler(navigate, location);
   const [humidityData, setHumidityData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const climateData = useClimateData("default");
 
   useEffect(() => {
-    try {
-      const climateService = sofieCore.getService("climate");
-      if (climateService && climateService.getHumidityData) {
-        const data = climateService.getHumidityData();
-        setHumidityData(data);
+    const loadData = () => {
+      try {
+        if (climateData.monitoring.data) {
+          const payload = climateData.monitoring.data;
+          const data = Array.isArray(payload) ? payload[0] : payload;
+          setHumidityData(data);
+          setError(null);
+        } else if (!climateData.isLoading) {
+          const climateService = sofieCore.getService("climate");
+          if (climateService?.getHumidityData) {
+            setHumidityData(climateService.getHumidityData());
+          }
+        }
+
+        setLoading(climateData.isLoading);
+
+        if (climateData.monitoring.error) {
+          setError(climateData.monitoring.error.message || "Failed to load humidity data");
+        }
+      } catch (err) {
+        console.error("Error loading humidity data:", err);
+        setError(err.message);
+        setLoading(false);
       }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error loading humidity data:", error);
-      setLoading(false);
-    }
-  }, []);
+    };
+
+    loadData();
+  }, [climateData.monitoring.data, climateData.isLoading, climateData.monitoring.error]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
         <GlassCard colors={{ primary: "emerald", secondary: "teal" }}>
-          <div className="p-8 text-gray-700 dark:text-gray-300">Loading humidity data...</div>
+          <div className="p-8 text-gray-700 dark:text-gray-300">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-emerald-500 border-t-transparent rounded-full mr-3"></div>
+            Loading humidity data...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "red", secondary: "orange" }}>
+          <div className="p-8">
+            <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
+            <button
+              onClick={() => climateData.monitoring.refetch?.() || window.location.reload()}
+              className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition"
+            >
+              Retry
+            </button>
+          </div>
         </GlassCard>
       </div>
     );

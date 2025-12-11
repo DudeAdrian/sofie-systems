@@ -4,6 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import sofieCore from "../../core/SofieCore";
 import { GlassSection, GlassCard, GlassGrid } from "../../theme/GlassmorphismTheme";
 import { createBackHandler } from "../../utils/navigation";
+import { useFoodData } from "../../hooks/useApi";
 
 export default function FoodProduction() {
   const navigate = useNavigate();
@@ -12,30 +13,65 @@ export default function FoodProduction() {
   const handleBack = createBackHandler(navigate, location);
   const [productionData, setProductionData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const foodData = useFoodData("default");
 
   useEffect(() => {
-    try {
-      const foodService = sofieCore.getService("food");
-      console.log("[FoodProduction] Food service:", foodService);
-      if (foodService && foodService.getProductionData) {
-        const data = foodService.getProductionData();
-        console.log("[FoodProduction] Production data:", data);
-        setProductionData(data);
-      } else {
-        console.error("[FoodProduction] Food service or getProductionData not available");
+    const loadData = () => {
+      try {
+        if (foodData.gardens.data) {
+          const payload = foodData.gardens.data;
+          const data = Array.isArray(payload) ? { gardens: payload } : payload;
+          setProductionData(data);
+          setError(null);
+        } else if (!foodData.isLoading) {
+          const foodService = sofieCore.getService("food");
+          if (foodService?.getProductionData) {
+            setProductionData(foodService.getProductionData());
+          }
+        }
+
+        setLoading(foodData.isLoading);
+
+        if (foodData.gardens.error) {
+          setError(foodData.gardens.error.message || "Failed to load production data");
+        }
+      } catch (err) {
+        console.error("Error loading production data:", err);
+        setError(err.message);
+        setLoading(false);
       }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error loading production data:", error);
-      setLoading(false);
-    }
-  }, []);
+    };
+
+    loadData();
+  }, [foodData.gardens.data, foodData.isLoading, foodData.gardens.error]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
         <GlassCard colors={{ primary: "amber", secondary: "orange" }}>
-          <div className="p-8 text-gray-700 dark:text-gray-300">Loading production data...</div>
+          <div className="p-8 text-gray-700 dark:text-gray-300">
+            <div className="animate-spin inline-block w-6 h-6 border-3 border-amber-500 border-t-transparent rounded-full mr-3"></div>
+            Loading production data...
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <GlassCard colors={{ primary: "red", secondary: "orange" }}>
+          <div className="p-8">
+            <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
+            <button
+              onClick={() => foodData.gardens.refetch?.() || window.location.reload()}
+              className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition"
+            >
+              Retry
+            </button>
+          </div>
         </GlassCard>
       </div>
     );
@@ -45,16 +81,13 @@ export default function FoodProduction() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 flex items-center justify-center">
         <GlassCard colors={{ primary: "amber", secondary: "orange" }}>
-          <div className="p-8 text-gray-700 dark:text-gray-300">
-            <p>No production data available</p>
-            <p className="text-xs mt-2">Debug: {JSON.stringify(productionData)}</p>
-          </div>
+          <div className="p-8 text-gray-700 dark:text-gray-300">No production data available</div>
         </GlassCard>
       </div>
     );
   }
 
-  const totalArea = productionData.gardens.reduce((sum, g) => sum + g.areaSqm, 0);
+  const totalArea = productionData.gardens.reduce((sum, g) => sum + (g?.areaSqm || 0), 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950 p-4 md:p-8">
