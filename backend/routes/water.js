@@ -3,8 +3,10 @@
 
 const express = require('express');
 const router = express.Router();
+const WaterMetric = require('../models/WaterMetric');
+const { dbFind, dbFindOne, dbOperation, dbSave, dbUpdate } = require('../utils/dbHelper');
 
-// Mock data (replace with database queries in production)
+// Mock data for fallback
 const mockWaterData = {
   regionId: 'default',
   totalCapacity: 5000,
@@ -24,14 +26,28 @@ const mockWaterData = {
 };
 
 // GET /api/water/:regionId - Get water data for region
-router.get('/:regionId', (req, res) => {
+router.get('/:regionId', async (req, res) => {
   const { regionId } = req.params;
   
-  res.json({
-    ...mockWaterData,
-    regionId,
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    const data = await dbFindOne(
+      WaterMetric,
+      { regionId },
+      {
+        ...mockWaterData,
+        regionId,
+        timestamp: new Date().toISOString(),
+      }
+    );
+    
+    res.json(data || {
+      ...mockWaterData,
+      regionId,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch water data' });
+  }
 });
 
 // GET /api/water/:regionId/quality - Get water quality metrics
@@ -64,7 +80,7 @@ router.get('/:regionId/consumption', (req, res) => {
 });
 
 // POST /api/water/:regionId/irrigation - Schedule irrigation
-router.post('/:regionId/irrigation', (req, res) => {
+router.post('/:regionId/irrigation', async (req, res) => {
   const { regionId } = req.params;
   const { zoneId, duration, scheduledTime } = req.body;
   
@@ -72,15 +88,26 @@ router.post('/:regionId/irrigation', (req, res) => {
     return res.status(400).json({ error: 'Missing required fields: zoneId, duration' });
   }
   
-  res.status(201).json({
-    id: `irr-${Date.now()}`,
-    regionId,
-    zoneId,
-    duration,
-    scheduledTime: scheduledTime || new Date().toISOString(),
-    status: 'scheduled',
-    createdAt: new Date().toISOString(),
-  });
+  try {
+    const irrigation = {
+      regionId,
+      zoneId,
+      duration,
+      scheduledTime: scheduledTime || new Date().toISOString(),
+      status: 'scheduled',
+      id: `irr-${Date.now()}`,
+    };
+    
+    // Save to database if connected
+    const saved = await dbSave(WaterMetric, irrigation);
+    
+    res.status(201).json({
+      ...irrigation,
+      createdAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create irrigation schedule' });
+  }
 });
 
 // GET /api/water/:regionId/alerts - Get water alerts
@@ -121,22 +148,33 @@ router.put('/:regionId/settings', (req, res) => {
 });
 
 // GET /api/water/:regionId/history - Get historical data
-router.get('/:regionId/history', (req, res) => {
+router.get('/:regionId/history', async (req, res) => {
   const { days = 7 } = req.query;
+  const { regionId } = req.params;
   
-  // Generate mock historical data
-  const history = Array.from({ length: parseInt(days) }, (_, i) => ({
-    date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
-    level: Math.floor(Math.random() * 20) + 70,
-    quality: Math.floor(Math.random() * 15) + 85,
-    consumption: Math.floor(Math.random() * 100) + 400,
-  })).reverse();
-  
-  res.json({
-    regionId: req.params.regionId,
-    history,
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    const history = await dbFind(
+      WaterMetric,
+      { 
+        regionId,
+        createdAt: { $gte: new Date(Date.now() - days * 86400000) }
+      },
+      Array.from({ length: parseInt(days) }, (_, i) => ({
+        date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
+        level: Math.floor(Math.random() * 20) + 70,
+        quality: Math.floor(Math.random() * 15) + 85,
+        consumption: Math.floor(Math.random() * 100) + 400,
+      })).reverse()
+    );
+    
+    res.json({
+      regionId,
+      history: Array.isArray(history) ? history : [history],
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch water history' });
+  }
 });
 
 module.exports = router;

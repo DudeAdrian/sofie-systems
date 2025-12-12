@@ -2,55 +2,62 @@
 
 const express = require('express');
 const router = express.Router();
+const AutomationRule = require('../models/AutomationRule');
+const { dbFind, dbSave, dbUpdate, useMockData } = require('../utils/dbHelper');
 
 // GET /api/automation/rules - Get all automation rules
-router.get('/rules', (req, res) => {
-  res.json({
-    rules: [
-      { 
-        id: 'rule-1', 
-        name: 'Auto-Irrigation', 
-        trigger: 'soil_moisture < 30%', 
-        action: 'start_irrigation', 
-        status: 'active',
-        lastTriggered: new Date(Date.now() - 7200000).toISOString(),
-      },
-      { 
-        id: 'rule-2', 
-        name: 'Climate Control', 
-        trigger: 'temperature > 25°C', 
-        action: 'increase_ventilation', 
-        status: 'active',
-        lastTriggered: new Date(Date.now() - 3600000).toISOString(),
-      },
-      { 
-        id: 'rule-3', 
-        name: 'Energy Optimization', 
-        trigger: 'battery_level > 90%', 
-        action: 'export_to_grid', 
-        status: 'active',
-        lastTriggered: new Date(Date.now() - 1800000).toISOString(),
-      },
-    ],
-    timestamp: new Date().toISOString(),
-  });
+router.get('/rules', async (req, res) => {
+  try {
+    const rules = await dbFind(AutomationRule, {}, []);
+    res.json({
+      rules: rules || [
+        { 
+          id: 'rule-1', 
+          name: 'Auto-Irrigation', 
+          trigger: 'soil_moisture < 30%', 
+          action: 'start_irrigation', 
+          status: 'active',
+          lastTriggered: new Date(Date.now() - 7200000).toISOString(),
+        },
+        { 
+          id: 'rule-2', 
+          name: 'Climate Control', 
+          trigger: 'temperature > 25°C', 
+          action: 'increase_ventilation', 
+          status: 'active',
+          lastTriggered: new Date(Date.now() - 3600000).toISOString(),
+        },
+        { 
+          id: 'rule-3', 
+          name: 'Energy Optimization', 
+          trigger: 'battery_level > 90%', 
+          action: 'export_to_grid', 
+          status: 'active',
+          lastTriggered: new Date(Date.now() - 1800000).toISOString(),
+        },
+      ],
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch automation rules' });
+  }
 });
 
 // POST /api/automation/rules - Create new automation rule
-router.post('/rules', (req, res) => {
+router.post('/rules', async (req, res) => {
   const { name, trigger, action, conditions } = req.body;
   
   if (!name || !trigger || !action) {
     return res.status(400).json({ error: 'Missing required fields: name, trigger, action' });
   }
   
-  res.status(201).json({
-    id: `rule-${Date.now()}`,
-    name,
-    trigger,
-    action,
-    conditions: conditions || {},
-    status: 'active',
+  try {
+    const newRule = {
+      name,
+      trigger,
+      action,
+      conditions: conditions || {},
+      status: 'active',
     createdAt: new Date().toISOString(),
   });
 });

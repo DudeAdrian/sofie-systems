@@ -3,6 +3,8 @@
 
 const express = require('express');
 const router = express.Router();
+const Trade = require('../models/Trade');
+const { dbFind, dbSave, dbUpdate, useMockData } = require('../utils/dbHelper');
 
 const mockCommunityData = {
   regionId: 'default',
@@ -20,91 +22,130 @@ const mockCommunityData = {
 };
 
 // GET /api/community/:regionId - Get community overview
-router.get('/:regionId', (req, res) => {
-  res.json({
-    ...mockCommunityData,
-    regionId: req.params.regionId,
-    timestamp: new Date().toISOString(),
-  });
+router.get('/:regionId', async (req, res) => {
+  const { regionId } = req.params;
+  try {
+    res.json({
+      ...mockCommunityData,
+      regionId,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch community data' });
+  }
 });
 
 // GET /api/community/:regionId/members - Get community members
-router.get('/:regionId/members', (req, res) => {
-  res.json({
-    regionId: req.params.regionId,
-    totalMembers: mockCommunityData.members,
-    members: Array.from({ length: 10 }, (_, i) => ({
-      id: `member-${i + 1}`,
-      name: `User ${i + 1}`,
-      role: i < 2 ? 'admin' : 'member',
-      joinedAt: new Date(Date.now() - Math.random() * 31536000000).toISOString(),
-      contributionScore: Math.floor(Math.random() * 100),
-    })),
-    timestamp: new Date().toISOString(),
-  });
+router.get('/:regionId/members', async (req, res) => {
+  const { regionId } = req.params;
+  try {
+    res.json({
+      regionId,
+      totalMembers: mockCommunityData.members,
+      members: Array.from({ length: 10 }, (_, i) => ({
+        id: `member-${i + 1}`,
+        name: `User ${i + 1}`,
+        role: i < 2 ? 'admin' : 'member',
+        joinedAt: new Date(Date.now() - Math.random() * 31536000000).toISOString(),
+        contributionScore: Math.floor(Math.random() * 100),
+      })),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch members' });
+  }
 });
 
 // GET /api/community/:regionId/posts - Get community posts
-router.get('/:regionId/posts', (req, res) => {
+router.get('/:regionId/posts', async (req, res) => {
+  const { regionId } = req.params;
   const { limit = 20 } = req.query;
   
-  res.json({
-    regionId: req.params.regionId,
-    posts: mockCommunityData.posts.slice(0, parseInt(limit)),
-    totalCount: mockCommunityData.posts.length,
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    res.json({
+      regionId,
+      posts: mockCommunityData.posts.slice(0, parseInt(limit)),
+      totalCount: mockCommunityData.posts.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch posts' });
+  }
 });
 
 // POST /api/community/:regionId/posts - Create new post
-router.post('/:regionId/posts', (req, res) => {
+router.post('/:regionId/posts', async (req, res) => {
+  const { regionId } = req.params;
   const { author, content, tags } = req.body;
   
   if (!author || !content) {
     return res.status(400).json({ error: 'Missing required fields: author, content' });
   }
   
-  res.status(201).json({
-    id: `post-${Date.now()}`,
-    regionId: req.params.regionId,
-    author,
-    content,
-    tags: tags || [],
-    likes: 0,
-    comments: 0,
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    res.status(201).json({
+      id: `post-${Date.now()}`,
+      regionId,
+      author,
+      content,
+      tags: tags || [],
+      likes: 0,
+      comments: 0,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create post' });
+  }
 });
 
 // GET /api/community/:regionId/trades - Get trade history
-router.get('/:regionId/trades', (req, res) => {
-  res.json({
-    regionId: req.params.regionId,
-    trades: mockCommunityData.trades,
-    totalVolume: mockCommunityData.tradeVolume,
-    timestamp: new Date().toISOString(),
-  });
+router.get('/:regionId/trades', async (req, res) => {
+  const { regionId } = req.params;
+  try {
+    const trades = await dbFind(
+      Trade,
+      { regionId },
+      mockCommunityData.trades
+    );
+    res.json({
+      regionId,
+      trades: trades || mockCommunityData.trades,
+      totalVolume: mockCommunityData.tradeVolume,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch trades' });
+  }
 });
 
 // POST /api/community/:regionId/trades - Create new trade
-router.post('/:regionId/trades', (req, res) => {
+router.post('/:regionId/trades', async (req, res) => {
+  const { regionId } = req.params;
   const { from, to, item, quantity, price } = req.body;
   
   if (!from || !to || !item) {
     return res.status(400).json({ error: 'Missing required fields: from, to, item' });
   }
   
-  res.status(201).json({
-    id: `trade-${Date.now()}`,
-    regionId: req.params.regionId,
-    from,
-    to,
-    item,
-    quantity: quantity || 1,
-    price: price || 0,
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-  });
+  try {
+    const newTrade = {
+      regionId,
+      buyerId: to,
+      sellerId: from,
+      item,
+      quantity: quantity || 1,
+      price: price || 0,
+      status: 'pending',
+    };
+    
+    const saved = await dbSave(Trade, newTrade);
+    res.status(201).json({
+      ...saved.toObject(),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create trade' });
+  }
 });
 
 // GET /api/community/:regionId/governance - Get governance data

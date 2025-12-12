@@ -3,6 +3,8 @@
 
 const express = require('express');
 const router = express.Router();
+const EnergyMetric = require('../models/EnergyMetric');
+const { dbFindOne, dbSave, dbFind, dbUpdate, useMockData } = require('../utils/dbHelper');
 
 const mockEnergyData = {
   regionId: 'default',
@@ -26,102 +28,183 @@ const mockEnergyData = {
 };
 
 // GET /api/energy/:regionId - Get energy data
-router.get('/:regionId', (req, res) => {
-  res.json({
-    ...mockEnergyData,
-    regionId: req.params.regionId,
-    timestamp: new Date().toISOString(),
-  });
+router.get('/:regionId', async (req, res) => {
+  const { regionId } = req.params;
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    res.json(data || { ...mockEnergyData, regionId, timestamp: new Date().toISOString() });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch energy data' });
+  }
 });
 
 // GET /api/energy/:regionId/production - Get production metrics
-router.get('/:regionId/production', (req, res) => {
-  res.json({
-    regionId: req.params.regionId,
-    current: mockEnergyData.solarProduction,
-    daily: 48500,
-    weekly: 325000,
-    sources: mockEnergyData.sources,
-    peakTime: '14:30',
-    timestamp: new Date().toISOString(),
-  });
+router.get('/:regionId/production', async (req, res) => {
+  const { regionId } = req.params;
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    const energyData = data || { ...mockEnergyData, regionId };
+    res.json({
+      regionId,
+      current: energyData.production?.total || mockEnergyData.solarProduction,
+      daily: 48500,
+      weekly: 325000,
+      sources: energyData.production?.sources || mockEnergyData.sources,
+      peakTime: '14:30',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch production data' });
+  }
 });
 
 // GET /api/energy/:regionId/storage - Get battery/storage info
-router.get('/:regionId/storage', (req, res) => {
-  res.json({
-    regionId: req.params.regionId,
-    batteryLevel: mockEnergyData.batteryLevel,
-    capacity: mockEnergyData.batteryCapacity,
-    chargeRate: 250,
-    dischargeRate: 180,
-    cycleCount: 324,
-    health: 95,
-    estimatedTimeToFull: 2.5,
-    timestamp: new Date().toISOString(),
-  });
+router.get('/:regionId/storage', async (req, res) => {
+  const { regionId } = req.params;
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    const energyData = data || { ...mockEnergyData, regionId };
+    const storage = energyData.storage || {};
+    res.json({
+      regionId,
+      batteryLevel: storage.currentLevel || mockEnergyData.batteryLevel,
+      capacity: storage.capacity || mockEnergyData.batteryCapacity,
+      chargeRate: storage.chargeRate || 250,
+      dischargeRate: storage.dischargeRate || 180,
+      cycleCount: 324,
+      health: storage.health || 95,
+      estimatedTimeToFull: 2.5,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch storage data' });
+  }
 });
 
 // GET /api/energy/:regionId/consumption - Get consumption data
-router.get('/:regionId/consumption', (req, res) => {
-  res.json({
-    regionId: req.params.regionId,
-    current: mockEnergyData.consumption,
-    daily: 38200,
-    weekly: 265000,
-    breakdown: [
-      { category: 'Climate Control', usage: 620, percentage: 38 },
-      { category: 'Water Pumps', usage: 410, percentage: 25 },
-      { category: 'Lighting', usage: 380, percentage: 23 },
-      { category: 'IoT Devices', usage: 240, percentage: 14 },
-    ],
-    timestamp: new Date().toISOString(),
-  });
+router.get('/:regionId/consumption', async (req, res) => {
+  const { regionId } = req.params;
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    const energyData = data || { ...mockEnergyData, regionId };
+    const consumption = energyData.consumption || {};
+    res.json({
+      regionId,
+      current: consumption.total || mockEnergyData.consumption,
+      daily: 38200,
+      weekly: 265000,
+      breakdown: [
+        { category: 'Climate Control', usage: consumption.climate || 620, percentage: 38 },
+        { category: 'Water Pumps', usage: consumption.water || 410, percentage: 25 },
+        { category: 'Lighting', usage: consumption.lighting || 380, percentage: 23 },
+        { category: 'IoT Devices', usage: consumption.iot || 240, percentage: 14 },
+      ],
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch consumption data' });
+  }
 });
 
 // POST /api/energy/:regionId/optimize - Trigger energy optimization
-router.post('/:regionId/optimize', (req, res) => {
-  const { mode } = req.body; // e.g., 'peak-shaving', 'cost-reduction', 'sustainability'
+router.post('/:regionId/optimize', async (req, res) => {
+  const { regionId } = req.params;
+  const { mode } = req.body;
   
-  res.json({
-    regionId: req.params.regionId,
-    mode: mode || 'balanced',
-    optimizations: [
-      'Shifted high-load tasks to off-peak hours',
-      'Increased battery charge rate during solar peak',
-      'Reduced HVAC load by 12%',
-    ],
-    estimatedSavings: {
-      energy: 450, // kWh/week
-      cost: 67.50, // USD/week
-      carbon: 320, // kg CO2/week
-    },
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    const update = {
+      lastOptimized: new Date(),
+      optimizationMode: mode || 'balanced',
+    };
+    
+    await dbUpdate(
+      EnergyMetric,
+      { regionId },
+      update,
+      mockEnergyData
+    );
+    
+    res.json({
+      regionId,
+      mode: mode || 'balanced',
+      optimizations: [
+        'Shifted high-load tasks to off-peak hours',
+        'Increased battery charge rate during solar peak',
+        'Reduced HVAC load by 12%',
+      ],
+      estimatedSavings: {
+        energy: 450,
+        cost: 67.50,
+        carbon: 320,
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to optimize energy' });
+  }
 });
 
 // GET /api/energy/:regionId/forecast - Get energy forecast
-router.get('/:regionId/forecast', (req, res) => {
+router.get('/:regionId/forecast', async (req, res) => {
+  const { regionId } = req.params;
   const { hours = 24 } = req.query;
   
-  res.json({
-    regionId: req.params.regionId,
-    forecast: mockEnergyData.forecast24h.slice(0, parseInt(hours)),
-    confidence: 0.87,
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    const energyData = data || mockEnergyData;
+    res.json({
+      regionId,
+      forecast: energyData.forecast24h?.slice(0, parseInt(hours)) || mockEnergyData.forecast24h.slice(0, parseInt(hours)),
+      confidence: 0.87,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch forecast' });
+  }
 });
 
 // PUT /api/energy/:regionId/settings - Update energy settings
-router.put('/:regionId/settings', (req, res) => {
+router.put('/:regionId/settings', async (req, res) => {
+  const { regionId } = req.params;
   const settings = req.body;
   
-  res.json({
-    regionId: req.params.regionId,
-    settings,
-    message: 'Energy settings updated successfully',
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    await dbUpdate(
+      EnergyMetric,
+      { regionId },
+      { settings },
+      mockEnergyData
+    );
+    
+    res.json({
+      regionId,
+      settings,
+      message: 'Energy settings updated successfully',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update energy settings' });
+  }
 });
 
 module.exports = router;

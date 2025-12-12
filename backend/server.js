@@ -8,6 +8,8 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+const { connectDB, isConnected } = require('./config/database');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -68,6 +70,7 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
+    database: isConnected() ? 'connected' : 'disconnected',
   });
 });
 
@@ -111,10 +114,14 @@ app.use((err, req, res, next) => {
 
 // ===== SERVER STARTUP =====
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`\n🚀 SOFIE Systems Backend Server`);
   console.log(`📍 Running on: http://localhost:${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Connect to database
+  await connectDB();
+  
   console.log(`⏰ Started at: ${new Date().toISOString()}\n`);
 });
 
