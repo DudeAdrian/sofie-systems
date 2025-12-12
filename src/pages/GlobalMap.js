@@ -14,7 +14,7 @@ const CONTINENT_BY_REGION = {
 };
 
 const GlobalMap = () => {
-  const { selectedRegion } = useRegion();
+  const { selectedRegion, regions, selectRegion } = useRegion();
   const [selectedLayer, setSelectedLayer] = useState("health");
   const [selectedCommunity, setSelectedCommunity] = useState(null);
 
@@ -81,20 +81,37 @@ const GlobalMap = () => {
                 Dots represent communities in your selected region. Click a dot to see population and key metrics.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {layerOptions.map((layer) => (
-                <button
-                  key={layer}
-                  onClick={() => setSelectedLayer(layer)}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition ${
-                    selectedLayer === layer
-                      ? "bg-emerald-500 text-white shadow"
-                      : "bg-white/70 text-slate-800 hover:bg-white"
-                  }`}
-                >
-                  {layer}
-                </button>
-              ))}
+            <div className="flex flex-wrap gap-2 items-center">
+              <label htmlFor="region-select" className="text-slate-700 font-semibold mr-2">Region:</label>
+              <select
+                id="region-select"
+                value={selectedRegion ? selectedRegion.name : ''}
+                onChange={e => {
+                  const region = regions.find(r => r.name === e.target.value);
+                  if (region) selectRegion(region);
+                }}
+                className="px-3 py-2 rounded-lg text-sm font-semibold bg-white/80 text-slate-900 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+              >
+                <option value="" disabled>Select region</option>
+                {regions.map(region => (
+                  <option key={region.id} value={region.name}>{region.name}</option>
+                ))}
+              </select>
+              <div className="ml-4 flex flex-wrap gap-2">
+                {layerOptions.map((layer) => (
+                  <button
+                    key={layer}
+                    onClick={() => setSelectedLayer(layer)}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition ${
+                      selectedLayer === layer
+                        ? "bg-emerald-500 text-white shadow"
+                        : "bg-white/70 text-slate-800 hover:bg-white"
+                    }`}
+                  >
+                    {layer}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           {!selectedRegion && (

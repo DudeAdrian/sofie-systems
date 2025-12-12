@@ -91,6 +91,7 @@ const App = () => {
                 <Route path="/services/community" element={<Community />} />
                 <Route path="/sustainability" element={<SelfSufficiency />} />
                 <Route path="/map" element={<GlobalMap />} />
+                <Route path="/global/map" element={<GlobalMap />} />
                 <Route path="/water/recycling" element={<WaterRecycling />} />
                 <Route path="/water/quality" element={<WaterQuality />} />
                 <Route path="/water/usage" element={<WaterUsage />} />

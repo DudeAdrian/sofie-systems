@@ -34,7 +34,7 @@ export default function WaterIrrigation() {
             setIrrigationEvents(events);
           }
           setError(null);
-        } else if (!waterData.isLoading) {
+        } else if (!waterData.irrigation.isLoading) {
           const waterService = sofieCore.getService("water");
           if (waterService) {
             if (waterService.getIrrigationZones) {
@@ -46,7 +46,7 @@ export default function WaterIrrigation() {
           }
         }
 
-        setLoading(waterData.isLoading);
+        setLoading(waterData.irrigation.isLoading);
 
         if (waterData.irrigation.error) {
           setError(waterData.irrigation.error.message || "Failed to load irrigation data");
@@ -59,7 +59,7 @@ export default function WaterIrrigation() {
     };
 
     loadData();
-  }, [waterData.irrigation.data, waterData.isLoading, waterData.irrigation.error]);
+  }, [waterData.irrigation.data, waterData.irrigation.isLoading, waterData.irrigation.error]);
 
   const getSourceColor = (source) => {
     const colors = {
