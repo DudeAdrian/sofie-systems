@@ -12,6 +12,13 @@ const energyMetricSchema = new mongoose.Schema(
       solar: { type: Number, default: 0 },
       wind: { type: Number, default: 0 },
       hydro: { type: Number, default: 0 },
+      geothermal: {
+        capacityKW: { type: Number, default: 0 },
+        outputKW: { type: Number, default: 0 },
+        status: { type: String, default: 'inactive' },
+        temperatureC: { type: Number, default: 0 },
+        lastService: { type: Date },
+      },
       total: { type: Number, default: 0 },
     },
     consumption: {

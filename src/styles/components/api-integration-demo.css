@@ -9,11 +9,6 @@
     rgba(30, 41, 59, 1),
     rgba(15, 23, 42, 1)
   );
-  dark: linear-gradient(to bottom right,
-    rgba(15, 23, 42, 1),
-    rgba(30, 41, 59, 1),
-    rgba(15, 23, 42, 1)
-  );
   padding: 2rem;
 }
 

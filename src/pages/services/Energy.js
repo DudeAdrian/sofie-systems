@@ -89,38 +89,61 @@ const Energy = () => {
           <p className="text-yellow-200">Monitor solar production, battery levels, and grid balance</p>
         </QuantumSection>
 
-        {/* Energy Status Cards */}
-        <QuantumGlassGrid columns={3} gap={6}>
-          <QuantumCard chakra="solar" blurLevel="deep" opacityLevel="ultraClear" glow={true} edgeGlow={true}>
-            <div className="p-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-yellow-300 uppercase drop-shadow-[0_0_10px_rgba(255,255,0,0.5)]">Solar Production</p>
-                  <div className="text-4xl font-bold text-white mt-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{data.solarProduction} kW</div>
+        {/* Energy Status Cards - Dynamic for all sources */}
+        <QuantumGlassGrid columns={4} gap={6}>
+          {(apiEnergy?.sources || []).map((source, idx) => {
+            // Icon and color mapping for each type
+            const typeMap = {
+              solar: { icon: '☀️', color: 'yellow', chakra: 'solar', label: 'Solar Production' },
+              wind: { icon: '💨', color: 'blue', chakra: 'wind', label: 'Wind Output' },
+              hydro: { icon: '💧', color: 'cyan', chakra: 'hydro', label: 'Hydro Output' },
+              geothermal: { icon: '🌋', color: 'amber', chakra: 'earth', label: 'Geothermal Output' },
+              biomass: { icon: '🌱', color: 'green', chakra: 'heart', label: 'Biomass Output' },
+              nuclear: { icon: '⚛️', color: 'purple', chakra: 'crown', label: 'Nuclear Output' },
+            };
+            const meta = typeMap[source.type] || { icon: '🔋', color: 'gray', chakra: 'root', label: `${source.type} Output` };
+            return (
+              <QuantumCard key={source.type + idx} chakra={meta.chakra} blurLevel="deep" opacityLevel="ultraClear" glow={true} edgeGlow={true}>
+                <div className="p-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-sm font-semibold uppercase drop-shadow-[0_0_10px_rgba(255,255,0,0.5)] text-${meta.color}-300`}>{meta.label}</p>
+                      <div className="text-4xl font-bold text-white mt-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                        {typeof source.production === 'number' ? source.production : '--'} kW
+                      </div>
+                      {source.temperatureC !== undefined && (
+                        <div className="text-xs text-amber-300 mt-1">Temp: {source.temperatureC}°C</div>
+                      )}
+                      {source.status && (
+                        <div className="text-xs text-green-400 mt-1">Status: {source.status}</div>
+                      )}
+                    </div>
+                    <div className="text-5xl opacity-50 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{meta.icon}</div>
+                  </div>
+                  <div className="mt-4 w-full bg-white/20 rounded-full h-2">
+                    <div
+                      className={`bg-gradient-to-r from-${meta.color}-400 to-${meta.color}-600 h-2 rounded-full shadow-[0_0_10px_rgba(255,255,0,0.5)]`}
+                      style={{ width: `${typeof source.production === 'number' ? source.production : 0}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="text-5xl opacity-50 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">☀️</div>
-              </div>
-              <div className="mt-4 w-full bg-white/20 rounded-full h-2">
-                <div
-                  className="bg-gradient-to-r from-yellow-400 to-amber-500 h-2 rounded-full shadow-[0_0_10px_rgba(255,255,0,0.5)]"
-                  style={{ width: `${data.solarProduction}%` }}
-                ></div>
-              </div>
-            </div>
-          </QuantumCard>
+              </QuantumCard>
+            );
+          })}
+          {/* Battery and Grid cards (non-source) */}
           <QuantumCard chakra="throat" blurLevel="deep" opacityLevel="ultraClear" glow={true} edgeGlow={true}>
             <div className="p-2">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-cyan-300 uppercase drop-shadow-[0_0_10px_rgba(0,187,255,0.5)]">Battery Level</p>
-                  <div className="text-4xl font-bold text-white mt-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{data.batteryLevel}%</div>
+                  <div className="text-4xl font-bold text-white mt-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{data.batteryLevel ?? '--'}%</div>
                 </div>
                 <div className="text-5xl opacity-50 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">🔋</div>
               </div>
               <div className="mt-4 w-full bg-white/20 rounded-full h-2">
                 <div
                   className="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full shadow-[0_0_10px_rgba(0,187,255,0.5)]"
-                  style={{ width: `${data.batteryLevel}%` }}
+                  style={{ width: `${data.batteryLevel ?? 0}%` }}
                 ></div>
               </div>
             </div>
@@ -130,14 +153,14 @@ const Energy = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-violet-300 uppercase drop-shadow-[0_0_10px_rgba(170,76,255,0.5)]">Grid Balance</p>
-                  <div className="text-4xl font-bold text-white mt-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{data.gridBalance} kWh</div>
+                  <div className="text-4xl font-bold text-white mt-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{data.gridBalance ?? '--'} kWh</div>
                 </div>
                 <div className="text-5xl opacity-50 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">⚡</div>
               </div>
               <div className="mt-4 w-full bg-white/20 rounded-full h-2">
                 <div
                   className="bg-gradient-to-r from-violet-400 to-purple-500 h-2 rounded-full shadow-[0_0_10px_rgba(170,76,255,0.5)]"
-                  style={{ width: `${data.gridBalance}%` }}
+                  style={{ width: `${data.gridBalance ?? 0}%` }}
                 ></div>
               </div>
             </div>

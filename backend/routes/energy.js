@@ -6,6 +6,7 @@ const router = express.Router();
 const EnergyMetric = require('../models/EnergyMetric');
 const { dbFindOne, dbSave, dbFind, dbUpdate, useMockData } = require('../utils/dbHelper');
 
+
 const mockEnergyData = {
   regionId: 'default',
   solarProduction: 2850,
@@ -16,16 +17,117 @@ const mockEnergyData = {
   efficiency: 92,
   carbonOffset: 450,
   sources: [
-    { type: 'solar', production: 2850, percentage: 68 },
-    { type: 'wind', production: 850, percentage: 20 },
-    { type: 'hydro', production: 500, percentage: 12 },
+    { type: 'solar', production: 2850, percentage: 58 },
+    { type: 'wind', production: 850, percentage: 17 },
+    { type: 'hydro', production: 500, percentage: 10 },
+    { type: 'geothermal', production: 700, percentage: 15, temperatureC: 120, status: 'active' },
   ],
   forecast24h: Array.from({ length: 24 }, (_, i) => ({
     hour: i,
     production: Math.floor(Math.random() * 500) + 2000,
     consumption: Math.floor(Math.random() * 300) + 1400,
+    geothermal: 700 + Math.floor(Math.random() * 50),
   })),
 };
+
+// --- API EXTENSIONS FOR FRONTEND COMPATIBILITY ---
+// GET /api/energy/grid?regionId=default
+router.get('/grid', async (req, res) => {
+  const regionId = req.query.regionId || 'default';
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    res.json({
+      regionId,
+      gridBalance: data.gridBalance || mockEnergyData.gridBalance,
+      status: 'connected',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch grid data' });
+  }
+});
+
+// GET /api/energy/solar?regionId=default
+router.get('/solar', async (req, res) => {
+  const regionId = req.query.regionId || 'default';
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    res.json({
+      regionId,
+      solarProduction: data.solarProduction || mockEnergyData.solarProduction,
+      sources: (data.sources || mockEnergyData.sources).filter(s => s.type === 'solar'),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch solar data' });
+  }
+});
+
+// GET /api/energy/battery?regionId=default
+router.get('/battery', async (req, res) => {
+  const regionId = req.query.regionId || 'default';
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    res.json({
+      regionId,
+      batteryLevel: data.batteryLevel || mockEnergyData.batteryLevel,
+      batteryCapacity: data.batteryCapacity || mockEnergyData.batteryCapacity,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch battery data' });
+  }
+});
+
+// GET /api/energy/load?regionId=default
+router.get('/load', async (req, res) => {
+  const regionId = req.query.regionId || 'default';
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    res.json({
+      regionId,
+      currentLoad: data.currentLoad || 0,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch load data' });
+  }
+});
+
+// GET /api/energy/forecast?regionId=default
+router.get('/forecast', async (req, res) => {
+  const regionId = req.query.regionId || 'default';
+  try {
+    const data = await dbFindOne(
+      EnergyMetric,
+      { regionId },
+      mockEnergyData
+    );
+    res.json({
+      regionId,
+      forecast: data.forecast24h || mockEnergyData.forecast24h,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch forecast data' });
+  }
+});
 
 // GET /api/energy/:regionId - Get energy data
 router.get('/:regionId', async (req, res) => {
