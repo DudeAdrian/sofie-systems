@@ -87,6 +87,10 @@ app.use('/api/automation', automationRoutes);
 app.use('/api/herbal', herbalRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 
+// Integration route for forwarding events
+const integrationRoutes = require('./routes/integration');
+app.use('/api/integration', integrationRoutes);
+
 // ===== ERROR HANDLING =====
 
 // 404 handler
