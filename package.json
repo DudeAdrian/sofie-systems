@@ -1,0 +1,61 @@
+{
+  "name": "sofie-systems",
+  "version": "1.0.0",
+  "description": "S.O.F.I.E. Core Engine — Layer 2 of the Seven Pillar Architecture. Source Origin Force Intelligence Eternal.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch essence/sofie.ts",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "lint": "eslint . --ext .ts"
+  },
+  "keywords": [
+    "sofie",
+    "seven-pillars",
+    "source",
+    "origin",
+    "force",
+    "intelligence",
+    "eternal",
+    "terracare",
+    "sandironratio"
+  ],
+  "author": "Adrian Sortino <theDude@eternal.field>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@types/node": "^20.10.0",
+    "ethers": "^6.11.0",
+    "lancedb": "^0.5.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DudeAdrian/sofie-systems.git"
+  },
+  "sevenPillars": {
+    "layer": 2,
+    "operators": ["Source", "Origin", "Force", "Intelligence", "Eternal"],
+    "pillarMapping": {
+      "p1": "Source",
+      "p2": "Intelligence",
+      "p3": "Intelligence",
+      "p4": "Origin",
+      "p5": "Force",
+      "p6": "Origin",
+      "p7": "Eternal"
+    }
+  }
+}
